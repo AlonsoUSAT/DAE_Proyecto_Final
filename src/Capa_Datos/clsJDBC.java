@@ -18,6 +18,10 @@ public class clsJDBC {
     private Connection con;
     private Statement sent = null;
     
+    public Connection getCon() {
+        return con;
+    }
+    
     public clsJDBC(){
         this.driver = "org.postgresql.Driver";
         this.url = "jdbc:postgresql://localhost:5432/MechanMia";
@@ -55,6 +59,22 @@ public class clsJDBC {
             return rs;
         } catch (Exception e) {
             throw new Exception("Error al ejecutar consulta"+e.getMessage());
+        } finally {
+            if (con != null) {
+                desconectar();
+            }
+        }
+    }
+    public void ejecutarBD(String strSQL) throws Exception {
+        try {
+            conectar();
+            sent = con.createStatement();
+            sent.executeUpdate(strSQL);
+
+        } catch (Exception e) {
+            throw new Exception("Error al ejecutar Update --> " + e.getMessage());
+
+            //Parte de la estructura de try, el finally siempre se ejecuta pase el try o catch
         } finally {
             if (con != null) {
                 desconectar();

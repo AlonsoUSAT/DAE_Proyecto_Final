@@ -23,10 +23,10 @@ public class FrmLogin extends javax.swing.JDialog {
     public String nombreUsuario = "";
     public String cargo = "";
     public String[] valores = new String[2];
-    
+
     public static String nomUser = "";
-    public static String nomCargo = "" ;
-    
+    public static String nomCargo = "";
+
     public static String getNomCargo() {
         return nomCargo;
     }
@@ -34,7 +34,7 @@ public class FrmLogin extends javax.swing.JDialog {
     public static void setNomCargo(String nomCargo) {
         FrmLogin.nomCargo = nomCargo;
     }
-    
+
     public static String getNomUser() {
         return nomUser;
     }
@@ -51,21 +51,21 @@ public class FrmLogin extends javax.swing.JDialog {
 
     private static String generarCaptcha(JTextField txtPregunta) {
         StringBuilder captcha = new StringBuilder();
-        
+
         // Generar 5 dígitos
         Random rand = new Random();
         for (int i = 0; i < 5; i++) {
             captcha.append(rand.nextInt(10));
         }
-        
+
         // Generar 2 letras aleatorias A-L
         for (int i = 0; i < 2; i++) {
-            char letra = (char) ('A' + rand.nextInt(12)); 
+            char letra = (char) ('A' + rand.nextInt(12));
             captcha.append(letra);
         }
         txtPregunta.setText(captcha.toString());
         return captcha.toString();
-         // Mostrar captcha en la interfaz
+        // Mostrar captcha en la interfaz
     }
 
     /**
@@ -230,7 +230,7 @@ public class FrmLogin extends javax.swing.JDialog {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
@@ -251,11 +251,11 @@ public class FrmLogin extends javax.swing.JDialog {
                 } else {
                     nombreUsuario = valores[0];
                     cargo = valores[1];
-                    JOptionPane.showMessageDialog(null, "Bienvenido al Sistema!, "+cargo + " " + nombreUsuario);
+                    JOptionPane.showMessageDialog(null, "Bienvenido al Sistema!, " + cargo + " " + nombreUsuario);
                     this.dispose();
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Captcha No Valido");   
+                JOptionPane.showMessageDialog(null, "Captcha No Valido");
                 System.exit(0);
             }
         } catch (Exception e) {
@@ -264,11 +264,11 @@ public class FrmLogin extends javax.swing.JDialog {
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-        System.exit(0);        
+        System.exit(0);
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnCambiarCaptchaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCambiarCaptchaActionPerformed
-        
+
         generarCaptcha(this.txtPregunta);
     }//GEN-LAST:event_btnCambiarCaptchaActionPerformed
 
@@ -278,10 +278,28 @@ public class FrmLogin extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowClosing
 
     private void btnRecuperarContraseñaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecuperarContraseñaActionPerformed
-        // TODO add your handling code here:
+        String usuario = txtUsuario.getText().trim();
+
+        if (usuario.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese su nombre de usuario.");
+            return;
+        }
+
+        try {
+            if (objUsuario.validarUsuario(usuario)) {
+                frmPreguntaSeguridadd frm = new frmPreguntaSeguridadd(usuario);
+                frm.setAlwaysOnTop(true);
+                frm.setLocationRelativeTo(null);
+                frm.setVisible(true);
+                this.dispose(); // opcional
+            } else {
+                JOptionPane.showMessageDialog(this, "Usuario no encontrado.");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnRecuperarContraseñaActionPerformed
 
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCambiarCaptcha;
