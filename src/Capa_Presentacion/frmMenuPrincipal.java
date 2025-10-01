@@ -4,6 +4,9 @@
  */
 package Capa_Presentacion;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  *
  * @author Nicole
@@ -15,6 +18,23 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
      */
     public frmMenuPrincipal() {
         initComponents();
+        // 1. Obtener la fecha y hora actuales (el mismo objeto Date sirve para ambos campos)
+        Date fechaYHoraActual = new Date();
+
+        // --- CÓDIGO PARA txtFecha (FECHA) ---
+        SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+        String fechaFormateada = formatoFecha.format(fechaYHoraActual);
+        txtFecha.setText(fechaFormateada);
+        // ------------------------------------
+
+        // --- CÓDIGO NUEVO PARA txtHora (HORA) ---
+        // Patrón "HH:mm:ss" para Hora (24h):Minutos:Segundos
+        SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss"); 
+        String horaFormateada = formatoHora.format(fechaYHoraActual);
+         
+        // Asigna el String de la hora al JTextField llamado 'txtHora'
+        txtHora.setText(horaFormateada);
+        
     }
 
     /**
@@ -156,6 +176,11 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         btnVentas.setText("Ventas");
         btnVentas.setFocusable(false);
         btnVentas.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnVentas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVentasActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnVentas);
 
         btnClientes.setForeground(new java.awt.Color(51, 51, 51));
@@ -177,6 +202,11 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         btnProductos.setText("Productos");
         btnProductos.setFocusable(false);
         btnProductos.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnProductos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProductosActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnProductos);
         jToolBar1.add(jSeparator1);
 
@@ -195,6 +225,11 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jButton4.setText("Inventario");
         jButton4.setFocusable(false);
         jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton4);
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/reportes.png"))); // NOI18N
@@ -516,6 +551,18 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private void txtFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFechaActionPerformed
+
+    private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnProductosActionPerformed
+
+    private void btnVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVentasActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnVentasActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
