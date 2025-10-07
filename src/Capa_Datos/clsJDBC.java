@@ -31,10 +31,14 @@ public class clsJDBC {
     }
     
     //Conectamos
-    public void conectar() throws ClassNotFoundException, SQLException {
+    public Connection conectar() throws ClassNotFoundException, SQLException {
+        // Carga el driver
         Class.forName(driver);
-        con = DriverManager.getConnection(url, user, password);
+        // Establece y devuelve la conexión
+        return DriverManager.getConnection(url, user, password);
     }
+    
+    
     
     //Desconectamos
    public void desconectar() throws SQLException {

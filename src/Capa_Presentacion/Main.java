@@ -15,7 +15,7 @@ public class Main {
      */
     public static void main(String[] args) {
         
-        frmMenuPrincipal frm = new frmMenuPrincipal();
+        mantCategoria frm = new mantCategoria(null,true);
         frm.setVisible(true);
         
     }
