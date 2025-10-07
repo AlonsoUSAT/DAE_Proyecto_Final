@@ -24,28 +24,22 @@ public class clsJDBC {
     
     public clsJDBC(){
         this.driver = "org.postgresql.Driver";
-        this.url = "jdbc:postgresql://localhost:5432/MechanMia";
+        this.url = "jdbc:postgresql://localhost:5432/DAE_PROYECTO_FINAL";
         this.user = "postgres";
-        this.password = "Us@t2025";
+        this.password = "postgres";
         this.con = null;
     }
     
     //Conectamos
-    public void conectar() throws Exception {
-        try {
-            Class.forName(driver);
-            con = DriverManager.getConnection(url, user, password);
-        } catch (ClassNotFoundException | SQLException ex) {
-            throw new Exception("Error al conectar a la BD!");
-        }
+    public void conectar() throws ClassNotFoundException, SQLException {
+        Class.forName(driver);
+        con = DriverManager.getConnection(url, user, password);
     }
     
     //Desconectamos
-    public void desconectar() throws Exception {
-        try {
+   public void desconectar() throws SQLException {
+        if (con != null && !con.isClosed()) {
             con.close();
-        } catch (SQLException ex) {
-            throw new Exception("Error al desconectar de la BD!" + ex.getMessage());
         }
     }
     
