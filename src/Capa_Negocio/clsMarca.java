@@ -56,5 +56,8 @@ public class clsMarca {
         this.nombreLaboratorio = nombreLaboratorio;
     }
     
-    
+    @Override
+public String toString() {
+    return this.getNombreLaboratorio(); // Esto hace que el JComboBox muestre el nombre.
+}
 }

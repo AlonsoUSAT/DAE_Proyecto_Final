@@ -15,7 +15,7 @@ public class Main {
      */
     public static void main(String[] args) {
         
-        mantMarca frm = new mantMarca(null,true);
+        mantProducto frm = new mantProducto(null,true);
         frm.setVisible(true);
         
     }

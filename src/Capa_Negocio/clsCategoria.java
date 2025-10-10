@@ -27,4 +27,9 @@ public class clsCategoria {
     public void setNombreCategoria(String nombreCategoria) {
         this.nombreCategoria = nombreCategoria;
     }
+    
+    @Override
+public String toString() {
+    return this.nombreCategoria; // Esto hace que el JComboBox muestre el nombre.
+}
 }
