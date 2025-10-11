@@ -93,7 +93,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
                   <Component id="jLabel5" min="-2" pref="337" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="txtUsuario" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -104,7 +104,7 @@
                       <Component id="txtContraseña" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnRecuperarContraseña" alignment="3" min="-2" pref="36" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="20" max="32767" attributes="0"/>
+                  <EmptySpace pref="14" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="btnCambiarCaptcha" min="-2" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">

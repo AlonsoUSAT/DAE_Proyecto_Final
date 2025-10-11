@@ -53,8 +53,8 @@ public class clsJDBC {
         try {
             conectar();
             sent = con.createStatement();
-            rs = sent.executeQuery(strSQL);
-            return rs;
+            return sent.executeQuery(strSQL);
+      //ACA
         } catch (Exception e) {
             throw new Exception("Error al ejecutar consulta"+e.getMessage());
         } finally {

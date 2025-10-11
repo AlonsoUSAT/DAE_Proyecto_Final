@@ -117,4 +117,14 @@ public class clsProducto {
     public void setDistribuidor(clsLaboratorio distribuidor) {
         this.distribuidor = distribuidor;
     }
+    
+     /**
+     * Devuelve una representación en String del objeto.
+     * Esto es lo que se mostrará en los JComboBox.
+     * @return El ID y el nombre del producto.
+     */
+    @Override
+    public String toString() {
+        return this.idProducto + " - " + this.nombre;
+    }
 }
