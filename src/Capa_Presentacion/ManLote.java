@@ -33,7 +33,7 @@ public class ManLote extends javax.swing.JDialog {
     private final String productoNombre;
     private final int presentacionID;
     private final String presentacionDescripcion;
-    /**
+    /**      
      * CONSTRUCTOR MODIFICADO
      * Recibe todos los datos necesarios para operar.
      * @param parent
