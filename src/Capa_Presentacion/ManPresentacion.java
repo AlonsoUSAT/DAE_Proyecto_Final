@@ -72,24 +72,25 @@ public class ManPresentacion extends javax.swing.JDialog {
 
     // 2. Método para listar presentaciones (corregido para usar DTO)
     private void listarPresentaciones() {
-        DefaultTableModel modelo = (DefaultTableModel) tblPresentacion.getModel();
-        modelo.setRowCount(0); // Limpiar la tabla
+    DefaultTableModel modelo = (DefaultTableModel) tblPresentacion.getModel();
+    modelo.setRowCount(0); // Limpiar la tabla
 
-        try {
-            ArrayList<PresentacionDAO> lista = objPresentacion.listarPresentaciones();
-            
-            for (PresentacionDAO dto : lista) {
-                modelo.addRow(new Object[]{
-                    dto.getId(),
-                    dto.getTipoPresentacion(),
-                    dto.getCantidad(),
-                    dto.getUnidad()
-                });
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar presentaciones: " + e.getMessage());
+    try {
+        ArrayList<PresentacionDAO> lista = objPresentacion.listarPresentaciones();
+        
+        for (PresentacionDAO dto : lista) {
+            // AQUÍ ESTÁ LA CORRECCIÓN
+            modelo.addRow(new Object[]{
+                dto.getId(),
+                dto.getNombreTipoPresentacion(), // ✔️ CORREGIDO
+                dto.getCantidad(),
+                dto.getNombreUnidad()             // ✔️ CORREGIDO
+            });
         }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar presentaciones: " + e.getMessage());
     }
+}
 
     // 3. Método para listar tipos de presentación (corregido para usar DTO)
     private void listarTiposPresentacion() {
@@ -193,13 +194,8 @@ private void listarUnidades() {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(21, 21, 21)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel3)
@@ -207,12 +203,20 @@ private void listarUnidades() {
                             .addComponent(jLabel4))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbUnidad, 0, 92, Short.MAX_VALUE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(spCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(cmbTipoPresentacion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(43, 43, 43)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(cmbUnidad, 0, 92, Short.MAX_VALUE)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(spCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGap(12, 12, 12))
+                            .addComponent(cmbTipoPresentacion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(31, 31, 31)
                 .addComponent(btnBuscar)
                 .addContainerGap())
         );
@@ -517,7 +521,7 @@ private void listarUnidades() {
 
             // 4. Lógica correcta para seleccionar el item en los ComboBox
             // Se busca el objeto que coincida con el nombre y se selecciona.
-            String tipoNombre = presentacionEncontrada.getTipoPresentacion();
+            String tipoNombre = presentacionEncontrada.getNombreTipoPresentacion();
             for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
                 if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
                     cmbTipoPresentacion.setSelectedIndex(i);
@@ -525,7 +529,7 @@ private void listarUnidades() {
                 }
             }
 
-            String unidadNombre = presentacionEncontrada.getUnidad();
+            String unidadNombre = presentacionEncontrada.getNombreUnidad();
             for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
                 if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
                     cmbUnidad.setSelectedIndex(i);
@@ -543,47 +547,7 @@ private void listarUnidades() {
     }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ManPresentacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ManPresentacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ManPresentacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ManPresentacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ManPresentacion dialog = new ManPresentacion(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;

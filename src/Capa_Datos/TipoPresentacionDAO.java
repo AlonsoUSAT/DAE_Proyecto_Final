@@ -9,7 +9,7 @@ package Capa_Datos;
  * @author USER
  */
 public class TipoPresentacionDAO {
-      private int id;
+   private int id;
     private String nombre;
 
     public TipoPresentacionDAO(int id, String nombre) {
@@ -17,12 +17,16 @@ public class TipoPresentacionDAO {
         this.nombre = nombre;
     }
 
-    public int getId() { return id; }
-    public String getNombre() { return nombre; }
+    public int getId() {
+        return id;
+    }
 
-    // Esto es muy útil para que el ComboBox muestre el nombre directamente
+    public String getNombre() {
+        return nombre;
+    }
+
     @Override
     public String toString() {
-        return this.nombre;
+        return this.nombre; // Esto hace que el ComboBox muestre el nombre
     }
 }

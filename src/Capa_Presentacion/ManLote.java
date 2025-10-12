@@ -26,82 +26,79 @@ public class ManLote extends javax.swing.JDialog {
     /**
      * Creates new form ManLote
      */
-    clsLote objLote = new  clsLote();
-    public ManLote(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
-        initComponents();
-    }
     
-      private void limpiarCampos() {
-        txtID.setText("");
-        txtNroLote.setText("");
-        jdcFechaFab.setDate(null);
-        jdcFechaVen.setDate(null);
-        cmbProducto.setSelectedIndex(-1);
-        cmbPresentacion.setSelectedIndex(-1);
-        txtCantidadRecibida.setText("");
-        txtStockActual.setText("");
-    }
-      
-        private void habilitarControles(boolean habilitar) {
-        txtID.setEnabled(false);
-        txtNroLote.setEnabled(false);
-        
-        jdcFechaFab.setEnabled(habilitar);
-        jdcFechaVen.setEnabled(habilitar);
-        cmbProducto.setEnabled(habilitar);
-        cmbPresentacion.setEnabled(habilitar);
-        txtCantidadRecibida.setEnabled(habilitar);
-        txtStockActual.setEnabled(habilitar);
-        
-        btnModificar.setEnabled(habilitar);
-    }
-        
-         private void estadoInicialControles() {
-        limpiarCampos();
-        habilitarControles(false);
-        btnModificar.setText("Modificar");
-    }
-         
-   
+    // ... (tus otras variables)
+    clsLote objLote = new clsLote();
+    private final int productoID;
+    private final String productoNombre;
+    private final int presentacionID;
 
+    /**
+     * ✅ CONSTRUCTOR CORREGIDO
+     * Ahora sí acepta los 3 parámetros que le vamos a enviar.
+     */
+    public ManLote(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, int idPresentacion) {
+        super(parent, modal);
+        
+        // 1. Guardamos los 3 datos recibidos
+        this.productoID = idProducto;
+        this.productoNombre = nombreProducto;
+        this.presentacionID = idPresentacion; // Ahora la variable 'idPresentacion' sí existe
+        
+        // 2. Inicializamos los componentes visuales
+        initComponents();
+        
+        // ✅ CÓDIGO AÑADIDO PARA CONFIGURAR LA TABLA
+        //-------------------------------------------------------------------
+        DefaultTableModel modelo = (DefaultTableModel) tblLotes.getModel();
+        // Borramos cualquier columna que exista del diseñador
+        modelo.setColumnCount(0); 
+        // Añadimos las columnas que queremos en el orden correcto
+        modelo.addColumn("ID Lote");
+        modelo.addColumn("ID Presentación");
+        modelo.addColumn("Nro. Lote");
+        modelo.addColumn("Fecha Fab.");
+        modelo.addColumn("Fecha Venc.");
+        modelo.addColumn("Stock");
+        
+        // 3. Establecemos el título
+        this.setTitle("Lotes de: " + nombreProducto); 
+        
+        // 4. Llenamos la tabla con los lotes filtrados
+        listarLotesFiltrados(); 
+    }
     
-    private void listarLotes() {
-    // Define cómo se mostrará la fecha (puedes cambiar el formato)
-    SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
-    
+  private void listarLotesFiltrados() {
     DefaultTableModel modelo = (DefaultTableModel) tblLotes.getModel();
-    modelo.setRowCount(0); // Limpiar la tabla
+    modelo.setRowCount(0);
 
     try {
-        // 1. Llama al método de la capa de negocio que devuelve la lista de lotes
-        ArrayList<LoteDAO> lista = objLote.listarLotes();
-        
-        // 2. Recorre la lista de objetos LoteDAO
-        for (LoteDAO dao : lista) {
-            
-            // Formatea las fechas para una mejor visualización
-            String fechaFab = (dao.getFechaFabricacion() != null) ? formatoFecha.format(dao.getFechaFabricacion()) : "";
-            String fechaVen = (dao.getFechaVencimiento() != null) ? formatoFecha.format(dao.getFechaVencimiento()) : "";
+        ArrayList<LoteDAO> listaLotes = objLote.listarLotesPorPresentacion(this.productoID, this.presentacionID);
 
-            // 3. Agrega una fila a la tabla con los datos del lote
-            modelo.addRow(new Object[]{
-                dao.getIdLote(),
-                dao.getNroLote(),
-                dao.getNombreProducto(),
-                dao.getDescripcionPresentacion(),
-                dao.getStockActual(),
-                fechaVen,
-                // Puedes añadir más campos si los necesitas
-                // fechaFab,
-                // dao.getCantidadRecibida(),
-                // dao.isEstado()
-            });
+        for (LoteDAO lote : listaLotes) {
+            // ✅ CAMBIO: La fila ahora tendrá 6 columnas
+            Object[] fila = new Object[6]; 
+            
+            fila[0] = lote.getIdLote();
+            fila[1] = lote.getIdPresentacion(); // ✅ AÑADIDO: Muestra el ID de la Presentación
+            fila[2] = lote.getNroLote();
+            fila[3] = lote.getFechaFabricacion();
+            fila[4] = lote.getFechaVencimiento();
+            fila[5] = lote.getStockActual();
+            modelo.addRow(fila);
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar lotes: " + e.getMessage());
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error al listar los lotes: " + ex.getMessage());
     }
 }
+    
+    
+     
+     
+    
+   
+         
+   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -131,7 +128,7 @@ public class ManLote extends javax.swing.JDialog {
         txtID = new javax.swing.JTextField();
         jdcFechaFab = new com.toedter.calendar.JDateChooser();
         jdcFechaVen = new com.toedter.calendar.JDateChooser();
-        txtStockActual = new javax.swing.JTextField();
+        txtStock = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
         btnNuevo = new javax.swing.JButton();
         btnModificar = new javax.swing.JButton();
@@ -192,7 +189,7 @@ public class ManLote extends javax.swing.JDialog {
                             .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jdcFechaFab, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
                             .addComponent(jdcFechaVen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtStockActual, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(152, 152, 152)
                         .addComponent(txtNroLote, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -258,8 +255,8 @@ public class ManLote extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(txtStockActual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(18, Short.MAX_VALUE))
+                    .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(153, 204, 255));
@@ -400,7 +397,7 @@ public class ManLote extends javax.swing.JDialog {
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -422,109 +419,27 @@ public class ManLote extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        limpiarCampos();
-        habilitarControles(true);
-        
-        try {
-            txtID.setText(objLote.generarCodeLote().toString());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al generar código: " + e.getMessage());
-        }
-        
-        txtCantidadRecibida.requestFocus();
-        btnModificar.setText("Guardar");
+       
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-       try {
-            // --- Recolección de datos del formulario ---
-            Date fechaFab = jdcFechaFab.getDate();
-            Date fechaVen = jdcFechaVen.getDate();
-            int cantRecibida = Integer.parseInt(txtCantidadRecibida.getText());
-            
-            // Asumiendo que tienes objetos DAO en tus ComboBoxes
-            ProductoDAO productoSel = (ProductoDAO) cmbProducto.getSelectedItem();
-            PresentacionDAO presentacionSel = (PresentacionDAO) cmbPresentacion.getSelectedItem();
-
-            // --- Validación de datos ---
-            if (fechaFab == null || fechaVen == null || productoSel == null || presentacionSel == null) {
-                JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.");
-                return;
-            }
-
-            // --- Lógica de Guardar o Modificar ---
-            if (btnModificar.getText().equals("Guardar")) {
-                // Lógica para INSERTAR
-                objLote.registrarLote(fechaFab, fechaVen, cantRecibida, presentacionSel.getId(), productoSel.getId());
-                JOptionPane.showMessageDialog(this, "Lote registrado correctamente.");
-                
-            } else {
-                // Lógica para MODIFICAR
-                int idLote = Integer.parseInt(txtID.getText());
-                String nroLote = txtNroLote.getText();
-                int stockActual = Integer.parseInt(txtStockActual.getText());
-                // Se asume el estado como 'true' (activo) al modificar
-                objLote.modificarLote(idLote, nroLote, fechaFab, fechaVen, stockActual, presentacionSel.getId(), productoSel.getId(), true);
-                JOptionPane.showMessageDialog(this, "Lote modificado correctamente.");
-            }
-            
-            // --- Tareas finales ---
-            listarLotes();
-            estadoInicialControles();
-
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "La cantidad y el stock deben ser números válidos.");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Se produjo un error: " + e.getMessage());
-        }
+      
+        
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-  int fila = tblLotes.getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un lote de la tabla.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
+  
         
-        int idLote = (int) tblLotes.getValueAt(fila, 0);
-        int confirmacion = JOptionPane.showConfirmDialog(this, "Esta acción eliminará permanentemente el registro. ¿Está seguro?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            try {
-                objLote.eliminarLote(idLote); // Necesitarás este método en clsLote
-                listarLotes();
-                estadoInicialControles();
-                JOptionPane.showMessageDialog(this, "Lote eliminado correctamente.");
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al eliminar el lote: " + e.getMessage());
-            }
-        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnDarBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarBajaActionPerformed
-  int fila = tblLotes.getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un lote de la tabla.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        int idLote = (int) tblLotes.getValueAt(fila, 0);
-        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea dar de baja este lote?", "Confirmar", JOptionPane.YES_NO_OPTION);
-
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            try {
-                objLote.darBajaLote(idLote); // Necesitarás este método en clsLote
-                listarLotes();
-                estadoInicialControles();
-                JOptionPane.showMessageDialog(this, "Lote dado de baja correctamente.");
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al dar de baja el lote: " + e.getMessage());
-            }
-        }
+  
+        
     }//GEN-LAST:event_btnDarBajaActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-         estadoInicialControles();
+       
+        
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
@@ -564,6 +479,6 @@ public class ManLote extends javax.swing.JDialog {
     private javax.swing.JTextField txtCantidadRecibida;
     private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtNroLote;
-    private javax.swing.JTextField txtStockActual;
+    private javax.swing.JSpinner txtStock;
     // End of variables declaration//GEN-END:variables
 }

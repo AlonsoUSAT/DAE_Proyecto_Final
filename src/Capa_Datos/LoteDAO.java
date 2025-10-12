@@ -20,14 +20,15 @@ public class LoteDAO {
     private int cantidadRecibida;
     private int stockActual;
     private boolean estado;
+    private int idPresentacion; // ✅ 1. AÑADE ESTE CAMPO
     
     // Campos que vendrán de tablas relacionadas (JOINs)
     private String nombreProducto;
     private String descripcionPresentacion; // Para mostrar ej: "Caja x 24 Unidades"
 
-    // Constructor
+   // ✅ 2. AÑADE el parámetro 'idPresentacion' al constructor
     public LoteDAO(int idLote, String nroLote, Date fechaFabricacion, Date fechaVencimiento, 
-                   int cantidadRecibida, int stockActual, boolean estado, 
+                   int cantidadRecibida, int stockActual, boolean estado, int idPresentacion, 
                    String nombreProducto, String descripcionPresentacion) {
         
         this.idLote = idLote;
@@ -37,6 +38,7 @@ public class LoteDAO {
         this.cantidadRecibida = cantidadRecibida;
         this.stockActual = stockActual;
         this.estado = estado;
+        this.idPresentacion = idPresentacion; // ✅ 3. ASIGNA EL VALOR
         this.nombreProducto = nombreProducto;
         this.descripcionPresentacion = descripcionPresentacion;
     }
@@ -77,5 +79,13 @@ public class LoteDAO {
     public String getDescripcionPresentacion() {
         return descripcionPresentacion;
     }
+    
+     // ✅ 4. AÑADE este método para poder leer el ID
+    public int getIdPresentacion() {
+        return idPresentacion;
+    }
+
+    
+    // etc.
     
 }

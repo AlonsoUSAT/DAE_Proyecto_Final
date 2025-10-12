@@ -14,18 +14,20 @@ public class PresentacionProductoDAO {
     private int idPresentacion;
     private int stock;
     private float precio;
+     private boolean estado; // <-- 1. ATRIBUTO AÑADIDO
 
     // Constructor vacío
     public PresentacionProductoDAO() {
     }
 
-    // Constructor con todos los parámetros
-    public PresentacionProductoDAO(int idProducto, int idPresentacion, int stock, float precio) {
-        this.idProducto = idProducto;
-        this.idPresentacion = idPresentacion;
-        this.stock = stock;
-        this.precio = precio;
-    }
+   // --- CONSTRUCTOR CORREGIDO ---
+public PresentacionProductoDAO(int idProducto, int idPresentacion, int stock, float precio, boolean estado) {
+    this.idProducto = idProducto;
+    this.idPresentacion = idPresentacion;
+    this.stock = stock;
+    this.precio = precio;
+    this.estado = estado; // <-- Parámetro añadido
+}
 
     // Getters y Setters
     public int getIdProducto() {
@@ -59,4 +61,16 @@ public class PresentacionProductoDAO {
     public void setPrecio(float precio) {
         this.precio = precio;
     }
+    
+      // --- 3. MÉTODOS GETTER Y SETTER AÑADIDOS ---
+    public boolean getEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+    
+    
+    
 }

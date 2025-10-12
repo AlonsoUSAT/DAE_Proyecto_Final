@@ -1,13 +1,12 @@
-// Colócala en tu paquete de datos (ej: Capa_Datos)
+// Paquete de la capa de datos
 package Capa_Datos;
 
-// Asegúrate que los imports coincidan con tus paquetes de entidades (ej: Capa_Negocio)
+// Imports de la capa de negocio
 import Capa_Negocio.clsCategoria;
 import Capa_Negocio.clsLaboratorio;
 import Capa_Negocio.clsMarca;
 import Capa_Negocio.clsProducto;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,9 +18,14 @@ public class ProductoDAO {
 
     private final clsJDBC objConexion = new clsJDBC();
 
+    /**
+     * Lista los productos de la BD.
+     * AJUSTE: La consulta SQL y la lectura del ResultSet ahora coinciden con la tabla PRODUCTO.
+     */
     public List<clsProducto> listar() throws Exception {
         List<clsProducto> productos = new ArrayList<>();
-        String sql = "SELECT p.idProducto, p.nombre, p.precio, p.stock, p.unidad, p.descripcion, p.estado, "
+        // Se quitaron las columnas 'precio', 'stock' y 'unidad' de la consulta
+        String sql = "SELECT p.idProducto, p.nombre, p.descripcion, p.estado, "
                 + "m.idMarca, m.nombre AS nombreMarca, "
                 + "c.idCategoria, c.nombreCategoria, "
                 + "l.idLaboratorio, l.nombreLaboratorio "
@@ -36,7 +40,6 @@ public class ProductoDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // Crear objetos para las llaves foráneas
                 clsMarca marca = new clsMarca();
                 marca.setIdMarca(rs.getInt("idMarca"));
                 marca.setNombre(rs.getString("nombreMarca"));
@@ -49,19 +52,16 @@ public class ProductoDAO {
                 distribuidor.setIdLaboratorio(rs.getInt("idLaboratorio"));
                 distribuidor.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
 
-                // Crear el objeto producto principal
                 clsProducto producto = new clsProducto();
                 producto.setIdProducto(rs.getInt("idProducto"));
                 producto.setNombre(rs.getString("nombre"));
-                producto.setPrecio(rs.getBigDecimal("precio"));
-                producto.setStock(rs.getInt("stock"));
-                producto.setUnidad(rs.getString("unidad"));
+                // Se quitaron los 'set' para precio, stock y unidad
                 producto.setDescripcion(rs.getString("descripcion"));
                 producto.setEstado(rs.getBoolean("estado"));
                 producto.setMarca(marca);
                 producto.setCategoria(categoria);
                 producto.setDistribuidor(distribuidor);
-                
+
                 productos.add(producto);
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -69,90 +69,123 @@ public class ProductoDAO {
         }
         return productos;
     }
-    
+
+    /**
+     * Inserta un nuevo producto en la BD.
+     * AJUSTE: La consulta INSERT y los parámetros ahora coinciden con la tabla PRODUCTO.
+     */
     public void insertar(clsProducto producto) throws Exception {
-        String sql = "INSERT INTO PRODUCTO(idProducto, nombre, precio, stock, unidad, descripcion, estado, idMarca, idCategoria, idDistribuidor) "
-                   + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+        // Se quitaron las columnas 'precio', 'stock' y 'unidad'
+        String sql = "INSERT INTO PRODUCTO(idProducto, nombre, descripcion, estado, idMarca, idCategoria, idDistribuidor) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
-             
+
             ps.setInt(1, producto.getIdProducto());
             ps.setString(2, producto.getNombre());
-            ps.setBigDecimal(3, producto.getPrecio());
-            ps.setInt(4, producto.getStock());
-            ps.setString(5, producto.getUnidad());
-            ps.setString(6, producto.getDescripcion());
-            ps.setBoolean(7, producto.isEstado());
-            ps.setInt(8, producto.getMarca().getIdMarca());
-            ps.setInt(9, producto.getCategoria().getIdCategoria());
-            ps.setInt(10, producto.getDistribuidor().getIdLaboratorio());
-            
+            // Se quitaron los 'set' para precio, stock y unidad y se reordenaron los índices
+            ps.setString(3, producto.getDescripcion());
+            ps.setBoolean(4, producto.isEstado());
+            ps.setInt(5, producto.getMarca().getIdMarca());
+            ps.setInt(6, producto.getCategoria().getIdCategoria());
+            ps.setInt(7, producto.getDistribuidor().getIdLaboratorio());
+
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
-            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) {
+            if (e instanceof SQLException && ((SQLException) e).getSQLState().equals("23505")) {
                 throw new Exception("Error: El ID o el nombre del producto ya existe.");
             } else {
                 throw new Exception("Error al registrar el producto: " + e.getMessage());
             }
         }
     }
-    
+
+    /**
+     * Modifica un producto existente en la BD.
+     * AJUSTE: La consulta UPDATE y los parámetros ahora coinciden con la tabla PRODUCTO.
+     */
     public void modificar(clsProducto producto) throws Exception {
-        String sql = "UPDATE PRODUCTO SET nombre=?, precio=?, stock=?, unidad=?, descripcion=?, estado=?, idMarca=?, idCategoria=?, idDistribuidor=? "
-                   + "WHERE idProducto=?";
-                   
+        // Se quitaron las columnas 'precio', 'stock' y 'unidad'
+        String sql = "UPDATE PRODUCTO SET nombre=?, descripcion=?, estado=?, idMarca=?, idCategoria=?, idDistribuidor=? "
+                + "WHERE idProducto=?";
+
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
-             
+
             ps.setString(1, producto.getNombre());
-            ps.setBigDecimal(2, producto.getPrecio());
-            ps.setInt(3, producto.getStock());
-            ps.setString(4, producto.getUnidad());
-            ps.setString(5, producto.getDescripcion());
-            ps.setBoolean(6, producto.isEstado());
-            ps.setInt(7, producto.getMarca().getIdMarca());
-            ps.setInt(8, producto.getCategoria().getIdCategoria());
-            ps.setInt(9, producto.getDistribuidor().getIdLaboratorio());
-            ps.setInt(10, producto.getIdProducto());
-            
+            // Se quitaron los 'set' para precio, stock y unidad y se reordenaron los índices
+            ps.setString(2, producto.getDescripcion());
+            ps.setBoolean(3, producto.isEstado());
+            ps.setInt(4, producto.getMarca().getIdMarca());
+            ps.setInt(5, producto.getCategoria().getIdCategoria());
+            ps.setInt(6, producto.getDistribuidor().getIdLaboratorio());
+            ps.setInt(7, producto.getIdProducto());
+
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
             throw new Exception("Error al actualizar el producto: " + e.getMessage());
         }
     }
-    
+
+    /**
+     * Elimina físicamente un producto de la BD. (Sin cambios, ya era correcto)
+     */
     public void eliminar(int idProducto) throws Exception {
         String sql = "DELETE FROM PRODUCTO WHERE idProducto = ?";
-        
+
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
-             
+
             ps.setInt(1, idProducto);
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
-            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23503")) {
+            if (e instanceof SQLException && ((SQLException) e).getSQLState().equals("23503")) {
                 throw new Exception("Error: No se puede eliminar. El producto está en uso (ej: en una venta).");
             } else {
                 throw new Exception("Error al eliminar el producto: " + e.getMessage());
             }
         }
     }
-    
+
+    /**
+     * Realiza una eliminación lógica del producto. (Sin cambios, ya era correcto)
+     */
     public void darDeBaja(int idProducto) throws Exception {
         String sql = "UPDATE PRODUCTO SET estado = false WHERE idProducto = ?";
-        
+
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
-             
+
             ps.setInt(1, idProducto);
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
             throw new Exception("Error al dar de baja el producto: " + e.getMessage());
         }
     }
+    
+     public Integer generarCodigo() throws Exception {
+        Integer codigo = 1; // Por defecto, si no hay registros, el código será 1.
+        
+        // 1. Consulta SQL para obtener el máximo ID y sumarle 1.
+        // COALESCE se usa para manejar el caso en que la tabla esté vacía (MAX devolvería NULL).
+        String sql = "SELECT COALESCE(MAX(idProducto), 0) + 1 AS codigo FROM PRODUCTO";
 
-     public int getId() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        // 2. Usar try-with-resources para manejar la conexión y los recursos automáticamente.
+        try (Connection con = objConexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            // 3. Leer el resultado de la consulta.
+            if (rs.next()) {
+                codigo = rs.getInt("codigo");
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            // 4. Manejar cualquier posible error.
+            throw new Exception("Error al generar el código del producto: " + e.getMessage());
+        }
+
+        // 5. Devolver el código generado.
+        return codigo;
     }
 }
