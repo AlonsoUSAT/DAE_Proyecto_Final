@@ -13,6 +13,16 @@ public class clsMarca {
     private String nombre;
     private String descripcion;
     private int idLaboratorio;
+    private boolean estado;
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+    
     
     private String nombreLaboratorio; 
 
@@ -59,5 +69,27 @@ public class clsMarca {
     @Override
 public String toString() {
     return this.getNombreLaboratorio(); // Esto hace que el JComboBox muestre el nombre.
+}
+
+@Override
+public int hashCode() {
+    int hash = 3;
+    hash = 89 * hash + this.idMarca;
+    return hash;
+}
+
+@Override
+public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
+    if (obj == null) {
+        return false;
+    }
+    if (getClass() != obj.getClass()) {
+        return false;
+    }
+    final clsMarca other = (clsMarca) obj;
+    return this.idMarca == other.idMarca;
 }
 }

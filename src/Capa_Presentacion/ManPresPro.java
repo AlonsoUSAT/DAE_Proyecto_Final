@@ -10,10 +10,10 @@ package Capa_Presentacion;
  */
 
 
-import Capa_Datos.PresentacionDAO;
+import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsPresentacionProducto;
 import Capa_Datos.ProductoDAO;
-import Capa_Negocio.clsPresentacion;
+import Capa_Datos.PresentacionDAO;
 import Capa_Datos.PresentacionProductoDAO;
 import Capa_Negocio.clsProducto;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class ManPresPro extends javax.swing.JDialog {
     private String nombreProductoActual;
      // --- Objetos de Negocio ---
     PresentacionProductoDAO objPresProd = new PresentacionProductoDAO();
-    clsPresentacion objPresentacion = new clsPresentacion();
+    PresentacionDAO objPresentacion = new PresentacionDAO();
     
     // --- Datos del producto que estamos gestionando ---
     private final int productoID;
@@ -108,7 +108,7 @@ public class ManPresPro extends javax.swing.JDialog {
      
      
        private void cargarListaPresentaciones() {
-        DefaultListModel<PresentacionDAO> modelo = new DefaultListModel<>();
+        DefaultListModel<clsPresentacion> modelo = new DefaultListModel<>();
         try {
             objPresentacion.listarPresentaciones().forEach(modelo::addElement);
             lstPresentaciones.setModel(modelo);
@@ -519,7 +519,7 @@ public class ManPresPro extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        PresentacionDAO presSeleccionada = lstPresentaciones.getSelectedValue();
+        clsPresentacion presSeleccionada = lstPresentaciones.getSelectedValue();
         if (presSeleccionada == null) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la lista de la izquierda.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
@@ -682,7 +682,7 @@ public class ManPresPro extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JList<PresentacionDAO> lstPresentaciones;
+    private javax.swing.JList<clsPresentacion> lstPresentaciones;
     private javax.swing.JTable tblPresentacionProducto;
     private javax.swing.JTextField txtPrecioVenta;
     private javax.swing.JTextField txtProducto;

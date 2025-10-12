@@ -14,7 +14,8 @@ public class laboratorioDAO {
 
     public List<clsLaboratorio> listarLaboratorios() throws Exception {
         List<clsLaboratorio> laboratorios = new ArrayList<>();
-        String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono FROM LABORATORIO ORDER BY nombreLaboratorio";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono, estado FROM LABORATORIO ORDER BY nombreLaboratorio";
         
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -26,6 +27,8 @@ public class laboratorioDAO {
                 lab.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
                 lab.setDireccion(rs.getString("direccion"));
                 lab.setTelefono(rs.getString("telefono"));
+                // 2. LEEMOS EL ESTADO
+                lab.setEstado(rs.getBoolean("estado")); 
                 laboratorios.add(lab);
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -36,7 +39,8 @@ public class laboratorioDAO {
     
     public clsLaboratorio buscarPorId(int id) throws Exception {
         clsLaboratorio lab = null;
-        String sql = "SELECT * FROM LABORATORIO WHERE idLaboratorio = ?";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono, estado FROM LABORATORIO WHERE idLaboratorio = ?";
         
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -49,6 +53,8 @@ public class laboratorioDAO {
                     lab.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
                     lab.setDireccion(rs.getString("direccion"));
                     lab.setTelefono(rs.getString("telefono"));
+                    // 2. LEEMOS EL ESTADO
+                    lab.setEstado(rs.getBoolean("estado"));
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -58,7 +64,8 @@ public class laboratorioDAO {
     }
 
     public void registrarLaboratorio(clsLaboratorio lab) throws Exception {
-        String sql = "INSERT INTO LABORATORIO (idLaboratorio, nombreLaboratorio, direccion, telefono) VALUES (?, ?, ?, ?)";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "INSERT INTO LABORATORIO (idLaboratorio, nombreLaboratorio, direccion, telefono, estado) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -67,6 +74,8 @@ public class laboratorioDAO {
             ps.setString(2, lab.getNombreLaboratorio());
             ps.setString(3, lab.getDireccion());
             ps.setString(4, lab.getTelefono());
+            // 2. GUARDAMOS EL ESTADO
+            ps.setBoolean(5, lab.isEstado());
             ps.executeUpdate();
             
         } catch (SQLException | ClassNotFoundException e) {
@@ -79,7 +88,8 @@ public class laboratorioDAO {
     }
 
     public void modificarLaboratorio(clsLaboratorio lab) throws Exception {
-        String sql = "UPDATE LABORATORIO SET nombreLaboratorio = ?, direccion = ?, telefono = ? WHERE idLaboratorio = ?";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "UPDATE LABORATORIO SET nombreLaboratorio = ?, direccion = ?, telefono = ?, estado = ? WHERE idLaboratorio = ?";
         
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -87,7 +97,9 @@ public class laboratorioDAO {
             ps.setString(1, lab.getNombreLaboratorio());
             ps.setString(2, lab.getDireccion());
             ps.setString(3, lab.getTelefono());
-            ps.setInt(4, lab.getIdLaboratorio());
+            // 2. GUARDAMOS EL ESTADO
+            ps.setBoolean(4, lab.isEstado());
+            ps.setInt(5, lab.getIdLaboratorio());
             ps.executeUpdate();
             
         } catch (SQLException | ClassNotFoundException e) {
@@ -96,6 +108,17 @@ public class laboratorioDAO {
             } else {
                 throw new Exception("Error al modificar laboratorio: " + e.getMessage());
             }
+        }
+    }
+
+    public void darDeBaja(int idLaboratorio) throws Exception {
+        String sql = "UPDATE LABORATORIO SET estado = false WHERE idLaboratorio = ?";
+        try (Connection con = objConexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idLaboratorio);
+            ps.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new Exception("Error al dar de baja el laboratorio: " + e.getMessage());
         }
     }
 
@@ -115,5 +138,30 @@ public class laboratorioDAO {
                 throw new Exception("Error al eliminar laboratorio: " + e.getMessage());
             }
         }
+    }
+    
+    // ---- (OPCIONAL PERO RECOMENDADO) NUEVO MÉTODO PARA LLENAR LA TABLA ----
+    public List<clsLaboratorio> listarLaboratoriosActivos() throws Exception {
+        List<clsLaboratorio> laboratorios = new ArrayList<>();
+        // Consulta que solo trae los laboratorios vigentes
+        String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono, estado FROM LABORATORIO WHERE estado = true ORDER BY nombreLaboratorio";
+        
+        try (Connection con = objConexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                clsLaboratorio lab = new clsLaboratorio();
+                lab.setIdLaboratorio(rs.getInt("idLaboratorio"));
+                lab.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
+                lab.setDireccion(rs.getString("direccion"));
+                lab.setTelefono(rs.getString("telefono"));
+                lab.setEstado(rs.getBoolean("estado")); 
+                laboratorios.add(lab);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new Exception("Error al listar laboratorios activos: " + e.getMessage());
+        }
+        return laboratorios;
     }
 }

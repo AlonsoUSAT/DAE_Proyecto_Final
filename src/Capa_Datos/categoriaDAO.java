@@ -1,6 +1,6 @@
 package Capa_Datos;
 
-import Capa_Negocio.clsCategoria; // O como hayas llamado a tu clase de negocio
+import Capa_Negocio.clsCategoria;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,15 +10,14 @@ import java.util.List;
 
 public class categoriaDAO {
 
-    // Instancia de nuestra clase de conexión
     private clsJDBC objConexion = new clsJDBC();
 
     public List<clsCategoria> listarCategorias() throws Exception {
         List<clsCategoria> categorias = new ArrayList<>();
-        String sql = "SELECT idCategoria, nombreCategoria FROM CATEGORIA ORDER BY nombreCategoria";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "SELECT idCategoria, nombreCategoria, estado FROM CATEGORIA ORDER BY nombreCategoria";
         
-        // try-with-resources se encarga de cerrar la conexión y el statement automáticamente
-        try (Connection con = objConexion.conectar(); // <--- ASÍ SE OBTIENE LA CONEXIÓN AHORA
+        try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             
@@ -26,9 +25,11 @@ public class categoriaDAO {
                 clsCategoria cat = new clsCategoria();
                 cat.setIdCategoria(rs.getInt("idCategoria"));
                 cat.setNombreCategoria(rs.getString("nombreCategoria"));
+                // 2. LEEMOS EL ESTADO
+                cat.setEstado(rs.getBoolean("estado"));
                 categorias.add(cat);
             }
-        } catch (SQLException | ClassNotFoundException e) { // Captura ambos tipos de error
+        } catch (SQLException | ClassNotFoundException e) {
             throw new Exception("Error al listar categorías: " + e.getMessage());
         }
         return categorias;
@@ -36,9 +37,10 @@ public class categoriaDAO {
 
     public clsCategoria buscarPorId(int id) throws Exception {
         clsCategoria cat = null;
-        String sql = "SELECT idCategoria, nombreCategoria FROM CATEGORIA WHERE idCategoria = ?";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "SELECT idCategoria, nombreCategoria, estado FROM CATEGORIA WHERE idCategoria = ?";
         
-        try (Connection con = objConexion.conectar(); // <--- ASÍ SE OBTIENE LA CONEXIÓN
+        try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
             ps.setInt(1, id);
@@ -47,6 +49,8 @@ public class categoriaDAO {
                     cat = new clsCategoria();
                     cat.setIdCategoria(rs.getInt("idCategoria"));
                     cat.setNombreCategoria(rs.getString("nombreCategoria"));
+                    // 2. LEEMOS EL ESTADO
+                    cat.setEstado(rs.getBoolean("estado"));
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -56,13 +60,16 @@ public class categoriaDAO {
     }
 
     public void registrarCategoria(clsCategoria cat) throws Exception {
-        String sql = "INSERT INTO CATEGORIA (idCategoria, nombreCategoria) VALUES (?, ?)";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "INSERT INTO CATEGORIA (idCategoria, nombreCategoria, estado) VALUES (?, ?, ?)";
         
-        try (Connection con = objConexion.conectar(); // <--- ASÍ SE OBTIENE LA CONEXIÓN
+        try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
             ps.setInt(1, cat.getIdCategoria());
             ps.setString(2, cat.getNombreCategoria());
+            // 2. GUARDAMOS EL ESTADO
+            ps.setBoolean(3, cat.isEstado());
             ps.executeUpdate();
             
         } catch (SQLException | ClassNotFoundException e) {
@@ -75,13 +82,16 @@ public class categoriaDAO {
     }
 
     public void modificarCategoria(clsCategoria cat) throws Exception {
-        String sql = "UPDATE CATEGORIA SET nombreCategoria = ? WHERE idCategoria = ?";
+        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        String sql = "UPDATE CATEGORIA SET nombreCategoria = ?, estado = ? WHERE idCategoria = ?";
         
-        try (Connection con = objConexion.conectar(); // <--- ASÍ SE OBTIENE LA CONEXIÓN
+        try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
             ps.setString(1, cat.getNombreCategoria());
-            ps.setInt(2, cat.getIdCategoria());
+            // 2. GUARDAMOS EL ESTADO
+            ps.setBoolean(2, cat.isEstado());
+            ps.setInt(3, cat.getIdCategoria());
             ps.executeUpdate();
             
         } catch (SQLException | ClassNotFoundException e) {
@@ -93,10 +103,23 @@ public class categoriaDAO {
         }
     }
 
+    public void darDeBaja(int idCategoria) throws Exception {
+        String sql = "UPDATE CATEGORIA SET estado = false WHERE idCategoria = ?";
+
+        try (Connection con = objConexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idCategoria);
+            ps.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new Exception("Error al dar de baja la categoría: " + e.getMessage());
+        }
+    }
+
     public void eliminarCategoria(int id) throws Exception {
         String sql = "DELETE FROM CATEGORIA WHERE idCategoria = ?";
         
-        try (Connection con = objConexion.conectar(); // <--- ASÍ SE OBTIENE LA CONEXIÓN
+        try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
             ps.setInt(1, id);
@@ -109,5 +132,28 @@ public class categoriaDAO {
                 throw new Exception("Error al eliminar categoría: " + e.getMessage());
             }
         }
+    }
+    
+    // ---- (OPCIONAL PERO RECOMENDADO) NUEVO MÉTODO PARA LLENAR LA TABLA/COMBOBOX ----
+    public List<clsCategoria> listarCategoriasActivas() throws Exception {
+        List<clsCategoria> categorias = new ArrayList<>();
+        // Consulta que solo trae las categorías vigentes
+        String sql = "SELECT idCategoria, nombreCategoria, estado FROM CATEGORIA WHERE estado = true ORDER BY nombreCategoria";
+        
+        try (Connection con = objConexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                clsCategoria cat = new clsCategoria();
+                cat.setIdCategoria(rs.getInt("idCategoria"));
+                cat.setNombreCategoria(rs.getString("nombreCategoria"));
+                cat.setEstado(rs.getBoolean("estado"));
+                categorias.add(cat);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new Exception("Error al listar categorías activas: " + e.getMessage());
+        }
+        return categorias;
     }
 }

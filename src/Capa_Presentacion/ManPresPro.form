@@ -455,7 +455,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;PresentacionDAO&gt;"/>
+                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Capa_Datos.clsPresentacion&gt;"/>
                   </AuxValues>
                 </Component>
               </SubComponents>

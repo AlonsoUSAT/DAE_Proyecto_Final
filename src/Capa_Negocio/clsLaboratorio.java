@@ -13,6 +13,15 @@ public class clsLaboratorio {
     private String nombreLaboratorio;
     private String direccion;
     private String telefono;
+    private boolean estado;
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
 
     public int getIdLaboratorio() {
         return idLaboratorio;
@@ -49,5 +58,26 @@ public class clsLaboratorio {
     @Override
 public String toString() {
     return this.getNombreLaboratorio(); // Esto hará que el ComboBox muestre el nombre
+}
+@Override
+public int hashCode() {
+    int hash = 5;
+    hash = 97 * hash + this.idLaboratorio;
+    return hash;
+}
+
+@Override
+public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
+    if (obj == null) {
+        return false;
+    }
+    if (getClass() != obj.getClass()) {
+        return false;
+    }
+    final clsLaboratorio other = (clsLaboratorio) obj;
+    return this.idLaboratorio == other.idLaboratorio;
 }
 }

@@ -4,30 +4,87 @@
  */
 package Capa_Datos;
 
+import Capa_Negocio.clsUnidad;
+import Capa_Datos.clsJDBC;
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 /**
  *
  * @author USER
  */
 public class UnidadDAO {
-    private int id;
-    private String nombre;
-
-    // Constructor para crear el objeto
-    public UnidadDAO(int id, String nombre) {
-        this.id = id;
-        this.nombre = nombre;
-    }
-
-    // Métodos para obtener los valores
-    public int getId() { return id; }
-    public String getNombre() { return nombre; }
+      private final clsJDBC objConectar = new clsJDBC();
 
     /**
-     * Este método es VITAL. Permite que el JComboBox muestre el nombre
-     * de la unidad en lugar de un texto sin sentido.
+     * Devuelve una lista de todas las unidades.
+     * @return ArrayList<UnidadDAO>
+     * @throws Exception
      */
-    @Override
-    public String toString() {
-        return this.nombre;
+    public ArrayList<clsUnidad> listarUnidades() throws Exception {
+        // 2. La lista debe ser de tipo UnidadDAO
+        ArrayList<clsUnidad> lista = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        String sql = "SELECT idunidad, nombreunidad FROM unidad ORDER BY nombreunidad";
+        
+        try {
+            conn = objConectar.conectar();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                // 3. Crear un nuevo objeto UnidadDAO
+                clsUnidad dao = new clsUnidad(
+                    rs.getInt("idunidad"),
+                    rs.getString("nombreunidad")
+                );
+                lista.add(dao);
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al listar las unidades: " + e.getMessage());
+        } finally {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) objConectar.desconectar();
+        }
+        return lista;
     }
+    /**
+     * Obtiene el ID de una unidad a partir de su nombre.
+     * @param nom El nombre de la unidad a buscar.
+     * @return El ID correspondiente, o 0 si no se encuentra.
+     * @throws Exception
+     */
+    public Integer obtenerCodigoUnidad(String nom) throws Exception {
+        Integer codigo = 0;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        String sql = "SELECT idunidad FROM unidad WHERE nombreunidad = ?";
+        
+        try {
+            conn = objConectar.conectar();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, nom); // Parámetro seguro
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                codigo = rs.getInt("idunidad");
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al obtener código de unidad: " + e.getMessage());
+        } finally {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (conn != null) objConectar.desconectar();
+        }
+        return codigo;
+    }
+     
 }

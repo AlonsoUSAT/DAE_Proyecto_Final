@@ -23,38 +23,58 @@ public class mantLaboratorio extends javax.swing.JDialog {
         actualizarTabla();
         limpiarCampos();
     }
-    private void actualizarTabla() {
-        String[] titulos = {"ID", "Nombre", "Dirección", "Teléfono"};
-        DefaultTableModel model = new DefaultTableModel(null, titulos);
-        
-        try {
-            List<clsLaboratorio> lista = laboratorioDAO.listarLaboratorios();
-            for (clsLaboratorio lab : lista) {
-                Object[] row = {
-                    lab.getIdLaboratorio(), 
-                    lab.getNombreLaboratorio(), 
-                    lab.getDireccion(), 
-                    lab.getTelefono()
-                };
-                model.addRow(row);
-            }
-            // Asumiendo que tu tabla se llama tblLaboratorio
-            tblLaboratorio.setModel(model); 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    // En tu mantLaboratorio.java
+
+private void actualizarTabla() {
+    // 1. Añade la columna "Vigencia" a los títulos
+    String[] titulos = {"ID", "Nombre", "Dirección", "Teléfono", "Vigencia"};
+    DefaultTableModel model = new DefaultTableModel(null, titulos) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
         }
+    };
+
+    try {
+        List<clsLaboratorio> lista;
+        
+        // 2. Decide qué método del DAO llamar
+        if (chkVerInactivos.isSelected()) {
+            // Si el checkbox está marcado, trae TODOS los laboratorios
+            lista = laboratorioDAO.listarLaboratorios();
+        } else {
+            // Si no está marcado (lo normal), trae SOLO los activos
+            lista = laboratorioDAO.listarLaboratoriosActivos();
+        }
+
+        // 3. Llena la tabla (el resto del código es igual)
+        for (clsLaboratorio lab : lista) {
+            Object[] row = {
+                lab.getIdLaboratorio(), 
+                lab.getNombreLaboratorio(), 
+                lab.getDireccion(), 
+                lab.getTelefono(),
+                lab.isEstado() ? "Vigente" : "No Vigente" // Muestra el estado
+            };
+            model.addRow(row);
+        }
+        tblLaboratorio.setModel(model);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 
     private void limpiarCampos() {
         txtID.setText("");
         txtNombre.setText("");
         txtDireccion.setText("");
         txtTelefono.setText("");
-        
+        chkVigencia.setSelected(true);
         txtID.setEnabled(true);
         btnNuevo.setEnabled(true);
         btnModificar.setEnabled(false);
         btnEliminar.setEnabled(false);
+        btnDardeBaja.setEnabled(false);
         tblLaboratorio.clearSelection(); // Asegúrate que tu JTable se llame así
     }
 
@@ -76,6 +96,7 @@ public class mantLaboratorio extends javax.swing.JDialog {
         btnModificar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
         btnCerrar = new javax.swing.JButton();
+        btnDardeBaja = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         txtID = new javax.swing.JTextField();
@@ -86,6 +107,10 @@ public class mantLaboratorio extends javax.swing.JDialog {
         txtDireccion = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         txtTelefono = new javax.swing.JTextField();
+        chkVigencia = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        chkVerInactivos = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -168,6 +193,17 @@ public class mantLaboratorio extends javax.swing.JDialog {
             }
         });
 
+        btnDardeBaja.setBackground(new java.awt.Color(204, 224, 250));
+        btnDardeBaja.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDardeBaja.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/darBaja-usuario.png"))); // NOI18N
+        btnDardeBaja.setText("Dar de Baja");
+        btnDardeBaja.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnDardeBaja.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDardeBajaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -180,7 +216,8 @@ public class mantLaboratorio extends javax.swing.JDialog {
                         .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnModificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnDardeBaja, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(61, 61, 61))
         );
         jPanel2Layout.setVerticalGroup(
@@ -188,15 +225,17 @@ public class mantLaboratorio extends javax.swing.JDialog {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(28, 28, 28)
+                .addComponent(btnDardeBaja, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
                 .addComponent(btnEliminar)
-                .addGap(10, 10, 10)
+                .addGap(27, 27, 27)
                 .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         jPanel3.setBackground(new java.awt.Color(153, 204, 255));
@@ -224,30 +263,59 @@ public class mantLaboratorio extends javax.swing.JDialog {
         jLabel2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel2.setText("Teléfono:");
 
+        chkVigencia.setText("(Vigente)");
+
+        jLabel5.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel5.setText("Vigencia:");
+
+        jLabel6.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel6.setText("Mostrar Labs. Inactivos:");
+
+        chkVerInactivos.setText("Visualizar");
+        chkVerInactivos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkVerInactivosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtID, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnBuscar)
-                        .addGap(22, 22, 22))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtDireccion)
-                            .addComponent(txtTelefono, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addContainerGap())))
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(txtID, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnBuscar)
+                                .addGap(22, 22, 22))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txtNombre, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtDireccion)
+                                    .addComponent(txtTelefono, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addContainerGap())))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(chkVerInactivos))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(chkVigencia)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -270,6 +338,14 @@ public class mantLaboratorio extends javax.swing.JDialog {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(chkVigencia))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(chkVerInactivos))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -294,9 +370,9 @@ public class mantLaboratorio extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(34, 34, 34)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -349,49 +425,47 @@ if (txtID.getText().isEmpty() || txtNombre.getText().isEmpty()) {
         JOptionPane.showMessageDialog(this, "El ID y el Nombre son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         return;
     }
-    
     try {
         clsLaboratorio lab = new clsLaboratorio();
         lab.setIdLaboratorio(Integer.parseInt(txtID.getText()));
         lab.setNombreLaboratorio(txtNombre.getText());
         lab.setDireccion(txtDireccion.getText());
         lab.setTelefono(txtTelefono.getText());
-        
+        lab.setEstado(chkVigencia.isSelected()); // <-- LEER EL ESTADO DEL CHECKBOX
+
         laboratorioDAO.registrarLaboratorio(lab);
         
         JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         actualizarTabla();
         limpiarCampos();
-        
     } catch (NumberFormatException nfe) {
         JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
-    }        // TODO add your handling code here:
+    }
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
- if (txtID.getText().isEmpty()) {
+   if (txtID.getText().isEmpty()) {
         JOptionPane.showMessageDialog(this, "Seleccione un laboratorio de la tabla.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         return;
     }
-    
     try {
         clsLaboratorio lab = new clsLaboratorio();
         lab.setIdLaboratorio(Integer.parseInt(txtID.getText()));
         lab.setNombreLaboratorio(txtNombre.getText());
         lab.setDireccion(txtDireccion.getText());
         lab.setTelefono(txtTelefono.getText());
-        
+        lab.setEstado(chkVigencia.isSelected()); // <-- LEER EL ESTADO DEL CHECKBOX
+
         laboratorioDAO.modificarLaboratorio(lab);
         
         JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         actualizarTabla();
         limpiarCampos();
-        
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Modificación", JOptionPane.ERROR_MESSAGE);
-    }        // TODO add your handling code here:
+    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
@@ -408,11 +482,12 @@ if (txtID.getText().isEmpty()) {
             txtNombre.setText(lab.getNombreLaboratorio());
             txtDireccion.setText(lab.getDireccion());
             txtTelefono.setText(lab.getTelefono());
-            
+            chkVigencia.setSelected(lab.isEstado());
             txtID.setEnabled(false);
             btnNuevo.setEnabled(false);
             btnModificar.setEnabled(true);
             btnEliminar.setEnabled(true);
+              btnDardeBaja.setEnabled(true);
         } else {
             JOptionPane.showMessageDialog(this, "No se encontró ningún laboratorio con ese ID.", "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -436,19 +511,72 @@ this.dispose();        // TODO add your handling code here:
 int fila = tblLaboratorio.getSelectedRow();
     
     if (fila != -1) {
-        DefaultTableModel model = (DefaultTableModel) tblLaboratorio.getModel();
-        txtID.setText(model.getValueAt(fila, 0).toString());
-        txtNombre.setText(model.getValueAt(fila, 1).toString());
-        // El getValueAt puede devolver null si la celda está vacía.
-        txtDireccion.setText(model.getValueAt(fila, 2) != null ? model.getValueAt(fila, 2).toString() : "");
-        txtTelefono.setText(model.getValueAt(fila, 3) != null ? model.getValueAt(fila, 3).toString() : "");
-        
-        txtID.setEnabled(false);
-        btnNuevo.setEnabled(false);
-        btnModificar.setEnabled(true);
-        btnEliminar.setEnabled(true);
-    }        // TODO add your handling code here:
+        try {
+            int idLaboratorio = (int) tblLaboratorio.getValueAt(fila, 0);
+            
+            // Buscamos el objeto completo para tener todos los datos, incluido el 'estado'
+            clsLaboratorio labSeleccionado = laboratorioDAO.buscarPorId(idLaboratorio);
+            
+            if (labSeleccionado != null) {
+                txtID.setText(String.valueOf(labSeleccionado.getIdLaboratorio()));
+                txtNombre.setText(labSeleccionado.getNombreLaboratorio());
+                txtDireccion.setText(labSeleccionado.getDireccion());
+                txtTelefono.setText(labSeleccionado.getTelefono());
+                chkVigencia.setSelected(labSeleccionado.isEstado()); // <-- ACTUALIZAR EL CHECKBOX
+
+                txtID.setEnabled(false);
+                btnNuevo.setEnabled(false);
+                btnModificar.setEnabled(true);
+                btnEliminar.setEnabled(true);
+                btnDardeBaja.setEnabled(true); // Habilitar el botón de dar de baja
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al seleccionar el laboratorio: " + e.getMessage());
+        }
+    }
     }//GEN-LAST:event_tblLaboratorioMouseClicked
+
+    private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
+         int filaSeleccionada = tblLaboratorio.getSelectedRow();
+    
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un laboratorio de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    // --- Pedir Confirmación ---
+    int confirmacion = JOptionPane.showConfirmDialog(
+        this, 
+        "¿Está seguro de que desea dar de baja este laboratorio?\nEl laboratorio no se eliminará, pero no aparecerá para nuevos registros.", 
+        "Confirmar Acción", 
+        JOptionPane.YES_NO_OPTION, 
+        JOptionPane.QUESTION_MESSAGE
+    );
+    
+    if (confirmacion == JOptionPane.YES_OPTION) {
+        try {
+            int idLaboratorio = (int) tblLaboratorio.getValueAt(filaSeleccionada, 0);
+            
+            // 1. Llamar al método correcto del DAO
+            laboratorioDAO.darDeBaja(idLaboratorio);
+            
+            // 2. Refrescar la tabla con el método correcto
+            actualizarTabla();
+            
+            // 3. Limpiar y resetear el formulario
+            limpiarCampos();
+            
+            JOptionPane.showMessageDialog(this, "Laboratorio dado de baja con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al dar de baja el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_btnDardeBajaActionPerformed
+
+    private void chkVerInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkVerInactivosActionPerformed
+        actualizarTabla();
+    }//GEN-LAST:event_chkVerInactivosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -458,14 +586,19 @@ int fila = tblLaboratorio.getSelectedRow();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnCerrar;
+    private javax.swing.JButton btnDardeBaja;
     private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnNuevo;
+    private javax.swing.JCheckBox chkVerInactivos;
+    private javax.swing.JCheckBox chkVigencia;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

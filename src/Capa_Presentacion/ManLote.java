@@ -4,10 +4,10 @@
  */
 package Capa_Presentacion;
 
-import Capa_Datos.LoteDAO;
-import Capa_Datos.PresentacionDAO;
-import Capa_Datos.ProductoDAO;
 import Capa_Negocio.clsLote;
+import Capa_Negocio.clsPresentacion;
+import Capa_Datos.ProductoDAO;
+import Capa_Datos.LoteDAO;
 import Capa_Negocio.clsProducto;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,8 +24,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManLote extends javax.swing.JDialog {
 
-     private final clsLote objLote = new clsLote();
-    private List<LoteDAO> listaLotes;
+     private final LoteDAO objLote = new LoteDAO();
+    private List<clsLote> listaLotes;
     private boolean esNuevo = true; // Variable para controlar si es un registro nuevo o una modificación
 
     // --- Datos recibidos de la ventana anterior ---
@@ -100,7 +100,7 @@ public class ManLote extends javax.swing.JDialog {
             this.listaLotes = objLote.listarLotesPorPresentacion(this.productoID, this.presentacionID);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-            for (LoteDAO lote : this.listaLotes) {
+            for (clsLote lote : this.listaLotes) {
                 modelo.addRow(new Object[]{
                     lote.getIdLote(),
                     lote.getIdPresentacion(),
@@ -160,7 +160,7 @@ public class ManLote extends javax.swing.JDialog {
 
     private void cargarDatosDesdeTabla(int fila) {
         esNuevo = false; // Estamos modificando un registro existente
-        LoteDAO loteSeleccionado = this.listaLotes.get(fila);
+        clsLote loteSeleccionado = this.listaLotes.get(fila);
 
         // ✅ CORREGIDO: Usando el nombre estandarizado 'txtIDLote'
         txtIDLote.setText(String.valueOf(loteSeleccionado.getIdLote()));

@@ -4,12 +4,12 @@
  */
 package Capa_Presentacion;
 
-import Capa_Datos.PresentacionDAO;
-import Capa_Datos.TipoPresentacionDAO;
-import Capa_Datos.UnidadDAO;
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsTipoPresentacion;
 import Capa_Negocio.clsUnidad;
+import Capa_Datos.PresentacionDAO;
+import Capa_Datos.TipoPresentacionDAO1;
+import Capa_Datos.UnidadDAO;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
@@ -27,9 +27,9 @@ public class ManPresentacion extends javax.swing.JDialog {
      * Creates new form ManPresentacion
      */
     
-    clsPresentacion objPresentacion = new clsPresentacion();
-    clsTipoPresentacion objTipoPresentacion = new clsTipoPresentacion();
-    clsUnidad objUnidad = new clsUnidad();
+    PresentacionDAO objPresentacion = new PresentacionDAO();
+    TipoPresentacionDAO1 objTipoPresentacion = new TipoPresentacionDAO1();
+    UnidadDAO objUnidad = new UnidadDAO();
     
     public ManPresentacion(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -76,9 +76,9 @@ public class ManPresentacion extends javax.swing.JDialog {
     modelo.setRowCount(0); // Limpiar la tabla
 
     try {
-        ArrayList<PresentacionDAO> lista = objPresentacion.listarPresentaciones();
+        ArrayList<clsPresentacion> lista = objPresentacion.listarPresentaciones();
         
-        for (PresentacionDAO dto : lista) {
+        for (clsPresentacion dto : lista) {
             // AQUÍ ESTÁ LA CORRECCIÓN
             modelo.addRow(new Object[]{
                 dto.getId(),
@@ -96,9 +96,9 @@ public class ManPresentacion extends javax.swing.JDialog {
     private void listarTiposPresentacion() {
         try {
             cmbTipoPresentacion.removeAllItems();
-            ArrayList<TipoPresentacionDAO> lista = objTipoPresentacion.listarTiposPresentacion();
+            ArrayList<clsTipoPresentacion> lista = objTipoPresentacion.listarTiposPresentacion();
             
-            for (TipoPresentacionDAO dto : lista) {
+            for (clsTipoPresentacion dto : lista) {
                 // Se añaden los objetos completos al ComboBox
                 cmbTipoPresentacion.addItem(dto);
             }
@@ -112,10 +112,10 @@ private void listarUnidades() {
     try {
         cmbUnidad.removeAllItems();
         // La siguiente línea debe usar UnidadDAO
-        ArrayList<UnidadDAO> lista = objUnidad.listarUnidades();
+        ArrayList<clsUnidad> lista = objUnidad.listarUnidades();
         
         // El bucle también debe usar UnidadDAO
-        for (UnidadDAO dao : lista) {
+        for (clsUnidad dao : lista) {
             // Se añaden los objetos DAO (que actúan como DTO) al ComboBox
             cmbUnidad.addItem(dao);
         }
@@ -203,14 +203,9 @@ private void listarUnidades() {
                             .addComponent(jLabel4))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cmbUnidad, 0, 92, Short.MAX_VALUE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(spCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE)))
-                                .addGap(12, 12, 12))
-                            .addComponent(cmbTipoPresentacion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(cmbTipoPresentacion, 0, 104, Short.MAX_VALUE)
+                            .addComponent(spCantidad)
+                            .addComponent(cmbUnidad, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel1)
@@ -511,7 +506,7 @@ private void listarUnidades() {
         int idABuscar = Integer.parseInt(txtID.getText());
         
         // 1. La variable ahora es de tipo PresentacionDAO
-        PresentacionDAO presentacionEncontrada = objPresentacion.buscarPresentacion(idABuscar);
+        clsPresentacion presentacionEncontrada = objPresentacion.buscarPresentacion(idABuscar);
 
         // 2. Se comprueba si el objeto es null (si no se encontró)
         if (presentacionEncontrada != null) {
@@ -557,8 +552,8 @@ private void listarUnidades() {
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnNuevo;
-    private javax.swing.JComboBox<TipoPresentacionDAO> cmbTipoPresentacion;
-    private javax.swing.JComboBox<UnidadDAO> cmbUnidad;
+    private javax.swing.JComboBox<clsTipoPresentacion> cmbTipoPresentacion;
+    private javax.swing.JComboBox<clsUnidad> cmbUnidad;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

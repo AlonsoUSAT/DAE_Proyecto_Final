@@ -102,17 +102,9 @@
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="cmbUnidad" pref="92" max="32767" attributes="0"/>
-                                          <Group type="102" attributes="0">
-                                              <Component id="spCantidad" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                          </Group>
-                                      </Group>
-                                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Component id="cmbTipoPresentacion" max="32767" attributes="0"/>
+                                  <Component id="cmbTipoPresentacion" pref="104" max="32767" attributes="0"/>
+                                  <Component id="spCantidad" max="32767" attributes="0"/>
+                                  <Component id="cmbUnidad" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -189,7 +181,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;UnidadDAO&gt;"/>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Capa_Datos.clsUnidad1&gt;"/>
               </AuxValues>
             </Component>
             <Component class="javax.swing.JComboBox" name="cmbTipoPresentacion">
@@ -199,7 +191,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;TipoPresentacionDAO&gt;"/>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Capa_Datos.clsTipoPresentacion&gt;"/>
               </AuxValues>
             </Component>
             <Component class="javax.swing.JButton" name="btnBuscar">

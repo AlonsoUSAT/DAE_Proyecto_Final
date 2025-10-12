@@ -27,30 +27,46 @@ public class mantCategoria extends javax.swing.JDialog {
     private categoriaDAO categoriaDAO = new categoriaDAO();
     
     private void actualizarTabla() {
-    try {
-        // CAMBIO: La lista ahora es de tipo clsCategoria
-        List<clsCategoria> lista = categoriaDAO.listarCategorias();
-        DefaultTableModel model = (DefaultTableModel) tblCategoria.getModel();
-        model.setRowCount(0); 
-        
-        // CAMBIO: El bucle itera sobre objetos clsCategoria
-        for (clsCategoria cat : lista) {
-            Object[] row = {cat.getIdCategoria(), cat.getNombreCategoria()};
-            model.addRow(row);
+        // CORRECCIÓN: Se añade la columna "Vigencia"
+        String[] titulos = {"ID", "Nombre", "Vigencia"};
+        // El DefaultTableModel se crea una vez y se limpia.
+        DefaultTableModel model = new DefaultTableModel(null, titulos) {
+            // Hacemos que la columna de vigencia no sea editable
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; 
+            }
+        };
+
+        try {
+            // MEJORA: Usamos el método que solo trae las categorías activas para una mejor UX.
+            List<clsCategoria> lista = categoriaDAO.listarCategoriasActivas();
+            for (clsCategoria cat : lista) {
+                Object[] row = {
+                    cat.getIdCategoria(), 
+                    cat.getNombreCategoria(),
+                    // Mostramos el estado de forma amigable
+                    cat.isEstado() ? "Vigente" : "No Vigente" 
+                };
+                model.addRow(row);
+            }
+            tblCategoria.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
     private void limpiarCampos() {
-    txtID.setText("");
-    txtNombre.setText("");
-    txtID.setEnabled(true); // El ID se puede editar para búsquedas o registros nuevos
-    btnNuevo.setEnabled(true);
-    btnModificar.setEnabled(false); // Se habilita al seleccionar de la tabla
-    btnEliminar.setEnabled(false);  // Se habilita al seleccionar de la tabla
-    tblCategoria.clearSelection();
-}
+        txtID.setText("");
+        txtNombre.setText("");
+        chkVigencia.setSelected(true); // Por defecto, una nueva categoría está vigente.
+        
+        txtID.setEnabled(true);
+        btnNuevo.setEnabled(true);
+        btnModificar.setEnabled(false);
+        btnEliminar.setEnabled(false);
+        btnDardeBaja.setEnabled(false); // También se deshabilita
+        tblCategoria.clearSelection();
+    }
     
 
     /**
@@ -71,12 +87,15 @@ public class mantCategoria extends javax.swing.JDialog {
         btnModificar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
         btnCerrar = new javax.swing.JButton();
+        btnDardeBaja = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         txtID = new javax.swing.JTextField();
         btnBuscar = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         txtNombre = new javax.swing.JTextField();
+        chkVigencia = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -164,6 +183,17 @@ public class mantCategoria extends javax.swing.JDialog {
             }
         });
 
+        btnDardeBaja.setBackground(new java.awt.Color(204, 224, 250));
+        btnDardeBaja.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDardeBaja.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/darBaja-usuario.png"))); // NOI18N
+        btnDardeBaja.setText("Dar de Baja");
+        btnDardeBaja.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnDardeBaja.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDardeBajaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -171,28 +201,34 @@ public class mantCategoria extends javax.swing.JDialog {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(71, 71, 71)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                        .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(80, Short.MAX_VALUE))
+                    .addComponent(btnDardeBaja, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                                .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(19, Short.MAX_VALUE)
                 .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnDardeBaja, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
                 .addComponent(btnEliminar)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26))
+                .addContainerGap())
         );
 
         jPanel3.setBackground(new java.awt.Color(153, 204, 255));
@@ -214,25 +250,37 @@ public class mantCategoria extends javax.swing.JDialog {
         jLabel4.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel4.setText("Nombre:");
 
+        chkVigencia.setText("(Vigente)");
+
+        jLabel5.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel5.setText("Vigencia:");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtID)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnBuscar)
-                        .addGap(22, 22, 22))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(txtID)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnBuscar)
+                                .addGap(22, 22, 22))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(15, Short.MAX_VALUE))))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(15, Short.MAX_VALUE))))
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chkVigencia)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -247,7 +295,11 @@ public class mantCategoria extends javax.swing.JDialog {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(163, Short.MAX_VALUE))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(chkVigencia))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -296,83 +348,108 @@ public class mantCategoria extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+         int filaSeleccionada = tblCategoria.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una categoría de la tabla.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de eliminar esta categoría? Esta acción no se puede deshacer.", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                int idCategoria = (int) tblCategoria.getValueAt(filaSeleccionada, 0);
+                categoriaDAO.eliminarCategoria(idCategoria);
+                
+                JOptionPane.showMessageDialog(this, "Categoría eliminada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                actualizarTabla();
+                limpiarCampos();
+                
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Eliminación", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
 if (txtID.getText().isEmpty() || txtNombre.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "El ID y el Nombre son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        // CAMBIO: Se crea un objeto clsCategoria
-        clsCategoria cat = new clsCategoria();
-        cat.setIdCategoria(Integer.parseInt(txtID.getText()));
-        cat.setNombreCategoria(txtNombre.getText());
+            JOptionPane.showMessageDialog(this, "El ID y el Nombre son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         
-        categoriaDAO.registrarCategoria(cat);
-        
-        JOptionPane.showMessageDialog(this, "Categoría registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        actualizarTabla();
-        limpiarCampos();
-        
-    } catch (NumberFormatException nfe) {
-        JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
-    }        // TODO add your handling code here:
+        try {
+            clsCategoria cat = new clsCategoria();
+            cat.setIdCategoria(Integer.parseInt(txtID.getText()));
+            cat.setNombreCategoria(txtNombre.getText());
+            // CORRECCIÓN: Se lee el estado del checkbox
+            cat.setEstado(chkVigencia.isSelected()); 
+            
+            categoriaDAO.registrarCategoria(cat);
+            
+            JOptionPane.showMessageDialog(this, "Categoría registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            actualizarTabla();
+            limpiarCampos();
+            
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-if (txtID.getText().isEmpty() || txtNombre.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Seleccione una categoría de la tabla para modificar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        // CAMBIO: Se crea un objeto clsCategoria
-        clsCategoria cat = new clsCategoria();
-        cat.setIdCategoria(Integer.parseInt(txtID.getText()));
-        cat.setNombreCategoria(txtNombre.getText());
+if (txtID.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione una categoría de la tabla para modificar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         
-        categoriaDAO.modificarCategoria(cat);
-        
-        JOptionPane.showMessageDialog(this, "Categoría modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        actualizarTabla();
-        limpiarCampos();
-        
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Modificación", JOptionPane.ERROR_MESSAGE);
-    }        // TODO add your handling code here:
+        try {
+            clsCategoria cat = new clsCategoria();
+            cat.setIdCategoria(Integer.parseInt(txtID.getText()));
+            cat.setNombreCategoria(txtNombre.getText());
+            // CORRECCIÓN: Se lee el estado del checkbox
+            cat.setEstado(chkVigencia.isSelected());
+            
+            categoriaDAO.modificarCategoria(cat);
+            
+            JOptionPane.showMessageDialog(this, "Categoría modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            actualizarTabla();
+            limpiarCampos();
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Modificación", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
 if (txtID.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Ingrese un ID para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        int id = Integer.parseInt(txtID.getText());
-        // CAMBIO: Se espera un objeto clsCategoria
-        clsCategoria cat = categoriaDAO.buscarPorId(id);
-        
-        if (cat != null) {
-            txtNombre.setText(cat.getNombreCategoria());
-            txtID.setEnabled(false);
-            btnNuevo.setEnabled(false);
-            btnModificar.setEnabled(true);
-            btnEliminar.setEnabled(true);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró ninguna categoría con ese ID.", "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Ingrese un ID para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
         }
         
-    } catch (NumberFormatException nfe) {
-        JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }        // TODO add your handling code here:
+        try {
+            int id = Integer.parseInt(txtID.getText());
+            clsCategoria cat = categoriaDAO.buscarPorId(id);
+            
+            if (cat != null) {
+                txtNombre.setText(cat.getNombreCategoria());
+                // CORRECCIÓN: Se actualiza el estado del checkbox
+                chkVigencia.setSelected(cat.isEstado());
+                
+                txtID.setEnabled(false);
+                btnNuevo.setEnabled(false);
+                btnModificar.setEnabled(true);
+                btnEliminar.setEnabled(true);
+                btnDardeBaja.setEnabled(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró ninguna categoría con ese ID.", "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
@@ -385,19 +462,66 @@ this.dispose();        // TODO add your handling code here:
 
     private void tblCategoriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCategoriaMouseClicked
 int filaSeleccionada = tblCategoria.getSelectedRow();
-    
-    if (filaSeleccionada != -1) { // -1 significa que no hay ninguna fila seleccionada
-        DefaultTableModel model = (DefaultTableModel) tblCategoria.getModel();
-        txtID.setText(model.getValueAt(filaSeleccionada, 0).toString());
-        txtNombre.setText(model.getValueAt(filaSeleccionada, 1).toString());
         
-        // Habilitamos/deshabilitamos botones
-        txtID.setEnabled(false); // No se debe poder modificar el ID de un registro existente
-        btnNuevo.setEnabled(false);
-        btnModificar.setEnabled(true);
-        btnEliminar.setEnabled(true);
-    }        // TODO add your handling code here:
+        if (filaSeleccionada != -1) {
+            try {
+                int idCategoria = (int) tblCategoria.getValueAt(filaSeleccionada, 0);
+                
+                // MEJORA: Se busca el objeto completo para obtener todos los datos
+                clsCategoria catSeleccionada = categoriaDAO.buscarPorId(idCategoria);
+
+                if (catSeleccionada != null) {
+                    txtID.setText(String.valueOf(catSeleccionada.getIdCategoria()));
+                    txtNombre.setText(catSeleccionada.getNombreCategoria());
+                    // CORRECCIÓN: Se actualiza el estado del checkbox
+                    chkVigencia.setSelected(catSeleccionada.isEstado());
+
+                    // Habilitamos/deshabilitamos botones
+                    txtID.setEnabled(false);
+                    btnNuevo.setEnabled(false);
+                    btnModificar.setEnabled(true);
+                    btnEliminar.setEnabled(true);
+                    btnDardeBaja.setEnabled(true);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al seleccionar categoría: " + e.getMessage());
+            }
+        }
     }//GEN-LAST:event_tblCategoriaMouseClicked
+
+    private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
+         int filaSeleccionada = tblCategoria.getSelectedRow();
+        
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una categoría de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        int confirmacion = JOptionPane.showConfirmDialog(
+            this, 
+            "¿Está seguro de que desea dar de baja esta categoría?", 
+            "Confirmar Acción", 
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                int idCategoria = (int) tblCategoria.getValueAt(filaSeleccionada, 0);
+                
+                // CORRECCIÓN: Llamada al DAO correcto
+                categoriaDAO.darDeBaja(idCategoria);
+                
+                actualizarTabla();
+                limpiarCampos();
+                
+                JOptionPane.showMessageDialog(this, "Categoría dada de baja con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al dar de baja: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -407,12 +531,15 @@ int filaSeleccionada = tblCategoria.getSelectedRow();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnCerrar;
+    private javax.swing.JButton btnDardeBaja;
     private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnNuevo;
+    private javax.swing.JCheckBox chkVigencia;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
