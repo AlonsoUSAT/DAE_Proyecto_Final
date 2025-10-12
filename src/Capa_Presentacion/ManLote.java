@@ -12,6 +12,7 @@ import Capa_Negocio.clsProducto;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -23,81 +24,157 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManLote extends javax.swing.JDialog {
 
-    /**
-     * Creates new form ManLote
-     */
-    
-    // ... (tus otras variables)
-    clsLote objLote = new clsLote();
+     private final clsLote objLote = new clsLote();
+    private List<LoteDAO> listaLotes;
+    private boolean esNuevo = true; // Variable para controlar si es un registro nuevo o una modificación
+
+    // --- Datos recibidos de la ventana anterior ---
     private final int productoID;
     private final String productoNombre;
     private final int presentacionID;
-
+    private final String presentacionDescripcion;
     /**
-     * ✅ CONSTRUCTOR CORREGIDO
-     * Ahora sí acepta los 3 parámetros que le vamos a enviar.
+     * CONSTRUCTOR MODIFICADO
+     * Recibe todos los datos necesarios para operar.
+     * @param parent
+     * @param modal
+     * @param idProducto El ID del producto seleccionado.
+     * @param nombreProducto El nombre del producto.
+     * @param idPresentacion El ID de la presentación seleccionada.
+     * @param presentacionDesc La descripción del formato de venta.
      */
-    public ManLote(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, int idPresentacion) {
+    public ManLote(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, int idPresentacion, String presentacionDesc) {
         super(parent, modal);
-        
-        // 1. Guardamos los 3 datos recibidos
+
         this.productoID = idProducto;
         this.productoNombre = nombreProducto;
-        this.presentacionID = idPresentacion; // Ahora la variable 'idPresentacion' sí existe
-        
-        // 2. Inicializamos los componentes visuales
-        initComponents();
-        
-        // ✅ CÓDIGO AÑADIDO PARA CONFIGURAR LA TABLA
-        //-------------------------------------------------------------------
-        DefaultTableModel modelo = (DefaultTableModel) tblLotes.getModel();
-        // Borramos cualquier columna que exista del diseñador
-        modelo.setColumnCount(0); 
-        // Añadimos las columnas que queremos en el orden correcto
+        this.presentacionID = idPresentacion;
+        this.presentacionDescripcion = presentacionDesc;
+
+        initComponents(); // No olvides que esta línea es crucial
+
+        configurarFormulario();
+    }
+ private void configurarFormulario() {
+        this.setTitle("Gestión de Lotes para: " + this.productoNombre);
+        this.setLocationRelativeTo(null);
+        poblarInformacionLote();
+        configurarTabla();
+        listarLotesFiltrados();
+        estadoInicialControles();
+    }
+
+    private void poblarInformacionLote() {
+        txtProducto.setText(this.productoNombre);
+        txtIDProducto.setText(String.valueOf(this.productoID));
+        txtPresentacion.setText(this.presentacionDescripcion);
+        txtIDPresentacion.setText(String.valueOf(this.presentacionID));
+
+        txtProducto.setEditable(false);
+        txtIDProducto.setEditable(false);
+        txtPresentacion.setEditable(false);
+        txtIDPresentacion.setEditable(false);
+    }
+
+    private void configurarTabla() {
+        DefaultTableModel modelo = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         modelo.addColumn("ID Lote");
         modelo.addColumn("ID Presentación");
         modelo.addColumn("Nro. Lote");
         modelo.addColumn("Fecha Fab.");
         modelo.addColumn("Fecha Venc.");
         modelo.addColumn("Stock");
-        
-        // 3. Establecemos el título
-        this.setTitle("Lotes de: " + nombreProducto); 
-        
-        // 4. Llenamos la tabla con los lotes filtrados
-        listarLotesFiltrados(); 
+        tblLote.setModel(modelo);
     }
-    
-  private void listarLotesFiltrados() {
-    DefaultTableModel modelo = (DefaultTableModel) tblLotes.getModel();
-    modelo.setRowCount(0);
 
-    try {
-        ArrayList<LoteDAO> listaLotes = objLote.listarLotesPorPresentacion(this.productoID, this.presentacionID);
+    private void listarLotesFiltrados() {
+        DefaultTableModel modelo = (DefaultTableModel) tblLote.getModel();
+        modelo.setRowCount(0);
 
-        for (LoteDAO lote : listaLotes) {
-            // ✅ CAMBIO: La fila ahora tendrá 6 columnas
-            Object[] fila = new Object[6]; 
-            
-            fila[0] = lote.getIdLote();
-            fila[1] = lote.getIdPresentacion(); // ✅ AÑADIDO: Muestra el ID de la Presentación
-            fila[2] = lote.getNroLote();
-            fila[3] = lote.getFechaFabricacion();
-            fila[4] = lote.getFechaVencimiento();
-            fila[5] = lote.getStockActual();
-            modelo.addRow(fila);
+        try {
+            this.listaLotes = objLote.listarLotesPorPresentacion(this.productoID, this.presentacionID);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            for (LoteDAO lote : this.listaLotes) {
+                modelo.addRow(new Object[]{
+                    lote.getIdLote(),
+                    lote.getIdPresentacion(),
+                    lote.getNroLote(),
+                    sdf.format(lote.getFechaFabricacion()),
+                    sdf.format(lote.getFechaVencimiento()),
+                    lote.getStockActual()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los lotes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Error al listar los lotes: " + ex.getMessage());
     }
+
+    private void limpiarControles() {
+        // ✅ CORREGIDO: Usando el nombre estandarizado 'txtIDLote'
+        txtIDLote.setText("");
+        txtNumeroLote.setText("");
+        jdcFechaFabricacion.setDate(null);
+        jdcFechaVencimiento.setDate(null);
+        spnStock.setValue(0);
+        txtExistencias.setText("");
+        chkEstado.setSelected(true);
+    }
+
+    private void estadoInicialControles() {
+    txtIDLote.setEnabled(false);
+    txtNumeroLote.setEnabled(false);
+    jdcFechaFabricacion.setEnabled(false);
+    jdcFechaVencimiento.setEnabled(false);
+    spnStock.setEnabled(false);
+    txtExistencias.setEnabled(false);
+    chkEstado.setEnabled(false);
+
+    btnNuevo.setText("Nuevo"); // ✅ MUY IMPORTANTE: Esta línea resetea el texto del botón.
+    btnNuevo.setEnabled(true);
+    btnModificar.setEnabled(false); // El botón "Modificar" solo se debe activar cuando seleccionas una fila de la tabla.
+    btnDarBaja.setEnabled(false);
+    btnEliminar.setEnabled(false);
 }
+
+    private void habilitarControles() {
+    txtIDLote.setEnabled(false); 
+    txtNumeroLote.setEnabled(false);
+    jdcFechaFabricacion.setEnabled(true);
+    jdcFechaVencimiento.setEnabled(true);
+    spnStock.setEnabled(true);
+    txtExistencias.setEnabled(false);
+    chkEstado.setEnabled(true);
+
+    // --- CAMBIOS CLAVE AQUÍ ---
+    btnNuevo.setEnabled(true);       // ✅ CORREGIDO: Mantenemos el botón Nuevo/Guardar HABILITADO.
+    btnModificar.setEnabled(false);  // Deshabilitamos "Modificar" porque estamos en modo de creación.
+    btnDarBaja.setEnabled(false);
+    btnEliminar.setEnabled(false);
+}
+
+    private void cargarDatosDesdeTabla(int fila) {
+        esNuevo = false; // Estamos modificando un registro existente
+        LoteDAO loteSeleccionado = this.listaLotes.get(fila);
+
+        // ✅ CORREGIDO: Usando el nombre estandarizado 'txtIDLote'
+        txtIDLote.setText(String.valueOf(loteSeleccionado.getIdLote()));
+        txtNumeroLote.setText(loteSeleccionado.getNroLote());
+        jdcFechaFabricacion.setDate(loteSeleccionado.getFechaFabricacion());
+        jdcFechaVencimiento.setDate(loteSeleccionado.getFechaVencimiento());
+        spnStock.setValue(loteSeleccionado.getCantidadRecibida());
+        txtExistencias.setText(String.valueOf(loteSeleccionado.getStockActual()));
+        chkEstado.setSelected(loteSeleccionado.isEstado());
+
+        habilitarControles();
+        btnNuevo.setEnabled(true);
+    }
     
-    
-     
-     
-    
-   
-         
    
 
     /**
@@ -112,28 +189,28 @@ public class ManLote extends javax.swing.JDialog {
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        txtNroLote = new javax.swing.JTextField();
+        txtNumeroLote = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        txtCantidadRecibida = new javax.swing.JTextField();
+        txtExistencias = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        rdEstado = new javax.swing.JRadioButton();
+        chkEstado = new javax.swing.JRadioButton();
         jLabel9 = new javax.swing.JLabel();
-        txtID = new javax.swing.JTextField();
-        jdcFechaFab = new com.toedter.calendar.JDateChooser();
-        jdcFechaVen = new com.toedter.calendar.JDateChooser();
-        txtStock = new javax.swing.JSpinner();
+        txtIDLote = new javax.swing.JTextField();
+        jdcFechaFabricacion = new com.toedter.calendar.JDateChooser();
+        jdcFechaVencimiento = new com.toedter.calendar.JDateChooser();
+        spnStock = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         txtProducto = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        txtIdProducto = new javax.swing.JTextField();
+        txtIDProducto = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         txtPresentacion = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
-        txtIdPresentacion = new javax.swing.JTextField();
+        txtIDPresentacion = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         btnNuevo = new javax.swing.JButton();
         btnModificar = new javax.swing.JButton();
@@ -142,7 +219,7 @@ public class ManLote extends javax.swing.JDialog {
         btnLimpiar = new javax.swing.JButton();
         btnSalir = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblLotes = new javax.swing.JTable();
+        tblLote = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -153,9 +230,9 @@ public class ManLote extends javax.swing.JDialog {
 
         jLabel1.setText("Número de lote:");
 
-        txtNroLote.addActionListener(new java.awt.event.ActionListener() {
+        txtNumeroLote.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtNroLoteActionPerformed(evt);
+                txtNumeroLoteActionPerformed(evt);
             }
         });
 
@@ -169,10 +246,10 @@ public class ManLote extends javax.swing.JDialog {
 
         jLabel6.setText("Estado:");
 
-        rdEstado.setText("Activo");
-        rdEstado.addActionListener(new java.awt.event.ActionListener() {
+        chkEstado.setText("Activo");
+        chkEstado.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rdEstadoActionPerformed(evt);
+                chkEstadoActionPerformed(evt);
             }
         });
 
@@ -185,9 +262,9 @@ public class ManLote extends javax.swing.JDialog {
 
         jLabel11.setText("ID Producto:");
 
-        txtIdProducto.addActionListener(new java.awt.event.ActionListener() {
+        txtIDProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIdProductoActionPerformed(evt);
+                txtIDProductoActionPerformed(evt);
             }
         });
 
@@ -216,7 +293,7 @@ public class ManLote extends javax.swing.JDialog {
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtPresentacion)
                             .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(txtIdPresentacion, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtIDPresentacion, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(33, 33, 33)
@@ -227,7 +304,7 @@ public class ManLote extends javax.swing.JDialog {
                         .addGap(22, 22, 22)
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtIdProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtIDProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 119, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -241,7 +318,7 @@ public class ManLote extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(txtIdProducto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtIDProducto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(12, 12, 12)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
@@ -249,7 +326,7 @@ public class ManLote extends javax.swing.JDialog {
                 .addGap(12, 12, 12)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel13)
-                    .addComponent(txtIdPresentacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtIDPresentacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(71, Short.MAX_VALUE))
         );
 
@@ -266,11 +343,11 @@ public class ManLote extends javax.swing.JDialog {
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(txtIDLote, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtNroLote, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addComponent(txtNumeroLote, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel2)
@@ -280,12 +357,12 @@ public class ManLote extends javax.swing.JDialog {
                             .addComponent(jLabel6))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(spnStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jdcFechaFab, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jdcFechaVen, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(txtCantidadRecibida, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(rdEstado))))
+                                .addComponent(jdcFechaFabricacion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jdcFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtExistencias, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(chkEstado))))
                 .addGap(41, 41, 41)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(39, Short.MAX_VALUE))
@@ -293,38 +370,39 @@ public class ManLote extends javax.swing.JDialog {
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtNroLote, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jdcFechaFab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(19, 19, 19)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jdcFechaVen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtCantidadRecibida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(rdEstado))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(txtIDLote, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(txtNumeroLote, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jdcFechaFabricacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(19, 19, 19)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jdcFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(spnStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtExistencias, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(chkEstado)))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -426,7 +504,7 @@ public class ManLote extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        tblLotes.setModel(new javax.swing.table.DefaultTableModel(
+        tblLote.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
                 {},
@@ -437,7 +515,12 @@ public class ManLote extends javax.swing.JDialog {
 
             }
         ));
-        jScrollPane1.setViewportView(tblLotes);
+        tblLote.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblLoteMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblLote);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -484,11 +567,95 @@ public class ManLote extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-       
+         // Comprobamos el texto actual del botón para decidir qué hacer
+    if (btnNuevo.getText().equals("Nuevo")) {
+        // --- MODO: PREPARAR FORMULARIO ---
+        esNuevo = true;
+        limpiarControles();
+        habilitarControles(); // Este método ahora lo dejará habilitado
+        btnNuevo.setText("Guardar"); // ✅ CAMBIAMOS EL TEXTO DEL BOTÓN
+
+        try {
+            int nuevoId = objLote.generarCodeLote();
+            txtIDLote.setText(String.valueOf(nuevoId));
+            txtNumeroLote.setText("<Se generará al guardar>");
+            spnStock.requestFocusInWindow();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al generar código de lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    } else {
+        // --- MODO: GUARDAR EL NUEVO LOTE ---
+        try {
+            int cantidad = (Integer) spnStock.getValue();
+            if (cantidad <= 0) {
+                JOptionPane.showMessageDialog(this, "El Stock debe ser mayor a cero.", "Validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (jdcFechaVencimiento.getDate() == null) {
+                JOptionPane.showMessageDialog(this, "La fecha de vencimiento es obligatoria.", "Validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int idLote = Integer.parseInt(txtIDLote.getText());
+            Date fechaFab = jdcFechaFabricacion.getDate();
+            Date fechaVen = jdcFechaVencimiento.getDate();
+           String nroLoteGenerado = objLote.generarNumeroLote(this.productoID, this.presentacionID, cantidad);
+            
+            // Llamamos al método de registro
+            objLote.registrarLote(idLote, nroLoteGenerado, fechaFab, fechaVen, cantidad, this.presentacionID, this.productoID);
+            
+            JOptionPane.showMessageDialog(this, "Lote registrado con éxito.\nNúmero de Lote: " + nroLoteGenerado);
+
+            // Al terminar, reseteamos todo el formulario
+            listarLotesFiltrados();
+            estadoInicialControles(); // Este método pondrá el botón en "Nuevo" otra vez
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-      
+      try {
+        // --- Validaciones ---
+        int cantidad = (Integer) spnStock.getValue();
+        if (cantidad <= 0) {
+            JOptionPane.showMessageDialog(this, "El Stock (cantidad recibida) debe ser mayor a cero.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (jdcFechaVencimiento.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "La fecha de vencimiento es obligatoria.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // --- Obtener datos del formulario ---
+        int idLote = Integer.parseInt(txtIDLote.getText());
+        Date fechaFab = jdcFechaFabricacion.getDate();
+        Date fechaVen = jdcFechaVencimiento.getDate();
+
+        if (esNuevo) {
+            // 1. ✅ AQUÍ GENERAMOS EL NÚMERO DE LOTE, ya que ahora tenemos la cantidad
+            String nroLoteGenerado = objLote.generarNumeroLote(this.productoID, this.presentacionID, cantidad);
+            
+            // 2. Llamamos al método de registro con todos los datos
+            objLote.registrarLote(idLote, nroLoteGenerado, fechaFab, fechaVen, cantidad, this.presentacionID, this.productoID);
+            
+            JOptionPane.showMessageDialog(this, "Lote registrado con éxito.\nNúmero de Lote: " + nroLoteGenerado);
+        } else {
+            // Lógica para modificar un lote existente (si la necesitas)
+            JOptionPane.showMessageDialog(this, "Lógica de modificación pendiente.");
+        }
+        
+        // Actualizar la vista
+        listarLotesFiltrados();
+        limpiarControles();
+        estadoInicialControles();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al guardar el lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
         
     }//GEN-LAST:event_btnModificarActionPerformed
 
@@ -511,21 +678,28 @@ public class ManLote extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 
-    private void txtIdProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdProductoActionPerformed
+    private void txtIDProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIDProductoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtIdProductoActionPerformed
+    }//GEN-LAST:event_txtIDProductoActionPerformed
 
-    private void txtNroLoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNroLoteActionPerformed
+    private void txtNumeroLoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNumeroLoteActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtNroLoteActionPerformed
+    }//GEN-LAST:event_txtNumeroLoteActionPerformed
 
-    private void rdEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdEstadoActionPerformed
+    private void chkEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkEstadoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_rdEstadoActionPerformed
+    }//GEN-LAST:event_chkEstadoActionPerformed
 
     private void txtPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPresentacionActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPresentacionActionPerformed
+
+    private void tblLoteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblLoteMouseClicked
+       int fila = tblLote.getSelectedRow();
+        if (fila >= 0) {
+            cargarDatosDesdeTabla(fila);
+        }
+    }//GEN-LAST:event_tblLoteMouseClicked
 
     
     
@@ -538,6 +712,7 @@ public class ManLote extends javax.swing.JDialog {
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnSalir;
+    private javax.swing.JRadioButton chkEstado;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -554,17 +729,16 @@ public class ManLote extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.toedter.calendar.JDateChooser jdcFechaFab;
-    private com.toedter.calendar.JDateChooser jdcFechaVen;
-    private javax.swing.JRadioButton rdEstado;
-    private javax.swing.JTable tblLotes;
-    private javax.swing.JTextField txtCantidadRecibida;
-    private javax.swing.JTextField txtID;
-    private javax.swing.JTextField txtIdPresentacion;
-    private javax.swing.JTextField txtIdProducto;
-    private javax.swing.JTextField txtNroLote;
+    private com.toedter.calendar.JDateChooser jdcFechaFabricacion;
+    private com.toedter.calendar.JDateChooser jdcFechaVencimiento;
+    private javax.swing.JSpinner spnStock;
+    private javax.swing.JTable tblLote;
+    private javax.swing.JTextField txtExistencias;
+    private javax.swing.JTextField txtIDLote;
+    private javax.swing.JTextField txtIDPresentacion;
+    private javax.swing.JTextField txtIDProducto;
+    private javax.swing.JTextField txtNumeroLote;
     private javax.swing.JTextField txtPresentacion;
     private javax.swing.JTextField txtProducto;
-    private javax.swing.JSpinner txtStock;
     // End of variables declaration//GEN-END:variables
 }

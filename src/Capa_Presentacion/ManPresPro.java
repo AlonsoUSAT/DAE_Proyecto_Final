@@ -625,33 +625,40 @@ public class ManPresPro extends javax.swing.JDialog {
     }//GEN-LAST:event_tblPresentacionProductoMouseClicked
 
     private void btnLotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLotesActionPerformed
-        int filaSeleccionada = tblPresentacionProducto.getSelectedRow(); // Suponiendo que tu tabla se llama tblPresentaciones
+         int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
 
-        if (filaSeleccionada >= 0) {
-            try {
-                // Obtenemos los datos de la tabla. ¡Asegúrate que los índices de columna son correctos!
-                // Supongamos que:
-                // Columna 0 = ID Presentación
-                // Columna 1 = ID Producto (o lo obtienes de otra variable)
+    if (filaSeleccionada >= 0) {
+        try {
+            DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
 
-                DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
+            // --- DATOS A ENVIAR ---
+            // 1. ID de la Presentación (Columna 0)
+            int idPres = (int) modelo.getValueAt(filaSeleccionada, 0);
+            
+            // 2. Descripción de la Presentación (Columna 1: "Formato de Venta") - ¡NUEVO!
+            String presentacionDescripcion = modelo.getValueAt(filaSeleccionada, 1).toString();
 
-                // Convertimos el Object a Integer y luego a int
-                int idPres = (int) modelo.getValueAt(filaSeleccionada, 0);
+            // 3. El idProducto y nombreProducto ya los tienes guardados en la clase
+            //    (idProductoActual y nombreProductoActual)
 
-                // El idProducto y nombreProducto ya los tienes en esa ventana
-                // Por ejemplo: private int idProductoActual; private String nombreProductoActual;
+            // ✅ CAMBIO: Llamamos al nuevo constructor de ManLote con los 4 parámetros
+            ManLote dialogoLote = new ManLote(
+                null, 
+                true, 
+                this.idProductoActual, 
+                this.nombreProductoActual, 
+                idPres, 
+                presentacionDescripcion // <-- El nuevo dato que enviamos
+            );
+            dialogoLote.setVisible(true);
 
-                // ✅ CAMBIO: Llama al constructor modificado de ManLote
-                ManLote dialogoLote = new ManLote(null, true, idProductoActual, nombreProductoActual, idPres);
-                dialogoLote.setVisible(true);
-
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al obtener datos de la fila: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Por favor, seleccione una presentación de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al obtener datos de la fila: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    } else {
+        JOptionPane.showMessageDialog(this, "Por favor, seleccione una presentación de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+    }
+
     }//GEN-LAST:event_btnLotesActionPerformed
 
   
