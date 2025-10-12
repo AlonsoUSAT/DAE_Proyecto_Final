@@ -164,6 +164,56 @@ public class ProductoDAO {
         }
     }
     
+    public clsProducto buscarPorId(int idProducto) throws Exception {
+    clsProducto producto = null; // Empezamos con null
+    String sql = "SELECT p.idProducto, p.nombre, p.descripcion, p.estado, "
+            + "m.idMarca, m.nombre AS nombreMarca, "
+            + "c.idCategoria, c.nombreCategoria, "
+            + "l.idLaboratorio, l.nombreLaboratorio "
+            + "FROM PRODUCTO p "
+            + "INNER JOIN MARCA m ON p.idMarca = m.idMarca "
+            + "INNER JOIN CATEGORIA c ON p.idCategoria = c.idCategoria "
+            + "INNER JOIN LABORATORIO l ON p.idDistribuidor = l.idLaboratorio "
+            + "WHERE p.idProducto = ?"; // La condición de búsqueda
+
+    try (Connection con = objConexion.conectar();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setInt(1, idProducto); // Asignamos el ID al '?'
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) { // Si se encontró una fila
+                producto = new clsProducto(); // Creamos el objeto
+                
+                // Construimos los objetos anidados (Marca, Categoria, etc.)
+                clsMarca marca = new clsMarca();
+                marca.setIdMarca(rs.getInt("idMarca"));
+                marca.setNombre(rs.getString("nombreMarca"));
+
+                clsCategoria categoria = new clsCategoria();
+                categoria.setIdCategoria(rs.getInt("idCategoria"));
+                categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+
+                clsLaboratorio distribuidor = new clsLaboratorio();
+                distribuidor.setIdLaboratorio(rs.getInt("idLaboratorio"));
+                distribuidor.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
+
+                // Llenamos el objeto producto principal
+                producto.setIdProducto(rs.getInt("idProducto"));
+                producto.setNombre(rs.getString("nombre"));
+                producto.setDescripcion(rs.getString("descripcion"));
+                producto.setEstado(rs.getBoolean("estado"));
+                producto.setMarca(marca);
+                producto.setCategoria(categoria);
+                producto.setDistribuidor(distribuidor);
+            }
+        }
+    } catch (SQLException | ClassNotFoundException e) {
+        throw new Exception("Error al buscar el producto: " + e.getMessage());
+    }
+    return producto; // Devuelve el producto encontrado o null si no se encontró
+}
+    
      public Integer generarCodigo() throws Exception {
         Integer codigo = 1; // Por defecto, si no hay registros, el código será 1.
         

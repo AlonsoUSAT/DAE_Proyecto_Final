@@ -321,6 +321,11 @@ public class mantProducto extends javax.swing.JDialog {
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/buscar-usuario.png"))); // NOI18N
         jButton1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel4.setText("Nombre:");
@@ -336,6 +341,11 @@ public class mantProducto extends javax.swing.JDialog {
         jScrollPane2.setViewportView(txtDescripcion);
 
         btnNuevaMarca.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/nuevo.png"))); // NOI18N
+        btnNuevaMarca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevaMarcaActionPerformed(evt);
+            }
+        });
 
         jLabel8.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel8.setText("Vigencia:");
@@ -346,11 +356,21 @@ public class mantProducto extends javax.swing.JDialog {
         jLabel9.setText("Marca:");
 
         btnNuevaCategoria.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/nuevo.png"))); // NOI18N
+        btnNuevaCategoria.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevaCategoriaActionPerformed(evt);
+            }
+        });
 
         jLabel10.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel10.setText("Distribuidor:");
 
         btnNuevoDistribuidor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/nuevo.png"))); // NOI18N
+        btnNuevoDistribuidor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevoDistribuidorActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -716,6 +736,25 @@ public class mantProducto extends javax.swing.JDialog {
         btnNuevo.setEnabled(true);
     }
     }//GEN-LAST:event_tblProductoMouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnNuevaCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaCategoriaActionPerformed
+        mantCategoria frm = new mantCategoria(null,true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_btnNuevaCategoriaActionPerformed
+
+    private void btnNuevaMarcaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaMarcaActionPerformed
+        mantMarca frm1 = new mantMarca(null,true);
+        frm1.setVisible(true);
+    }//GEN-LAST:event_btnNuevaMarcaActionPerformed
+
+    private void btnNuevoDistribuidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoDistribuidorActionPerformed
+        mantLaboratorio frm2 = new mantLaboratorio(null,true);
+        frm2.setVisible(true);
+    }//GEN-LAST:event_btnNuevoDistribuidorActionPerformed
 
     /**
      * @param args the command line arguments

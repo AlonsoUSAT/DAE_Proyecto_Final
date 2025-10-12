@@ -11,10 +11,10 @@ package Capa_Presentacion;
 
 
 import Capa_Datos.PresentacionDAO;
-import Capa_Datos.PresentacionProductoDAO;
+import Capa_Negocio.clsPresentacionProducto;
 import Capa_Datos.ProductoDAO;
 import Capa_Negocio.clsPresentacion;
-import Capa_Negocio.clsPresentacionProducto;
+import Capa_Datos.PresentacionProductoDAO;
 import Capa_Negocio.clsProducto;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ManPresPro extends javax.swing.JDialog {
      private int idProductoActual;
     private String nombreProductoActual;
      // --- Objetos de Negocio ---
-    clsPresentacionProducto objPresProd = new clsPresentacionProducto();
+    PresentacionProductoDAO objPresProd = new PresentacionProductoDAO();
     clsPresentacion objPresentacion = new clsPresentacion();
     
     // --- Datos del producto que estamos gestionando ---
