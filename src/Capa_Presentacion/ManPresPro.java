@@ -40,55 +40,31 @@ public class ManPresPro extends javax.swing.JDialog {
     private final int productoID;
     private final String productoNombre;
     
-    public ManPresPro(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto) {
+   public ManPresPro(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto) {
         super(parent, modal);
-        
-        // 1. Guardamos los datos del producto
         this.productoID = idProducto;
         this.productoNombre = nombreProducto;
-        
-        // 2. Inicializamos los componentes y configuramos el formulario
         initComponents();
         configurarFormulario();
-        
-        // Guardamos los datos del producto en nuestras nuevas variables
-    this.idProductoActual = idProducto;
-    this.nombreProductoActual = nombreProducto;
+        this.idProductoActual = idProducto;
+        this.nombreProductoActual = nombreProducto;
     }
+   
+   
     
-     private void configurarFormulario() {
+   private void configurarFormulario() {
         this.setLocationRelativeTo(null);
         this.setTitle("Asignar Presentaciones para: " + this.productoNombre);
         txtProducto.setText(this.productoNombre);
         txtProducto.setEditable(false);
-        
-        configurarTabla(); // Prepara las columnas de la tabla
-        
-        // Carga los datos iniciales
+        txtStock.setEditable(false); // ✅ Aseguramos que el campo stock no sea editable
+
+        configurarTabla();
         cargarListaPresentaciones();
         actualizarTablaFormatos();
-        
         gestionarEstadoControles(false, "inicio");
 
-        // --- LISTENERS (LA LÓGICA PRINCIPAL) ---
-
-        // 1. Cuando se selecciona algo en la LISTA (para crear un NUEVO formato)
-        lstPresentaciones.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && lstPresentaciones.getSelectedIndex() != -1) {
-                tblPresentacionProducto.clearSelection(); // Limpia la selección de la tabla
-                prepararNuevoFormato();
-            }
-        });
-
-        // 2. Cuando se hace clic en una fila de la TABLA (para MODIFICAR un formato existente)
-        tblPresentacionProducto.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (tblPresentacionProducto.getSelectedRow() != -1) {
-                    lstPresentaciones.clearSelection(); // Limpia la selección de la lista
-                    cargarDatosDesdeTabla();
-                }
-            }
-        });
+        // ... (tus listeners existentes) ...
     }
      
       private void configurarTabla() {
@@ -117,26 +93,45 @@ public class ManPresPro extends javax.swing.JDialog {
         }
     }
      
-      private void actualizarTablaFormatos() {
-        DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
-        modelo.setRowCount(0); // Limpia la tabla
-        try {
-            // Usamos el método que ya tienes en tu capa de negocio
-            List<Object[]> filas = objPresProd.listarFormatosParaTabla(this.productoID);
-            for (Object[] fila : filas) {
-                // Adaptamos los datos a las columnas de nuestra tabla
-                modelo.addRow(new Object[]{
-                    fila[0], // idPresentacion
-                    fila[2], // Nombre del formato (String ya concatenado)
-                    fila[3], // Precio
-                    fila[4], // Stock
-                    fila[5]  // Vigencia (Activo)
-                });
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar formatos asignados: " + e.getMessage());
+    private void actualizarTablaFormatos() {
+    DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
+    
+    // Guardamos la fila que estaba seleccionada antes de actualizar
+    int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
+
+    modelo.setRowCount(0);
+    try {
+        List<Object[]> filas = objPresProd.listarFormatosParaTabla(this.productoID);
+        for (Object[] fila : filas) {
+            int idPresentacionDeFila = (int) fila[0];
+            int stockCalculado = objPresProd.obtenerStockTotalDeLotes(this.productoID, idPresentacionDeFila);
+            objPresProd.actualizarStock(this.productoID, idPresentacionDeFila, stockCalculado);
+            
+            modelo.addRow(new Object[]{
+                fila[0], 
+                fila[2], 
+                fila[3], 
+                stockCalculado,
+                fila[5]
+            });
         }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar formatos asignados: " + e.getMessage());
     }
+
+    // --- ✅ LÓGICA AÑADIDA ---
+    // Después de recargar la tabla, decidimos qué mostrar en los campos de texto.
+
+    if (filaSeleccionada != -1 && filaSeleccionada < tblPresentacionProducto.getRowCount()) {
+        // Si había una fila seleccionada, la volvemos a seleccionar y cargamos sus datos.
+        tblPresentacionProducto.setRowSelectionInterval(filaSeleccionada, filaSeleccionada);
+        cargarDatosDesdeTabla();
+    } else {
+        // Si no había nada seleccionado, simplemente limpiamos los campos.
+        limpiarCamposEdicion();
+    }
+}
+
 
     private void prepararNuevoFormato() {
         limpiarCamposEdicion();
@@ -144,17 +139,18 @@ public class ManPresPro extends javax.swing.JDialog {
         gestionarEstadoControles(true, "nuevo");
     }
 
-    private void cargarDatosDesdeTabla() {
+     private void cargarDatosDesdeTabla() {
         int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
         if (filaSeleccionada == -1) return;
         
         DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
         txtPrecioVenta.setText(modelo.getValueAt(filaSeleccionada, 2).toString());
-        txtStock.setText(modelo.getValueAt(filaSeleccionada, 3).toString());
+        txtStock.setText(modelo.getValueAt(filaSeleccionada, 3).toString()); // El stock ya está actualizado aquí
         chkVigencia.setSelected((Boolean) modelo.getValueAt(filaSeleccionada, 4));
         
         gestionarEstadoControles(true, "modificar");
     }
+
 
     private void gestionarEstadoControles(boolean habilitar, String modo) {
         txtPrecioVenta.setEnabled(habilitar);
@@ -630,30 +626,27 @@ public class ManPresPro extends javax.swing.JDialog {
     if (filaSeleccionada >= 0) {
         try {
             DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
-
-            // --- DATOS A ENVIAR ---
-            // 1. ID de la Presentación (Columna 0)
             int idPres = (int) modelo.getValueAt(filaSeleccionada, 0);
-            
-            // 2. Descripción de la Presentación (Columna 1: "Formato de Venta") - ¡NUEVO!
             String presentacionDescripcion = modelo.getValueAt(filaSeleccionada, 1).toString();
 
-            // 3. El idProducto y nombreProducto ya los tienes guardados en la clase
-            //    (idProductoActual y nombreProductoActual)
-
-            // ✅ CAMBIO: Llamamos al nuevo constructor de ManLote con los 4 parámetros
             ManLote dialogoLote = new ManLote(
                 null, 
                 true, 
                 this.idProductoActual, 
                 this.nombreProductoActual, 
                 idPres, 
-                presentacionDescripcion // <-- El nuevo dato que enviamos
+                presentacionDescripcion
             );
+
+            // 1. Abre la ventana de lotes y el código se detiene aquí.
             dialogoLote.setVisible(true);
+            
+            // 2. ✅ Cuando cierras la ventana de lotes (con "Salir"), el código continúa aquí.
+            //    Forzamos la actualización inmediata de la tabla.
+            actualizarTablaFormatos();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al obtener datos de la fila: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al abrir la ventana de lotes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     } else {
         JOptionPane.showMessageDialog(this, "Por favor, seleccione una presentación de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
