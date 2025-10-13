@@ -1,76 +1,118 @@
 package Capa_Datos;
 
 import Capa_Negocio.clsTipoPresentacion;
-import Capa_Datos.clsJDBC;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TipoPresentacionDAO1 {
     
     private final clsJDBC objConectar = new clsJDBC();
 
-    public ArrayList<clsTipoPresentacion> listarTiposPresentacion() throws Exception {
-        ArrayList<clsTipoPresentacion> lista = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    public void registrar(clsTipoPresentacion tipo) throws Exception {
+        String sql = "INSERT INTO TIPO_PRESENTACION (idTipoPresentacion, nombreTipoPresentacion, estado) VALUES (?, ?, ?)";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tipo.getId());
+            ps.setString(2, tipo.getNombre());
+            ps.setBoolean(3, tipo.isEstado());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al registrar: " + e.getMessage());
+        }
+    }
 
-        // Esta consulta ya estaba correcta
-        String sql = "SELECT idTipoPresentacion, nombretipopresentacion FROM TIPO_PRESENTACION WHERE estado = true ORDER BY idTipoPresentacion";
+    public void modificar(clsTipoPresentacion tipo) throws Exception {
+        String sql = "UPDATE TIPO_PRESENTACION SET nombreTipoPresentacion = ?, estado = ? WHERE idTipoPresentacion = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tipo.getNombre());
+            ps.setBoolean(2, tipo.isEstado());
+            ps.setInt(3, tipo.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al modificar: " + e.getMessage());
+        }
+    }
 
-        try {
-            conn = objConectar.conectar();
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
+    public void darDeBaja(int id) throws Exception {
+        String sql = "UPDATE TIPO_PRESENTACION SET estado = false WHERE idTipoPresentacion = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al dar de baja: " + e.getMessage());
+        }
+    }
 
-            while (rs.next()) {
-                clsTipoPresentacion dao = new clsTipoPresentacion(
-                    rs.getInt("idTipoPresentacion"),
-                    rs.getString("nombreTipoPresentacion") 
-                    
-                );
-                lista.add(dao);
+    public void eliminar(int id) throws Exception {
+        String sql = "DELETE FROM TIPO_PRESENTACION WHERE idTipoPresentacion = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al eliminar: " + e.getMessage());
+        }
+    }
+
+    public clsTipoPresentacion buscarPorId(int id) throws Exception {
+        clsTipoPresentacion tipo = null;
+        String sql = "SELECT * FROM TIPO_PRESENTACION WHERE idTipoPresentacion = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    tipo = new clsTipoPresentacion(
+                        rs.getInt("idTipoPresentacion"),
+                        rs.getString("nombreTipoPresentacion"),
+                        rs.getBoolean("estado")
+                    );
+                }
             }
         } catch (Exception e) {
-            throw new Exception("Error al listar los tipos de presentación: " + e.getMessage());
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conn != null) objConectar.desconectar();
+            throw new Exception("Error al buscar: " + e.getMessage());
+        }
+        return tipo;
+    }
+    
+    public List<clsTipoPresentacion> listarTodos() throws Exception {
+        List<clsTipoPresentacion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM TIPO_PRESENTACION ORDER BY idTipoPresentacion";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                clsTipoPresentacion tipo = new clsTipoPresentacion(
+                    rs.getInt("idTipoPresentacion"),
+                    rs.getString("nombreTipoPresentacion"),
+                    rs.getBoolean("estado")
+                );
+                lista.add(tipo);
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al listar: " + e.getMessage());
         }
         return lista;
     }
 
-    /**
-     * Obtiene el ID de un tipo de presentación a partir de su nombre.
-     */
-    public Integer obtenerCodigoTipoPresentacion(String nom) throws Exception {
-        Integer codigo = 0;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        
-        // ✔️ CORRECCIÓN AQUÍ: Se cambió "nombrepresentacion" por "nombreTipoPresentacion"
-        String sql = "SELECT idtipopresentacion FROM tipo_presentacion WHERE nombreTipoPresentacion = ?";
-        
-        try {
-            conn = objConectar.conectar();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, nom);
-            rs = ps.executeQuery();
-            
+    public int generarNuevoId() throws Exception {
+        int nuevoId = 1;
+        String sql = "SELECT COALESCE(MAX(idTipoPresentacion), 0) + 1 AS nuevoId FROM TIPO_PRESENTACION";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                codigo = rs.getInt("idtipopresentacion");
+                nuevoId = rs.getInt("nuevoId");
             }
         } catch (Exception e) {
-            throw new Exception("Error al obtener código de tipo de presentación: " + e.getMessage());
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conn != null) objConectar.desconectar();
+            throw new Exception("Error al generar ID: " + e.getMessage());
         }
-        return codigo;
+        return nuevoId;
     }
 }

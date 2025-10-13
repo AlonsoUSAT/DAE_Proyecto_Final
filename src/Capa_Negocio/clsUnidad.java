@@ -1,31 +1,28 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Capa_Negocio;
 
-/**
- *
- * @author USER
- */
 public class clsUnidad {
     private int id;
     private String nombre;
+    private boolean estado; // <-- 1. AÑADIR CAMPO
 
-    // Constructor para crear el objeto
-    public clsUnidad(int id, String nombre) {
+    // 2. ACTUALIZAR CONSTRUCTOR
+    public clsUnidad(int id, String nombre, boolean estado) {
         this.id = id;
         this.nombre = nombre;
+        this.estado = estado;
     }
+    
+    // Constructor vacío
+    public clsUnidad() {}
 
-    // Métodos para obtener los valores
+    // --- Getters y Setters ---
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     public String getNombre() { return nombre; }
-
-    /**
-     * Este método es VITAL. Permite que el JComboBox muestre el nombre
-     * de la unidad en lugar de un texto sin sentido.
-     */
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public boolean isEstado() { return estado; } // <-- 3. AÑADIR GETTER
+    public void setEstado(boolean estado) { this.estado = estado; }
+    
     @Override
     public String toString() {
         return this.nombre;

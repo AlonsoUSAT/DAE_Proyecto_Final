@@ -699,20 +699,40 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void btnMostrarFormatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarFormatosActionPerformed
-       int fila = tblProducto.getSelectedRow();
+     // 1. Validar que hay una fila seleccionada.
+    int filaSeleccionada = tblProducto.getSelectedRow();
     
-    if (fila == -1) {
-        JOptionPane.showMessageDialog(this, "Primero debe seleccionar un producto.", "Aviso", JOptionPane.WARNING_MESSAGE);
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Por favor, seleccione un producto de la tabla para ver sus formatos.", "Selección Requerida", JOptionPane.WARNING_MESSAGE);
         return;
     }
-    
-    // Obtenemos los datos que necesitamos ENVIAR
-    int productoID = (int) tblProducto.getValueAt(fila, 0);
-    String productoNombre = tblProducto.getValueAt(fila, 1).toString();
-    
-    // Creamos el formulario USANDO EL CONSTRUCTOR que RECIBE los datos
-    ManPresPro form = new ManPresPro(null, true, productoID, productoNombre);
-    form.setVisible(true);
+
+    try {
+        // 2. Obtener los datos del producto de forma SEGURA.
+        DefaultTableModel modelo = (DefaultTableModel) tblProducto.getModel();
+        
+        // --- INICIO DE LA CORRECCIÓN CLAVE ---
+        
+        // Obtenemos el valor como un 'Object' para evitar errores de casteo.
+        Object idObjeto = modelo.getValueAt(filaSeleccionada, 0);
+        Object nombreObjeto = modelo.getValueAt(filaSeleccionada, 1);
+        
+        // Convertimos los 'Object' a los tipos de datos que necesitamos.
+        int idProducto = Integer.parseInt(idObjeto.toString());
+        String nombreProducto = nombreObjeto.toString();
+        
+        // --- FIN DE LA CORRECCIÓN CLAVE ---
+
+        // 3. Crear y mostrar la ventana ManPresPro, pasando los datos correctos.
+        // Nos aseguramos de que el primer parámetro sea el frame padre (this)
+        ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto);
+        dialogoFormatos.setVisible(true);
+        
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El ID del producto en la tabla no es un número válido.", "Error de Datos", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al abrir la ventana de formatos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     
     }//GEN-LAST:event_btnMostrarFormatosActionPerformed
 

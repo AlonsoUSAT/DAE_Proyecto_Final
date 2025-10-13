@@ -30,169 +30,138 @@ public class ManPresPro extends javax.swing.JDialog {
      * Creates new form ManPresPro
      */
     
-     private int idProductoActual;
-    private String nombreProductoActual;
-     // --- Objetos de Negocio ---
+     // --- Objetos DAO ---
     PresentacionProductoDAO objPresProd = new PresentacionProductoDAO();
     PresentacionDAO objPresentacion = new PresentacionDAO();
     
-    // --- Datos del producto que estamos gestionando ---
+    // --- Datos del producto que se está gestionando ---
     private final int productoID;
     private final String productoNombre;
+
     
    public ManPresPro(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto) {
-        super(parent, modal);
+       super(parent, modal);
         this.productoID = idProducto;
         this.productoNombre = nombreProducto;
         initComponents();
-        configurarFormulario();
-        this.idProductoActual = idProducto;
-        this.nombreProductoActual = nombreProducto;
+        configurarComponentes(); // Centraliza la configuración inicial
     }
    
-   
+    private void configurarComponentes() {
+    this.setLocationRelativeTo(null);
+    this.setTitle("Asignar Presentaciones para: " + this.productoNombre);
+    txtProducto.setText(this.productoNombre);
+    txtProducto.setEditable(false);
+    txtStock.setEditable(false);
+
+    configurarTabla();
     
-   private void configurarFormulario() {
-        this.setLocationRelativeTo(null);
-        this.setTitle("Asignar Presentaciones para: " + this.productoNombre);
-        txtProducto.setText(this.productoNombre);
-        txtProducto.setEditable(false);
-        txtStock.setEditable(false); // ✅ Aseguramos que el campo stock no sea editable
+    // Configura el modelo de la lista aquí
+    lstPresentaciones.setModel(new DefaultListModel<clsPresentacion>());
 
-        configurarTabla();
-        cargarListaPresentaciones();
-        actualizarTablaFormatos();
-        gestionarEstadoControles(false, "inicio");
+    actualizarAmbasListas(); // <--- LLAMA AL NUEVO MÉTODO AQUÍ
+    
+    gestionarEstadoControles("inicio");
+}
 
-        // ... (tus listeners existentes) ...
-    }
-     
       private void configurarTabla() {
         DefaultTableModel modelo = new DefaultTableModel(){
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Hace que la tabla no sea editable
+                return false;
             }
         };
         modelo.addColumn("ID Pres.");
         modelo.addColumn("Formato de Venta");
         modelo.addColumn("Precio");
         modelo.addColumn("Stock");
-        modelo.addColumn("Vigente");
+        modelo.addColumn("Vigencia");
         tblPresentacionProducto.setModel(modelo);
     }
-     
-     
-       private void cargarListaPresentaciones() {
-        DefaultListModel<clsPresentacion> modelo = new DefaultListModel<>();
-        try {
-            objPresentacion.listarPresentaciones().forEach(modelo::addElement);
-            lstPresentaciones.setModel(modelo);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar presentaciones disponibles: " + e.getMessage());
-        }
-    }
-     
-    private void actualizarTablaFormatos() {
-    DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
     
-    // Guardamos la fila que estaba seleccionada antes de actualizar
-    int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
-
-    modelo.setRowCount(0);
-    try {
-        List<Object[]> filas = objPresProd.listarFormatosParaTabla(this.productoID);
-        for (Object[] fila : filas) {
-            int idPresentacionDeFila = (int) fila[0];
-            int stockCalculado = objPresProd.obtenerStockTotalDeLotes(this.productoID, idPresentacionDeFila);
-            objPresProd.actualizarStock(this.productoID, idPresentacionDeFila, stockCalculado);
-            
-            modelo.addRow(new Object[]{
-                fila[0], 
-                fila[2], 
-                fila[3], 
-                stockCalculado,
-                fila[5]
-            });
-        }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar formatos asignados: " + e.getMessage());
+      private void limpiarControles() {
+        txtPrecioVenta.setText("");
+        txtStock.setText("0");
+        chkVigencia.setSelected(true); // Por defecto, es vigente
+        tblPresentacionProducto.clearSelection();
+        lstPresentaciones.clearSelection();
     }
-
-    // --- ✅ LÓGICA AÑADIDA ---
-    // Después de recargar la tabla, decidimos qué mostrar en los campos de texto.
-
-    if (filaSeleccionada != -1 && filaSeleccionada < tblPresentacionProducto.getRowCount()) {
-        // Si había una fila seleccionada, la volvemos a seleccionar y cargamos sus datos.
-        tblPresentacionProducto.setRowSelectionInterval(filaSeleccionada, filaSeleccionada);
-        cargarDatosDesdeTabla();
-    } else {
-        // Si no había nada seleccionado, simplemente limpiamos los campos.
-        limpiarCamposEdicion();
-    }
-}
-
-
-    private void prepararNuevoFormato() {
-        limpiarCamposEdicion();
-        chkVigencia.setSelected(true);
-        gestionarEstadoControles(true, "nuevo");
-    }
-
-     private void cargarDatosDesdeTabla() {
-        int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
-        if (filaSeleccionada == -1) return;
+      
+        private void gestionarEstadoControles(String modo) {
+        boolean camposEditables = modo.equals("nuevo") || modo.equals("modificar");
         
-        DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
-        txtPrecioVenta.setText(modelo.getValueAt(filaSeleccionada, 2).toString());
-        txtStock.setText(modelo.getValueAt(filaSeleccionada, 3).toString()); // El stock ya está actualizado aquí
-        chkVigencia.setSelected((Boolean) modelo.getValueAt(filaSeleccionada, 4));
-        
-        gestionarEstadoControles(true, "modificar");
-    }
+        txtPrecioVenta.setEnabled(camposEditables);
+        chkVigencia.setEnabled(camposEditables);
+        // El stock nunca es editable
+        txtStock.setEnabled(false);
 
-
-    private void gestionarEstadoControles(boolean habilitar, String modo) {
-        txtPrecioVenta.setEnabled(habilitar);
-        txtStock.setEnabled(habilitar);
-        chkVigencia.setEnabled(habilitar);
-        
         switch (modo) {
-            case "nuevo":
+            case "inicio":
+                lstPresentaciones.setEnabled(true);
                 btnNuevo.setEnabled(true);
                 btnModificar.setEnabled(false);
                 btnDarDeBaja.setEnabled(false);
                 btnEliminar.setEnabled(false);
+                btnNuevo.setText("Nuevo");
                 break;
+            
+            case "nuevo":
+                lstPresentaciones.setEnabled(true); // Aún puede cambiar la selección antes de guardar
+                btnNuevo.setEnabled(true);
+                btnModificar.setEnabled(false);
+                btnDarDeBaja.setEnabled(false);
+                btnEliminar.setEnabled(false);
+                btnNuevo.setText("Guardar");
+                break;
+
             case "modificar":
+                lstPresentaciones.setEnabled(false); // No se puede cambiar la presentación base al modificar
                 btnNuevo.setEnabled(false);
                 btnModificar.setEnabled(true);
                 btnDarDeBaja.setEnabled(true);
                 btnEliminar.setEnabled(true);
-                break;
-            default: // "inicio" o cualquier otro caso
-                btnNuevo.setEnabled(false);
-                btnModificar.setEnabled(false);
-                btnDarDeBaja.setEnabled(false);
-                btnEliminar.setEnabled(false);
+                btnNuevo.setText("Nuevo");
                 break;
         }
     }
+        
+      private void actualizarAmbasListas() {
+    DefaultTableModel tableModel = (DefaultTableModel) tblPresentacionProducto.getModel();
+    tableModel.setRowCount(0);
     
-    private void limpiarCamposEdicion() {
-        txtPrecioVenta.setText("");
-        txtStock.setText("0");
-    }
-    
-    private void limpiarFormularioCompleto() {
-        lstPresentaciones.clearSelection();
-        tblPresentacionProducto.clearSelection();
-        limpiarCamposEdicion();
-        chkVigencia.setSelected(false);
-        gestionarEstadoControles(false, "inicio");
-    }
+    DefaultListModel<clsPresentacion> listModel = (DefaultListModel<clsPresentacion>) lstPresentaciones.getModel();
+    listModel.clear();
 
+    try {
+        // 1. Obtener TODAS las presentaciones y llenar la lista de la izquierda.
+        List<clsPresentacion> catalogoGlobal = objPresentacion.listarPresentaciones();
+        for (clsPresentacion p : catalogoGlobal) {
+            listModel.addElement(p); // <-- Ya no hay filtro, se agregan todas.
+        }
 
+        // 2. Obtener solo las presentaciones YA ASIGNADAS para llenar la tabla.
+        List<Object[]> asignadosData = objPresProd.listarFormatosParaTabla(this.productoID);
+        for (Object[] fila : asignadosData) {
+            int idPresentacion = (int) fila[0];
+            int stockCalculado = objPresProd.obtenerStockTotalDeLotes(this.productoID, idPresentacion);
+            objPresProd.actualizarStock(this.productoID, idPresentacion, stockCalculado);
+            
+            boolean vigente = (boolean) fila[5];
+
+            tableModel.addRow(new Object[]{
+                fila[0], 
+                fila[2], 
+                fila[3], 
+                stockCalculado,
+                vigente ? "Vigente" : "No Vigente"
+            });
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al actualizar las listas: " + e.getMessage());
+    }
+}
+
+          
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -515,50 +484,126 @@ public class ManPresPro extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        clsPresentacion presSeleccionada = lstPresentaciones.getSelectedValue();
-        if (presSeleccionada == null) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la lista de la izquierda.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        try {
-            float precio = Float.parseFloat(txtPrecioVenta.getText());
-            int stock = Integer.parseInt(txtStock.getText());
-            boolean vigente = chkVigencia.isSelected();
+          if (btnNuevo.getText().equals("Nuevo")) {
+        // MODO "NUEVO": Prepara el formulario para recibir datos.
+        // Esta parte no cambia y sigue siendo la de la solución anterior.
+        limpiarControles();
+        tblPresentacionProducto.clearSelection();
+        gestionarEstadoControles("nuevo");
+        lstPresentaciones.requestFocusInWindow();
+        
+        JOptionPane.showMessageDialog(this, 
+            "Modo de asignación activado.\n\n" +
+            "1. Seleccione una presentación de la lista.\n" +
+            "2. Ingrese el precio de venta.\n" +
+            "3. Haga clic en 'Guardar'.",
+            "Asignar Nueva Presentación", 
+            JOptionPane.INFORMATION_MESSAGE);
 
-            objPresProd.registrar(productoID, presSeleccionada.getId(), precio, stock, vigente);
+    } else { // MODO "GUARDAR": El botón dice "Guardar". Validamos y guardamos.
+        try {
+            clsPresentacion presSeleccionada = lstPresentaciones.getSelectedValue();
+
+            // 1. Validar que se seleccionó algo de la lista.
+            if (presSeleccionada == null) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la lista.", "Validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 2. Validar que la presentación seleccionada esté activa.
+            if (!presSeleccionada.isActivo()) {
+                JOptionPane.showMessageDialog(this, "No se puede asignar una presentación inactiva.", "Acción no Válida", JOptionPane.WARNING_MESSAGE);
+                return; 
+            }
+            
+            // --- ✅ NUEVA VALIDACIÓN PARA EVITAR DUPLICADOS ---
+            int idSeleccionado = presSeleccionada.getId();
+            DefaultTableModel modeloTabla = (DefaultTableModel) tblPresentacionProducto.getModel();
+            for (int i = 0; i < modeloTabla.getRowCount(); i++) {
+                int idEnTabla = (int) modeloTabla.getValueAt(i, 0); // Asumiendo que el ID está en la columna 0
+                if (idEnTabla == idSeleccionado) {
+                    JOptionPane.showMessageDialog(this, "Esta presentación ya ha sido asignada al producto.", "Acción no Válida", JOptionPane.WARNING_MESSAGE);
+                    return; // Detiene el proceso si ya existe
+                }
+            }
+            // --- FIN DE LA NUEVA VALIDACIÓN ---
+            
+            // 4. Validar y procesar los datos.
+            float precio = Float.parseFloat(txtPrecioVenta.getText());
+            objPresProd.registrar(productoID, presSeleccionada.getId(), precio, 0, true);
+            
             JOptionPane.showMessageDialog(this, "Presentación asignada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-            actualizarTablaFormatos();
-            limpiarFormularioCompleto();
+            actualizarAmbasListas();
+            limpiarControles();
+            gestionarEstadoControles("inicio");
+
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Precio y Stock deben ser números válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al guardar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
+    }
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        limpiarFormularioCompleto();
+       limpiarControles();
+        gestionarEstadoControles("inicio");
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnDarDeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarDeBajaActionPerformed
+   int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un formato de la tabla para dar de baja.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        if (!chkVigencia.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Este formato ya se encuentra 'No Vigente'.", "Acción no Válida", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea cambiar la vigencia de este formato a 'No Vigente'?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                // CÓDIGO NUEVO Y RECOMENDADO
+                int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
+                objPresProd.darBaja(productoID, idPresentacion);
+                float precio = Float.parseFloat(txtPrecioVenta.getText());
+                int stockActual = Integer.parseInt(txtStock.getText());
+
+                // Dar de baja es modificar el estado a false
+                objPresProd.modificar(productoID, idPresentacion, precio, stockActual, false);
+                
+                JOptionPane.showMessageDialog(this, "El formato ha sido dado de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+               actualizarAmbasListas();
+                limpiarControles();
+                gestionarEstadoControles("inicio");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al dar de baja: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnDarDeBajaActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
+          int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un formato de la tabla para eliminar.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea ELIMINAR este formato del producto?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        
+        int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible y borrará la asignación del formato a este producto.\n¿Está seguro de que desea ELIMINAR este formato?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
                 objPresProd.eliminar(productoID, idPresentacion);
-                actualizarTablaFormatos();
-                limpiarFormularioCompleto();
+                
+                JOptionPane.showMessageDialog(this, "Formato eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                
+               actualizarAmbasListas();
+                limpiarControles();
+                gestionarEstadoControles("inicio");
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error al eliminar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -579,16 +624,20 @@ public class ManPresPro extends javax.swing.JDialog {
         try {
             int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
             float precio = Float.parseFloat(txtPrecioVenta.getText());
-            int stock = Integer.parseInt(txtStock.getText());
             boolean vigente = chkVigencia.isSelected();
+            // El stock no se modifica desde aquí, se pasa el valor actual.
+            int stockActual = Integer.parseInt(txtStock.getText());
 
-            objPresProd.modificar(productoID, idPresentacion, precio, stock, vigente);
+            // Se asume que modificar en PresentacionProductoDAO acepta estos parámetros
+            objPresProd.modificar(productoID, idPresentacion, precio, stockActual, vigente);
+            
             JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-            actualizarTablaFormatos();
-            limpiarFormularioCompleto();
+          actualizarAmbasListas();
+            limpiarControles();
+            gestionarEstadoControles("inicio");
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Precio y Stock deben ser números válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -603,50 +652,87 @@ public class ManPresPro extends javax.swing.JDialog {
 
         ManPresentacion mant = new ManPresentacion(null, true);
         mant.setVisible(true);
-        cargarListaPresentaciones();
+        // Al cerrar ManPresentacion, recargamos la lista por si se creó uno nuevo
+        actualizarAmbasListas();
 
     }//GEN-LAST:event_btnNuevaPresentacionActionPerformed
 
     private void tblPresentacionProductoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresentacionProductoMouseClicked
-        // Verifica si realmente se ha seleccionado una fila
-        if (tblPresentacionProducto.getSelectedRow() != -1) {
+          int fila = tblPresentacionProducto.getSelectedRow();
+        if (fila == -1) return;
 
-            // 1. IMPORTANTE: Limpia la selección de la lista de la izquierda
-            // para que el programa sepa que estás en "Modo Edición" y no en "Modo Nuevo".
-            lstPresentaciones.clearSelection();
+        try {
+            lstPresentaciones.clearSelection(); // Importante para diferenciar de "nuevo"
 
-            // 2. Llama al método que hace el trabajo de cargar los datos.
-            cargarDatosDesdeTabla();
+            Object idPresObj = tblPresentacionProducto.getValueAt(fila, 0);
+            Object precioObj = tblPresentacionProducto.getValueAt(fila, 2);
+            Object stockObj = tblPresentacionProducto.getValueAt(fila, 3);
+            Object vigenciaObj = tblPresentacionProducto.getValueAt(fila, 4);
+
+            txtPrecioVenta.setText(precioObj.toString());
+            txtStock.setText(stockObj.toString());
+            chkVigencia.setSelected(vigenciaObj.toString().equals("Vigente"));
+            
+            gestionarEstadoControles("modificar");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar datos de la tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_tblPresentacionProductoMouseClicked
 
     private void btnLotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLotesActionPerformed
-         int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
+         // 1. Obtenemos la fila seleccionada de la tabla
+    int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
 
     if (filaSeleccionada >= 0) {
         try {
             DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
+            
+            // 2. Obtenemos los datos clave de la fila
             int idPres = (int) modelo.getValueAt(filaSeleccionada, 0);
             String presentacionDescripcion = modelo.getValueAt(filaSeleccionada, 1).toString();
+            String vigencia = modelo.getValueAt(filaSeleccionada, 4).toString(); // Columna de Vigencia
 
-            ManLote dialogoLote = new ManLote(
-                null, 
-                true, 
-                this.idProductoActual, 
-                this.nombreProductoActual, 
-                idPres, 
-                presentacionDescripcion
-            );
+            // 3. Verificamos el estado de la vigencia
+            if (vigencia.equals("Vigente")) {
+                // ✅ CASO VIGENTE: Todo es normal, abrimos la ventana de lotes.
+                System.out.println("Presentación vigente. Abriendo gestión de lotes...");
+                ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion);
+                dialogoLote.setVisible(true);
+                
+                // Al cerrar, actualizamos por si cambió el stock
+                actualizarAmbasListas();
 
-            // 1. Abre la ventana de lotes y el código se detiene aquí.
-            dialogoLote.setVisible(true);
-            
-            // 2. ✅ Cuando cierras la ventana de lotes (con "Salir"), el código continúa aquí.
-            //    Forzamos la actualización inmediata de la tabla.
-            actualizarTablaFormatos();
+            } else {
+                // ⚠️ CASO NO VIGENTE: Necesitamos revisar si hay stock existente.
+                System.out.println("Presentación no vigente. Verificando stock de lotes...");
+                int stockActualDeLotes = objPresProd.obtenerStockTotalDeLotes(this.productoID, idPres);
 
+                if (stockActualDeLotes > 0) {
+                    // 📦 CASO A (No Vigente CON Stock): Aún hay inventario por gestionar.
+                    System.out.println("Tiene stock restante. Abriendo gestión de lotes en modo consulta/gestión.");
+                    JOptionPane.showMessageDialog(this, 
+                        "Esta presentación no está vigente, pero tiene lotes con stock por gestionar.", 
+                        "Aviso", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                    
+                    ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion);
+                    dialogoLote.setVisible(true);
+
+                    // Al cerrar, actualizamos por si se vendió o ajustó el stock
+                    actualizarAmbasListas();
+
+                } else {
+                    // ❌ CASO B (No Vigente SIN Stock): No hay nada que hacer aquí.
+                    System.out.println("No tiene stock. Bloqueando acceso.");
+                    JOptionPane.showMessageDialog(this, 
+                        "Esta presentación no está vigente y no tiene lotes con stock.\nNo se pueden agregar nuevos lotes.", 
+                        "Acción no Permitida", 
+                        JOptionPane.WARNING_MESSAGE);
+                }
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al abrir la ventana de lotes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al procesar la solicitud de lotes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     } else {
         JOptionPane.showMessageDialog(this, "Por favor, seleccione una presentación de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);

@@ -1,34 +1,40 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Capa_Negocio;
 
 /**
- *
+ * Representa una presentación de producto con sus atributos.
+ * Esta clase sirve como un Objeto de Transferencia de Datos (DTO).
  * @author USER
  */
 public class clsPresentacion {
-      // --- Atributos ---
-    private int id;
-    private String nombreTipoPresentacion; // El nombre completo es importante
-    private float cantidad;
-    private String nombreUnidad;           // El nombre completo es importante
+    // --- Atributos ---
+    private final int id;
+    private final String nombreTipoPresentacion;
+    private final float cantidad;
+    private final String nombreUnidad;
+    private final boolean activo; // Atributo para el estado
 
-    // --- Constructor ---
-    public clsPresentacion(int id, String nombreTipoPresentacion, float cantidad, String nombreUnidad) {
+    /**
+     * Constructor para inicializar un objeto de presentación.
+     * @param id El identificador único de la presentación.
+     * @param nombreTipoPresentacion El nombre del tipo de presentación (ej: "Caja", "Frasco").
+     * @param cantidad La cantidad numérica (ej: 50.5).
+     * @param nombreUnidad El nombre de la unidad (ej: "Mililitros").
+     * @param activo El estado de la presentación (true para activo, false para inactivo).
+     */
+    public clsPresentacion(int id, String nombreTipoPresentacion, float cantidad, String nombreUnidad, boolean activo) {
         this.id = id;
         this.nombreTipoPresentacion = nombreTipoPresentacion;
         this.cantidad = cantidad;
         this.nombreUnidad = nombreUnidad;
+        this.activo = activo; // Se inicializa el nuevo atributo
     }
 
-    // --- Métodos Getter (estos son los que usas para obtener los datos) ---
+    // --- Métodos Getter ---
     public int getId() {
         return id;
     }
 
-    public String getNombreTipoPresentacion() { // ✔️ Este es el nombre correcto del método
+    public String getNombreTipoPresentacion() {
         return nombreTipoPresentacion;
     }
 
@@ -36,13 +42,30 @@ public class clsPresentacion {
         return cantidad;
     }
 
-    public String getNombreUnidad() { // ✔️ Este es el nombre correcto del método
+    public String getNombreUnidad() {
         return nombreUnidad;
     }
+
+    /**
+     * Devuelve el estado de la presentación.
+     * El prefijo "is" es la convención estándar para getters de tipo boolean.
+     * @return true si la presentación está activa, false en caso contrario.
+     */
+    public boolean isActivo() {
+        return activo;
+    }
     
-    // (Opcional) Sobreescribes toString para que se vea bien en los ComboBox
+    /**
+     * Devuelve una representación en texto del objeto, útil para depuración o logs.
+     * Muestra los datos principales de la presentación.
+     */
     @Override
     public String toString() {
-        return String.format("%s x %.0f %s", this.nombreTipoPresentacion, this.cantidad, this.nombreUnidad);
+        return String.format("%s x %.2f %s (%s)", 
+            this.nombreTipoPresentacion, 
+            this.cantidad, 
+            this.nombreUnidad,
+            this.activo ? "Activo" : "Inactivo"
+        );
     }
 }

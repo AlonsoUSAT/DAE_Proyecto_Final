@@ -40,15 +40,14 @@ public List<Object[]> listarFormatosParaTabla(int idProducto) throws Exception {
     ResultSet rs = null;
 
     // --- CONSULTA SQL CORREGIDA ---
-    // Se han corregido los nombres de las columnas para que coincidan con tu base de datos.
     String sql = "SELECT " +
                  "    pp.idPresentacion, " +
                  "    prod.idProducto, " +
-                 // CORRECCIÓN: Se usó 'tp.nombretipopresentacion' y 'u.nombreunidad'
                  "    CONCAT(tp.nombretipopresentacion, ' x ', pres.cantidad, ' ', u.nombreunidad) AS Presentacion, " +
                  "    pp.precio, " +
                  "    pp.stock, " +
-                 "    prod.estado AS Activo, " +
+                 //  AQUÍ ESTÁ LA CORRECCIÓN: Se cambió 'prod.estado' por 'pp.estado'
+                 "    pp.estado AS Vigencia, " +
                  "    cat.nombreCategoria, " +
                  "    mar.nombre AS nombreMarca, " +
                  "    lab.nombreLaboratorio " +
@@ -59,7 +58,6 @@ public List<Object[]> listarFormatosParaTabla(int idProducto) throws Exception {
                  "JOIN " +
                  "    PRESENTACION pres ON pp.idPresentacion = pres.idPresentacion " +
                  "JOIN " +
-                 // CORRECCIÓN AQUÍ: Se cambió 'pres.idTipoPresentacion' por 'pres.tipoPresentacion'
                  "    TIPO_PRESENTACION tp ON pres.tipoPresentacion = tp.idTipoPresentacion " +
                  "JOIN " +
                  "    UNIDAD u ON pres.idUnidad = u.idUnidad " +
@@ -85,7 +83,8 @@ public List<Object[]> listarFormatosParaTabla(int idProducto) throws Exception {
             fila[2] = rs.getString("Presentacion");
             fila[3] = rs.getBigDecimal("precio");
             fila[4] = rs.getInt("stock");
-            fila[5] = rs.getBoolean("Activo");
+            // AQUÍ TAMBIÉN SE CORRIGE: Se usa el nuevo alias "Vigencia"
+            fila[5] = rs.getBoolean("Vigencia");
             fila[6] = rs.getString("nombreCategoria");
             fila[7] = rs.getString("nombreMarca");
             fila[8] = rs.getString("nombreLaboratorio");
@@ -292,6 +291,23 @@ public List<Object[]> listarFormatosParaTabla(int idProducto) throws Exception {
     }
 }
     
-    
+    public void darBaja(int idProd, int idPres) throws Exception {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        String sql = "UPDATE PRESENTACION_PRODUCTO SET estado = false WHERE idProducto = ? AND idPresentacion = ?";
+        
+        try {
+            conn = objConectar.conectar();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, idProd);
+            ps.setInt(2, idPres);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al dar de baja la presentación del producto: " + e.getMessage());
+        } finally {
+            if (ps != null) ps.close();
+            if (conn != null) objConectar.desconectar();
+        }
+    }
     
 }

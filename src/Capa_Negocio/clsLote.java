@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class clsLote {
      
-    // Campos directos de la tabla LOTE
+     // Campos directos de la tabla LOTE
     private int idLote;
     private String nroLote;
     private Date fechaFabricacion;
@@ -20,15 +20,17 @@ public class clsLote {
     private int cantidadRecibida;
     private int stockActual;
     private boolean estado;
-    private int idPresentacion; // ✅ 1. AÑADE ESTE CAMPO
+    private int idPresentacion;
+    private int idProducto; // <-- 1. CAMPO AÑADIDO
     
     // Campos que vendrán de tablas relacionadas (JOINs)
     private String nombreProducto;
-    private String descripcionPresentacion; // Para mostrar ej: "Caja x 24 Unidades"
+    private String descripcionPresentacion;
 
-   // ✅ 2. AÑADE el parámetro 'idPresentacion' al constructor
+    // Se añade 'idProducto' al constructor
     public clsLote(int idLote, String nroLote, Date fechaFabricacion, Date fechaVencimiento, 
                    int cantidadRecibida, int stockActual, boolean estado, int idPresentacion, 
+                   int idProducto, // <-- 2. PARÁMETRO AÑADIDO
                    String nombreProducto, String descripcionPresentacion) {
         
         this.idLote = idLote;
@@ -38,54 +40,26 @@ public class clsLote {
         this.cantidadRecibida = cantidadRecibida;
         this.stockActual = stockActual;
         this.estado = estado;
-        this.idPresentacion = idPresentacion; // ✅ 3. ASIGNA EL VALOR
+        this.idPresentacion = idPresentacion;
+        this.idProducto = idProducto; // <-- 3. ASIGNACIÓN AÑADIDA
         this.nombreProducto = nombreProducto;
         this.descripcionPresentacion = descripcionPresentacion;
     }
 
-    // Getters para acceder a los valores
-    public int getIdLote() {
-        return idLote;
-    }
+    // --- Getters ---
+    public int getIdLote() { return idLote; }
+    public String getNroLote() { return nroLote; }
+    public Date getFechaFabricacion() { return fechaFabricacion; }
+    public Date getFechaVencimiento() { return fechaVencimiento; }
+    public int getCantidadRecibida() { return cantidadRecibida; }
+    public int getStockActual() { return stockActual; }
+    public boolean isEstado() { return estado; }
+    public int getIdPresentacion() { return idPresentacion; }
+    public String getNombreProducto() { return nombreProducto; }
+    public String getDescripcionPresentacion() { return descripcionPresentacion; }
 
-    public String getNroLote() {
-        return nroLote;
+    // --- MÉTODO GETTER FALTANTE ---
+    public int getIdProducto() { // <-- 4. MÉTODO AÑADIDO
+        return idProducto;
     }
-
-    public Date getFechaFabricacion() {
-        return fechaFabricacion;
-    }
-
-    public Date getFechaVencimiento() {
-        return fechaVencimiento;
-    }
-
-    public int getCantidadRecibida() {
-        return cantidadRecibida;
-    }
-
-    public int getStockActual() {
-        return stockActual;
-    }
-
-    public boolean isEstado() {
-        return estado;
-    }
-
-    public String getNombreProducto() {
-        return nombreProducto;
-    }
-
-    public String getDescripcionPresentacion() {
-        return descripcionPresentacion;
-    }
-    
-     // ✅ 4. AÑADE este método para poder leer el ID
-    public int getIdPresentacion() {
-        return idPresentacion;
-    }
-
-    
-    // etc.
-    
 }

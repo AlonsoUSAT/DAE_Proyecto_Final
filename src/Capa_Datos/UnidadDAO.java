@@ -1,90 +1,140 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Capa_Datos;
 
 import Capa_Negocio.clsUnidad;
-import Capa_Datos.clsJDBC;
-import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-/**
- *
- * @author USER
- */
-public class UnidadDAO {
-      private final clsJDBC objConectar = new clsJDBC();
+import java.util.List;
 
-    /**
-     * Devuelve una lista de todas las unidades.
-     * @return ArrayList<UnidadDAO>
-     * @throws Exception
-     */
-    public ArrayList<clsUnidad> listarUnidades() throws Exception {
-        // 2. La lista debe ser de tipo UnidadDAO
-        ArrayList<clsUnidad> lista = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        
-        String sql = "SELECT idunidad, nombreunidad FROM unidad ORDER BY nombreunidad";
-        
-        try {
-            conn = objConectar.conectar();
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                // 3. Crear un nuevo objeto UnidadDAO
-                clsUnidad dao = new clsUnidad(
-                    rs.getInt("idunidad"),
-                    rs.getString("nombreunidad")
-                );
-                lista.add(dao);
+public class UnidadDAO {
+    
+    private final clsJDBC objConectar = new clsJDBC();
+
+    public void registrar(clsUnidad unidad) throws Exception {
+        String sql = "INSERT INTO UNIDAD (idUnidad, nombreUnidad, estado) VALUES (?, ?, ?)";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, unidad.getId());
+            ps.setString(2, unidad.getNombre());
+            ps.setBoolean(3, unidad.isEstado());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al registrar unidad: " + e.getMessage());
+        }
+    }
+
+    public void modificar(clsUnidad unidad) throws Exception {
+        String sql = "UPDATE UNIDAD SET nombreUnidad = ?, estado = ? WHERE idUnidad = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, unidad.getNombre());
+            ps.setBoolean(2, unidad.isEstado());
+            ps.setInt(3, unidad.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al modificar unidad: " + e.getMessage());
+        }
+    }
+
+    public void darDeBaja(int id) throws Exception {
+        String sql = "UPDATE UNIDAD SET estado = false WHERE idUnidad = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al dar de baja unidad: " + e.getMessage());
+        }
+    }
+
+    public void eliminar(int id) throws Exception {
+        String sql = "DELETE FROM UNIDAD WHERE idUnidad = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new Exception("Error al eliminar unidad: " + e.getMessage());
+        }
+    }
+
+    public clsUnidad buscarPorId(int id) throws Exception {
+        clsUnidad unidad = null;
+        String sql = "SELECT * FROM UNIDAD WHERE idUnidad = ?";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    unidad = new clsUnidad(
+                        rs.getInt("idUnidad"),
+                        rs.getString("nombreUnidad"),
+                        rs.getBoolean("estado")
+                    );
+                }
             }
         } catch (Exception e) {
-            throw new Exception("Error al listar las unidades: " + e.getMessage());
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conn != null) objConectar.desconectar();
+            throw new Exception("Error al buscar unidad: " + e.getMessage());
+        }
+        return unidad;
+    }
+    
+    public List<clsUnidad> listarTodas() throws Exception {
+        List<clsUnidad> lista = new ArrayList<>();
+        String sql = "SELECT * FROM UNIDAD ORDER BY idUnidad";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                clsUnidad unidad = new clsUnidad(
+                    rs.getInt("idUnidad"),
+                    rs.getString("nombreUnidad"),
+                    rs.getBoolean("estado")
+                );
+                lista.add(unidad);
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al listar unidades: " + e.getMessage());
         }
         return lista;
     }
-    /**
-     * Obtiene el ID de una unidad a partir de su nombre.
-     * @param nom El nombre de la unidad a buscar.
-     * @return El ID correspondiente, o 0 si no se encuentra.
-     * @throws Exception
-     */
-    public Integer obtenerCodigoUnidad(String nom) throws Exception {
-        Integer codigo = 0;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        
-        String sql = "SELECT idunidad FROM unidad WHERE nombreunidad = ?";
-        
-        try {
-            conn = objConectar.conectar();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, nom); // Parámetro seguro
-            rs = ps.executeQuery();
-            
+
+    public int generarNuevoId() throws Exception {
+        int nuevoId = 1;
+        String sql = "SELECT COALESCE(MAX(idUnidad), 0) + 1 AS nuevoId FROM UNIDAD";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                codigo = rs.getInt("idunidad");
+                nuevoId = rs.getInt("nuevoId");
             }
         } catch (Exception e) {
-            throw new Exception("Error al obtener código de unidad: " + e.getMessage());
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conn != null) objConectar.desconectar();
+            throw new Exception("Error al generar ID de unidad: " + e.getMessage());
         }
-        return codigo;
+        return nuevoId;
     }
-     
+    
+       public List<clsUnidad> listarActivas() throws Exception {
+        List<clsUnidad> lista = new ArrayList<>();
+        // Esta consulta filtra para traer solo las unidades con estado = true
+        String sql = "SELECT * FROM UNIDAD WHERE estado = true ORDER BY nombreUnidad";
+        try (Connection conn = objConectar.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                clsUnidad unidad = new clsUnidad(
+                    rs.getInt("idUnidad"),
+                    rs.getString("nombreUnidad"),
+                    rs.getBoolean("estado")
+                );
+                lista.add(unidad);
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al listar unidades activas: " + e.getMessage());
+        }
+        return lista;
+    }
 }

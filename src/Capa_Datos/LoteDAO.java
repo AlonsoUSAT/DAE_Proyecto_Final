@@ -22,49 +22,49 @@ public class LoteDAO {
      * @throws Exception Si ocurre un error de base de datos.
      */
     public ArrayList<clsLote> listarLotes() throws Exception {
-        ArrayList<clsLote> lotes = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    ArrayList<clsLote> lotes = new ArrayList<>();
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
 
-        String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
-                     "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, pr.nombreproducto, " +
-                     "CONCAT(tp.nombretipopresentacion, ' x ', p.cantidad, ' ', u.nombreunidad) AS descripcionPresentacion " +
-                     "FROM LOTE l " +
-                     "INNER JOIN PRODUCTO pr ON l.idProducto = pr.idProducto " +
-                     "INNER JOIN PRESENTACION p ON l.idPresentacion = p.idPresentacion " +
-                     "INNER JOIN TIPO_PRESENTACION tp ON p.tipoPresentacion = tp.idtipopresentacion " +
-                     "INNER JOIN UNIDAD u ON p.idunidad = u.idunidad";
+    // Se añade l.idProducto y el alias para pr.nombre
+    String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
+                 "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, l.idProducto, pr.nombre AS nombreproducto, " + 
+                 "CONCAT(tp.nombretipopresentacion, ' x ', p.cantidad, ' ', u.nombreunidad) AS descripcionPresentacion " +
+                 "FROM LOTE l " +
+                 "INNER JOIN PRODUCTO pr ON l.idProducto = pr.idProducto " +
+                 "INNER JOIN PRESENTACION p ON l.idPresentacion = p.idPresentacion " +
+                 "INNER JOIN TIPO_PRESENTACION tp ON p.tipoPresentacion = tp.idtipopresentacion " +
+                 "INNER JOIN UNIDAD u ON p.idunidad = u.idunidad";
 
-        try {
-            conn = objConectar.conectar();
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
+    try {
+        conn = objConectar.conectar();
+        ps = conn.prepareStatement(sql);
+        rs = ps.executeQuery();
 
-            while (rs.next()) {
-                clsLote dao = new clsLote(
-                    rs.getInt("idLote"),
-                    rs.getString("nroLote"),
-                    rs.getDate("fechaFabricacion"),
-                    rs.getDate("fechaVencimiento"),
-                    rs.getInt("cantidadRecibida"),
-                    rs.getInt("stockActual"),
-                    rs.getBoolean("estado"),
-                    rs.getInt("idPresentacion"),
-                    rs.getString("nombreproducto"),
-                    rs.getString("descripcionPresentacion")
-                );
-                lotes.add(dao);
-            }
-        } catch (Exception e) {
-            throw new Exception("Error al listar lotes: " + e.getMessage());
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conn != null) objConectar.desconectar();
+        while (rs.next()) {
+            clsLote dao = new clsLote(
+                rs.getInt("idLote"),
+                rs.getString("nroLote"),
+                rs.getDate("fechaFabricacion"),
+                rs.getDate("fechaVencimiento"),
+                rs.getInt("cantidadRecibida"),
+                rs.getInt("stockActual"),
+                rs.getBoolean("estado"),
+                rs.getInt("idPresentacion"),
+                rs.getInt("idProducto"), // <-- CAMBIO: Se añade el idProducto
+                rs.getString("nombreproducto"),
+                rs.getString("descripcionPresentacion")
+            );
+            lotes.add(dao);
         }
-        return lotes;
+    } catch (Exception e) {
+        throw new Exception("Error al listar lotes: " + e.getMessage());
+    } finally {
+        // ... (código para cerrar conexiones)
     }
+    return lotes;
+}
 
     /**
      * Devuelve una lista de lotes filtrada por producto y presentación.
@@ -73,15 +73,15 @@ public class LoteDAO {
      * @return ArrayList con los datos de los lotes encontrados.
      * @throws Exception Si ocurre un error de base de datos.
      */
-    public ArrayList<clsLote> listarLotesPorPresentacion(int idProducto, int idPresentacion) throws Exception {
+  public ArrayList<clsLote> listarLotesPorPresentacion(int idProducto, int idPresentacion) throws Exception {
     ArrayList<clsLote> lotes = new ArrayList<>();
     Connection conn = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // ✅ CORRECCIÓN: Se añadió "AS nombreproducto" para que coincida con la lectura del ResultSet.
+    // Se añade l.idProducto a la consulta
     String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
-                 "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, pr.nombre AS nombreproducto, " + 
+                 "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, l.idProducto, pr.nombre AS nombreproducto, " + 
                  "CONCAT(tp.nombreTipoPresentacion, ' x ', p.cantidad, ' ', u.nombreUnidad) AS descripcionPresentacion " +
                  "FROM LOTE l " +
                  "INNER JOIN PRODUCTO pr ON l.idProducto = pr.idProducto " +
@@ -107,7 +107,8 @@ public class LoteDAO {
                 rs.getInt("stockActual"),
                 rs.getBoolean("estado"),
                 rs.getInt("idPresentacion"),
-                rs.getString("nombreproducto"), // Ahora esta lectura funcionará
+                rs.getInt("idProducto"), // <-- CAMBIO: Se añade el idProducto
+                rs.getString("nombreproducto"),
                 rs.getString("descripcionPresentacion")
             );
             lotes.add(dao);
@@ -115,9 +116,7 @@ public class LoteDAO {
     } catch (Exception e) {
         throw new Exception("Error al listar lotes por presentación: " + e.getMessage());
     } finally {
-        if (rs != null) rs.close();
-        if (ps != null) ps.close();
-        if (conn != null) objConectar.desconectar();
+        // ... (código para cerrar conexiones)
     }
     return lotes;
 }
@@ -171,84 +170,110 @@ public class LoteDAO {
      * Modifica un lote existente.
      * @throws Exception Si ocurre un error.
      */
-    public void modificarLote(int idLote, String nroLote, Date fechaFab, Date fechaVen, int stockActual, int idPresentacion, int idProducto, boolean estado) throws Exception {
+    public void modificarLote(int idLote, Date fechaFab, Date fechaVen, int nuevaCantidadRecibida, boolean estado) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
-        String sql = "UPDATE LOTE SET nroLote = ?, fechaFabricacion = ?, fechaVencimiento = ?, " +
-                     "stockActual = ?, idPresentacion = ?, idProducto = ?, estado = ? " +
-                     "WHERE idLote = ?";
         
         try {
             conn = objConectar.conectar();
+            
+            // --- Lógica de Recálculo de Stock ---
+            // 1. Obtenemos el estado actual del lote desde la BD.
+            clsLote loteActual = this.buscarLote(idLote);
+            if (loteActual == null) {
+                throw new Exception("El lote con ID " + idLote + " no existe.");
+            }
+
+            // 2. Calculamos cuántas unidades se han movido (vendido, etc.).
+            int unidadesMovidas = loteActual.getCantidadRecibida() - loteActual.getStockActual();
+
+            // 3. Calculamos cuál debería ser el nuevo stock actual.
+            int nuevoStockActual = nuevaCantidadRecibida - unidadesMovidas;
+
+            // 4. Validación de seguridad para evitar stock negativo.
+            if (nuevoStockActual < 0) {
+                throw new Exception("La nueva cantidad es inconsistente con las unidades ya vendidas. El stock no puede ser negativo.");
+            }
+            
+            // --- Fin de la Lógica de Recálculo ---
+
+            // SQL que ahora actualiza AMBOS campos de stock.
+            String sql = "UPDATE LOTE SET fechaFabricacion = ?, fechaVencimiento = ?, cantidadRecibida = ?, stockActual = ?, estado = ? WHERE idLote = ?";
             ps = conn.prepareStatement(sql);
-            ps.setString(1, nroLote);
-            ps.setDate(2, new java.sql.Date(fechaFab.getTime()));
-            ps.setDate(3, new java.sql.Date(fechaVen.getTime()));
-            ps.setInt(4, stockActual);
-            ps.setInt(5, idPresentacion);
-            ps.setInt(6, idProducto);
-            ps.setBoolean(7, estado);
-            ps.setInt(8, idLote);
+            
+            if (fechaFab != null) {
+                ps.setDate(1, new java.sql.Date(fechaFab.getTime()));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+            ps.setDate(2, new java.sql.Date(fechaVen.getTime()));
+            ps.setInt(3, nuevaCantidadRecibida); // Guardamos la nueva cantidad inicial
+            ps.setInt(4, nuevoStockActual);      // Guardamos el nuevo stock actual calculado
+            ps.setBoolean(5, estado);
+            ps.setInt(6, idLote);
+            
             ps.executeUpdate();
+            
         } catch (Exception e) {
+            // Re-lanzamos la excepción para que sea capturada por el formulario.
             throw new Exception("Error al modificar lote: " + e.getMessage());
         } finally {
             if (ps != null) ps.close();
             if (conn != null) objConectar.desconectar();
         }
     }
-
     /**
      * Busca un lote por su ID.
      * @param idLote El ID del lote a buscar.
      * @return Un objeto LoteDAO si se encuentra, o null si no existe.
      * @throws Exception Si ocurre un error.
      */
-    public clsLote buscarLote(int idLote) throws Exception {
-        clsLote loteEncontrado = null;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
-                     "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, pr.nombreproducto, " +
-                     "CONCAT(tp.nombretipopresentacion, ' x ', p.cantidad, ' ', u.nombreunidad) AS descripcionPresentacion " +
-                     "FROM LOTE l " +
-                     "INNER JOIN PRODUCTO pr ON l.idProducto = pr.idProducto " +
-                     "INNER JOIN PRESENTACION p ON l.idPresentacion = p.idPresentacion " +
-                     "INNER JOIN TIPO_PRESENTACION tp ON p.tipoPresentacion = tp.idtipopresentacion " +
-                     "INNER JOIN UNIDAD u ON p.idunidad = u.idunidad " +
-                     "WHERE l.idLote = ?";
-        
-        try {
-            conn = objConectar.conectar();
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, idLote);
-            rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                loteEncontrado = new clsLote(
-                    rs.getInt("idLote"),
-                    rs.getString("nroLote"),
-                    rs.getDate("fechaFabricacion"),
-                    rs.getDate("fechaVencimiento"),
-                    rs.getInt("cantidadRecibida"),
-                    rs.getInt("stockActual"),
-                    rs.getBoolean("estado"),
-                    rs.getInt("idPresentacion"),
-                    rs.getString("nombreproducto"),
-                    rs.getString("descripcionPresentacion")
-                );
-            }
-        } catch (Exception e) {
-            throw new Exception("Error al buscar lote: " + e.getMessage());
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conn != null) objConectar.desconectar();
-        }
-        return loteEncontrado;
-    }
+  public clsLote buscarLote(int idLote) throws Exception {
+    clsLote loteEncontrado = null;
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
     
+    // Se añade l.idProducto a la consulta
+    String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
+                 "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, l.idProducto, " +
+                 "pr.nombre AS nombreproducto, " +
+                 "CONCAT(tp.nombretipopresentacion, ' x ', p.cantidad, ' ', u.nombreunidad) AS descripcionPresentacion " +
+                 "FROM LOTE l " +
+                 "INNER JOIN PRODUCTO pr ON l.idProducto = pr.idProducto " +
+                 "INNER JOIN PRESENTACION p ON l.idPresentacion = p.idPresentacion " +
+                 "INNER JOIN TIPO_PRESENTACION tp ON p.tipoPresentacion = tp.idtipopresentacion " +
+                 "INNER JOIN UNIDAD u ON p.idunidad = u.idunidad " +
+                 "WHERE l.idLote = ?";
+    
+    try {
+        conn = objConectar.conectar();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, idLote);
+        rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            loteEncontrado = new clsLote(
+                rs.getInt("idLote"),
+                rs.getString("nroLote"),
+                rs.getDate("fechaFabricacion"),
+                rs.getDate("fechaVencimiento"),
+                rs.getInt("cantidadRecibida"),
+                rs.getInt("stockActual"),
+                rs.getBoolean("estado"),
+                rs.getInt("idPresentacion"),
+                rs.getInt("idProducto"), // <-- CAMBIO: Se añade el idProducto
+                rs.getString("nombreproducto"),
+                rs.getString("descripcionPresentacion")
+            );
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al buscar lote: " + e.getMessage());
+    } finally {
+        // ... (código para cerrar conexiones)
+    }
+    return loteEncontrado;
+}
     /**
      * Genera un nuevo código para un lote.
      * @return El siguiente código disponible.

@@ -11,9 +11,13 @@ import Capa_Datos.PresentacionDAO;
 import Capa_Datos.TipoPresentacionDAO1;
 import Capa_Datos.UnidadDAO;
 import java.sql.ResultSet;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
@@ -27,6 +31,7 @@ public class ManPresentacion extends javax.swing.JDialog {
      * Creates new form ManPresentacion
      */
     
+   // Instancias de las clases DAO para interactuar con la base de datos.
     PresentacionDAO objPresentacion = new PresentacionDAO();
     TipoPresentacionDAO1 objTipoPresentacion = new TipoPresentacionDAO1();
     UnidadDAO objUnidad = new UnidadDAO();
@@ -34,108 +39,150 @@ public class ManPresentacion extends javax.swing.JDialog {
     public ManPresentacion(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-            this.setLocationRelativeTo(null); // Centrar la ventana
-        configurarTabla(); // Configurar las columnas de la tabla
-        listarTodo(); // Método único para cargar todos los datos
+          configurarComponentes();
 
     }
+    
+     private void configurarComponentes() {
+        configurarSpinnerDecimal();
+        configurarTabla();
+        listarTodo();
+        this.setLocationRelativeTo(null);
+        gestionarEstadoControles("inicio");
+    }
+     private void configurarSpinnerDecimal() {
+        JSpinner.NumberEditor editor = (JSpinner.NumberEditor) spCantidad.getEditor();
+        DecimalFormat format = editor.getFormat();
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        format.setDecimalFormatSymbols(symbols);
+    }
+     
     
    
    
     // Método unificado para cargar todos los datos iniciales
-    private void listarTodo() {
+     private void listarTodo() {
         listarPresentaciones();
         listarTiposPresentacion();
         listarUnidades();
     }
     
     // Método para configurar las columnas de la tabla una sola vez
-    private void configurarTabla() {
+       private void configurarTabla() {
         DefaultTableModel modelo = new DefaultTableModel();
         modelo.addColumn("ID");
         modelo.addColumn("Tipo");
         modelo.addColumn("Cantidad");
         modelo.addColumn("Unidad");
+        modelo.addColumn("Estado"); // Columna para mostrar si está activo o inactivo
         tblPresentacion.setModel(modelo);
     }
     
    
 
-   private void limpiarControles() {
+  private void limpiarControles() {
         txtID.setText("");
-        spCantidad.setValue(0);
-        cmbTipoPresentacion.setSelectedIndex(-1); // Deseleccionar item
-        cmbUnidad.setSelectedIndex(-1); // Deseleccionar item
+        spCantidad.setValue(1.0f); // Usar 1.0f para float
+        chkActivo.setSelected(true); // Por defecto, una nueva presentación está activa
+        if (cmbTipoPresentacion.getItemCount() > 0) {
+            cmbTipoPresentacion.setSelectedIndex(0);
+        }
+        if (cmbUnidad.getItemCount() > 0) {
+            cmbUnidad.setSelectedIndex(0);
+        }
         txtID.requestFocus();
-        btnNuevo.setText("Nuevo");
     }
 
     // 2. Método para listar presentaciones (corregido para usar DTO)
-    private void listarPresentaciones() {
-    DefaultTableModel modelo = (DefaultTableModel) tblPresentacion.getModel();
-    modelo.setRowCount(0); // Limpiar la tabla
+     private void listarPresentaciones() {
+        DefaultTableModel modelo = (DefaultTableModel) tblPresentacion.getModel();
+        modelo.setRowCount(0);
 
+        try {
+            ArrayList<clsPresentacion> lista = objPresentacion.listarPresentaciones();
+            
+            for (clsPresentacion dto : lista) {
+                modelo.addRow(new Object[]{
+                    dto.getId(),
+                    dto.getNombreTipoPresentacion(),
+                    dto.getCantidad(),
+                    dto.getNombreUnidad(),
+                    dto.isActivo() ? "Activo" : "Inactivo" // Muestra el estado como texto
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar presentaciones: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // 3. Método para listar tipos de presentación (corregido para usar DTO)
+   private void listarTiposPresentacion() {
     try {
-        ArrayList<clsPresentacion> lista = objPresentacion.listarPresentaciones();
-        
-        for (clsPresentacion dto : lista) {
-            // AQUÍ ESTÁ LA CORRECCIÓN
-            modelo.addRow(new Object[]{
-                dto.getId(),
-                dto.getNombreTipoPresentacion(), // ✔️ CORREGIDO
-                dto.getCantidad(),
-                dto.getNombreUnidad()             // ✔️ CORREGIDO
-            });
+        cmbTipoPresentacion.removeAllItems();
+        // Se cambia el nombre del método a listarTodos() y el tipo de la lista a List
+        List<clsTipoPresentacion> lista = objTipoPresentacion.listarTodos(); 
+        for (clsTipoPresentacion dto : lista) {
+            cmbTipoPresentacion.addItem(dto);
         }
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar presentaciones: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Error al cargar tipos de presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
 
-    // 3. Método para listar tipos de presentación (corregido para usar DTO)
-    private void listarTiposPresentacion() {
-        try {
-            cmbTipoPresentacion.removeAllItems();
-            ArrayList<clsTipoPresentacion> lista = objTipoPresentacion.listarTiposPresentacion();
-            
-            for (clsTipoPresentacion dto : lista) {
-                // Se añaden los objetos completos al ComboBox
-                cmbTipoPresentacion.addItem(dto);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar tipos de presentación: " + e.getMessage());
-        }
-    }
 
     // 4. Método para listar unidades (COMPLETAMENTE CORREGIDO)
-private void listarUnidades() {
+ private void listarUnidades() {
     try {
         cmbUnidad.removeAllItems();
-        // La siguiente línea debe usar UnidadDAO
-        ArrayList<clsUnidad> lista = objUnidad.listarUnidades();
-        
-        // El bucle también debe usar UnidadDAO
+        // CAMBIO: Se llama al nuevo método 'listarActivas' y se usa 'List'
+        List<clsUnidad> lista = objUnidad.listarActivas(); 
         for (clsUnidad dao : lista) {
-            // Se añaden los objetos DAO (que actúan como DTO) al ComboBox
             cmbUnidad.addItem(dao);
         }
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar unidades: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Error al cargar unidades: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+
     
-      private void habilitarControles() {
-        txtID.setEnabled(true); // O puedes generarlo automáticamente
-        spCantidad.setValue(1);
-        cmbTipoPresentacion.setEnabled(true);
-        cmbUnidad.setEnabled(true);
+      private void gestionarEstadoControles(String modo) {
+        boolean camposEditables = modo.equals("nuevo") || modo.equals("modificar");
         
-        btnModificar.setEnabled(true);
-        btnDardeBaja.setEnabled(true);
-        btnEliminar.setEnabled(true);
+        spCantidad.setEnabled(camposEditables);
+        cmbTipoPresentacion.setEnabled(camposEditables);
+        cmbUnidad.setEnabled(camposEditables);
+        chkActivo.setEnabled(camposEditables);
+
+        switch (modo) {
+            case "inicio":
+                txtID.setEnabled(true);
+                btnNuevo.setEnabled(true);
+                btnBuscar.setEnabled(true);
+                btnModificar.setEnabled(false);
+                btnDardeBaja.setEnabled(false);
+                btnEliminar.setEnabled(false);
+                break;
+            
+            case "nuevo":
+                txtID.setEnabled(false);
+                btnNuevo.setEnabled(true); // Sigue habilitado para "Guardar"
+                btnBuscar.setEnabled(false);
+                btnModificar.setEnabled(false);
+                btnDardeBaja.setEnabled(false);
+                btnEliminar.setEnabled(false);
+                break;
+
+            case "modificar":
+                txtID.setEnabled(false);
+                btnNuevo.setEnabled(false);
+                btnBuscar.setEnabled(true);
+                btnModificar.setEnabled(true);
+                btnDardeBaja.setEnabled(true);
+                btnEliminar.setEnabled(true);
+                break;
+        }
     }
-      
-      
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -157,6 +204,10 @@ private void listarUnidades() {
         cmbUnidad = new javax.swing.JComboBox<>();
         cmbTipoPresentacion = new javax.swing.JComboBox<>();
         btnBuscar = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        chkActivo = new javax.swing.JRadioButton();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         btnNuevo = new javax.swing.JButton();
         btnLimpiar = new javax.swing.JButton();
@@ -182,10 +233,30 @@ private void listarUnidades() {
 
         jLabel4.setText("Unidad:");
 
+        spCantidad.setModel(new javax.swing.SpinnerNumberModel(1.0f, 1.0f, null, 1.0f));
+
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBuscarActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Estado:");
+
+        chkActivo.setText("Activo");
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/nuevo.png"))); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/nuevo.png"))); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -194,48 +265,62 @@ private void listarUnidades() {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel5)
+                        .addComponent(jLabel4))
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(spCantidad)
+                    .addComponent(cmbUnidad, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cmbTipoPresentacion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbTipoPresentacion, 0, 104, Short.MAX_VALUE)
-                            .addComponent(spCantidad)
-                            .addComponent(cmbUnidad, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(chkActivo)
+                            .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 17, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnBuscar)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(31, 31, 31)
-                .addComponent(btnBuscar)
-                .addContainerGap())
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton2)
+                            .addComponent(jButton1))))
+                .addGap(25, 25, 25))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                    .addComponent(btnBuscar)
                     .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBuscar))
-                .addGap(18, 18, 18)
+                    .addComponent(jLabel1))
+                .addGap(11, 11, 11)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(cmbTipoPresentacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(cmbTipoPresentacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(spCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(24, 24, 24)
+                .addGap(7, 7, 7)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4)
+                        .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                    .addComponent(jLabel5)
+                    .addComponent(chkActivo)))
         );
 
         jPanel3.setBackground(new java.awt.Color(153, 204, 255));
@@ -373,20 +458,24 @@ private void listarUnidades() {
                     .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(87, 87, 87)
+                        .addGap(78, 78, 78)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -404,46 +493,99 @@ private void listarUnidades() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        try {
-        if (btnNuevo.getText().equals("Nuevo")) {
+       try {
+            if (btnNuevo.getText().equals("Nuevo")) {
+                btnNuevo.setText("Guardar");
+                limpiarControles();
+                txtID.setText(objPresentacion.generarCodePresentacion().toString());
+                
+                gestionarEstadoControles("nuevo");
+
+            } else { // El botón dice "Guardar"
+                
+                if (cmbTipoPresentacion.getSelectedIndex() == -1 || cmbUnidad.getSelectedIndex() == -1) {
+                    JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo y una unidad.", "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                    btnNuevo.setText("Guardar");
+                    return;
+                }
+
+                clsTipoPresentacion tipoSeleccionado = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
+                int codPre = tipoSeleccionado.getId();
+
+                clsUnidad unidadSeleccionada = (clsUnidad) cmbUnidad.getSelectedItem();
+                int codUnidad = unidadSeleccionada.getId();
+                
+                float cantidad = ((Number) spCantidad.getValue()).floatValue();
+                
+                int id = Integer.parseInt(txtID.getText());
+                
+                boolean estado = chkActivo.isSelected();
+                
+                objPresentacion.registrarPresentacion(id, cantidad, codUnidad, codPre, estado);
+
+                JOptionPane.showMessageDialog(this, "Presentación registrada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                
+                btnNuevo.setText("Nuevo");
+                limpiarControles();
+                listarPresentaciones();
+                gestionarEstadoControles("inicio"); 
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error Inesperado", JOptionPane.ERROR_MESSAGE);
             btnNuevo.setText("Guardar");
-            limpiarControles();
-            txtID.setText(objPresentacion.generarCodePresentacion().toString());
-        } else {
-            btnNuevo.setText("Nuevo");
-
-            // 🔹 Obtener código de la marca seleccionada
-            String tipoPre = cmbTipoPresentacion.getSelectedItem().toString();
-            int codPre = Integer.parseInt(tipoPre.split(" - ")[0]);
-
-            // 🔹 Obtener código de la categoría seleccionada
-            String unidad = cmbUnidad.getSelectedItem().toString();
-            int codUnidad = Integer.parseInt(unidad.split(" - ")[0]);
-
-            objPresentacion.registrarPresentacion(
-                (int) spCantidad.getValue(),
-                codPre,
-                codUnidad
-            );
-
-            limpiarControles();
-            listarPresentaciones(); 
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
         limpiarControles();
+        gestionarEstadoControles("inicio"); 
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-      
+     // 1. Validar que se ha seleccionado una presentación de la tabla.
+    if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para darla de baja.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+        return; 
+    }
+
+    // ✅ NUEVA VALIDACIÓN: Comprueba si la presentación ya está inactiva.
+    // La condición !chkActivo.isSelected() significa "Si el checkbox 'Activo' NO está seleccionado".
+    if (!chkActivo.isSelected()) {
+        JOptionPane.showMessageDialog(this, "Esta presentación ya se encuentra inactiva.", "Acción no Válida", JOptionPane.INFORMATION_MESSAGE);
+        return; // Detiene la ejecución del método aquí.
+    }
+
+    // Si la validación anterior pasa, significa que el item sí está activo y se puede continuar.
+    try {
+        // 2. Pedir confirmación al usuario.
+        int opt = JOptionPane.showConfirmDialog(
+            this, 
+            "¿Está seguro de que desea cambiar el estado de la presentación con ID " + txtID.getText() + " a 'Inactivo'?", 
+            "Confirmar Acción", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        // 3. Si el usuario confirma, proceder con la acción.
+        if (opt == JOptionPane.YES_OPTION) {
+            int id = Integer.parseInt(txtID.getText());
+            
+            // 4. Llamar al método del DAO que cambia el estado a 'false'.
+            objPresentacion.darBajaPresentacion(id);
+            
+            // 5. Actualizar la interfaz.
+            limpiarControles();
+            listarPresentaciones();
+            gestionarEstadoControles("inicio");
+            JOptionPane.showMessageDialog(this, "La presentación ha sido dada de baja correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al dar de baja la presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        try {
+       try {
             if (txtID.getText().equals("")) {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar un presentacion para eliminar");
             }else{
@@ -456,8 +598,8 @@ private void listarUnidades() {
                     listarPresentaciones();
                 }
             }
-       
-         
+        
+        
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -469,78 +611,139 @@ private void listarUnidades() {
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
          try{
-            if (txtID.getText().equals("")) {
-                  JOptionPane.showMessageDialog(this, "Seleccione un producto a modificar");
-            }else{
-                objPresentacion.modificarPresentacion(
-    Integer.parseInt(txtID.getText()),         
-    (int) spCantidad.getValue(),
-    objUnidad.obtenerCodigoUnidad(cmbUnidad.getSelectedItem().toString()),
-    objTipoPresentacion.obtenerCodigoTipoPresentacion(cmbTipoPresentacion.getSelectedItem().toString())
-);
-            
+            if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
+                 JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para modificar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+                 return;
+            }
+
+            int id = Integer.parseInt(txtID.getText());
+            float cantidad = ((Number) spCantidad.getValue()).floatValue();
+            clsUnidad unidad = (clsUnidad) cmbUnidad.getSelectedItem();
+            clsTipoPresentacion tipo = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
+            boolean estado = chkActivo.isSelected();
+
+            objPresentacion.modificarPresentacion(id, cantidad, unidad.getId(), tipo.getId(), estado);
+        
             limpiarControles();
             listarPresentaciones();
-            }
+            gestionarEstadoControles("inicio");
+            JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             
-        }catch(Exception e){
-             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch(Exception e){
+             JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void tblPresentacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresentacionMouseClicked
-        int fila = tblPresentacion.getSelectedRow();
-        if (fila>=0) {
-            txtID.setText(tblPresentacion.getValueAt(fila,0).toString());
-             btnBuscarActionPerformed(null);
+      int fila = tblPresentacion.getSelectedRow();
+    if (fila == -1) {
+        return; // No hacer nada si el clic es inválido
+    }
+
+    try {
+        // --- OBTENCIÓN DE DATOS DIRECTAMENTE DE LA TABLA ---
+        String id = tblPresentacion.getValueAt(fila, 0).toString();
+        String tipoNombre = tblPresentacion.getValueAt(fila, 1).toString();
+        Object cantidadObj = tblPresentacion.getValueAt(fila, 2);
+        String unidadNombre = tblPresentacion.getValueAt(fila, 3).toString();
+        String estadoTabla = tblPresentacion.getValueAt(fila, 4).toString();
+
+        // --- CARGA DE DATOS EN LOS COMPONENTES ---
+        txtID.setText(id);
+
+        // Cargar valor en el JSpinner
+        if (cantidadObj instanceof Number) {
+            spCantidad.setValue(((Number) cantidadObj).floatValue());
+        } else {
+            spCantidad.setValue(Float.parseFloat(cantidadObj.toString()));
         }
+        
+        // ✅ LA CORRECCIÓN CLAVE ESTÁ AQUÍ
+        // Comparamos el TEXTO de la tabla para marcar/desmarcar el JRadioButton.
+        chkActivo.setSelected(estadoTabla.equals("Activo"));
+        
+        // --- BÚSQUEDA Y SELECCIÓN EN COMBOBOXES ---
+        // Itera para seleccionar el Tipo de Presentación correcto
+        for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
+            if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
+                cmbTipoPresentacion.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        // Itera para seleccionar la Unidad correcta
+        for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
+            if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
+                cmbUnidad.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        // Finalmente, cambiamos al modo "modificar"
+        gestionarEstadoControles("modificar");
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar los datos de la fila: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_tblPresentacionMouseClicked
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        try {
-        if (txtID.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe ingresar un código para buscar.");
-            return; // Salir del método si no hay ID
-        }
-
-        int idABuscar = Integer.parseInt(txtID.getText());
-        
-        // 1. La variable ahora es de tipo PresentacionDAO
-        clsPresentacion presentacionEncontrada = objPresentacion.buscarPresentacion(idABuscar);
-
-        // 2. Se comprueba si el objeto es null (si no se encontró)
-        if (presentacionEncontrada != null) {
-            // 3. Se usan los getters del objeto para obtener los datos
-            txtID.setText(String.valueOf(presentacionEncontrada.getId()));
-            spCantidad.setValue(presentacionEncontrada.getCantidad());
-
-            // 4. Lógica correcta para seleccionar el item en los ComboBox
-            // Se busca el objeto que coincida con el nombre y se selecciona.
-            String tipoNombre = presentacionEncontrada.getNombreTipoPresentacion();
-            for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
-                if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
-                    cmbTipoPresentacion.setSelectedIndex(i);
-                    break;
-                }
+         try {
+            if (txtID.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar un código para buscar.");
+                return; // Salir del método si no hay ID
             }
 
-            String unidadNombre = presentacionEncontrada.getNombreUnidad();
-            for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
-                if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
-                    cmbUnidad.setSelectedIndex(i);
-                    break;
+            int idABuscar = Integer.parseInt(txtID.getText());
+            
+            // 1. La variable ahora es de tipo PresentacionDAO
+            clsPresentacion presentacionEncontrada = objPresentacion.buscarPresentacion(idABuscar);
+
+            // 2. Se comprueba si el objeto es null (si no se encontró)
+            if (presentacionEncontrada != null) {
+                // 3. Se usan los getters del objeto para obtener los datos
+                txtID.setText(String.valueOf(presentacionEncontrada.getId()));
+                spCantidad.setValue(presentacionEncontrada.getCantidad());
+                 // AÑADE ESTA LÍNEA AL FINAL DE LA BÚSQUEDA EXITOSA
+                gestionarEstadoControles("modificar"); 
+
+                // 4. Lógica correcta para seleccionar el item en los ComboBox
+                // Se busca el objeto que coincida con el nombre y se selecciona.
+                String tipoNombre = presentacionEncontrada.getNombreTipoPresentacion();
+                for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
+                    if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
+                        cmbTipoPresentacion.setSelectedIndex(i);
+                        break;
+                    }
                 }
+
+                String unidadNombre = presentacionEncontrada.getNombreUnidad();
+                for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
+                    if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
+                        cmbUnidad.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "El código de presentación no existe.");
+                limpiarControles();
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "El código de presentación no existe.");
-            limpiarControles();
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un código numérico válido.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Hubo un error en la búsqueda: " + e.getMessage());
         }
-    } catch (NumberFormatException nfe) {
-        JOptionPane.showMessageDialog(this, "Por favor, ingrese un código numérico válido.");
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Hubo un error en la búsqueda: " + e.getMessage());
-    }
     }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       ManTipoPresentacion manTP = new ManTipoPresentacion(null,true);
+       manTP.setVisible(true);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        ManUnidad mU = new  ManUnidad(null,true);
+        mU.setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     
 
@@ -552,12 +755,16 @@ private void listarUnidades() {
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnNuevo;
-    private javax.swing.JComboBox<clsTipoPresentacion> cmbTipoPresentacion;
-    private javax.swing.JComboBox<clsUnidad> cmbUnidad;
+    private javax.swing.JRadioButton chkActivo;
+    private javax.swing.JComboBox<Capa_Negocio.clsTipoPresentacion> cmbTipoPresentacion;
+    private javax.swing.JComboBox<Capa_Negocio.clsUnidad> cmbUnidad;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
