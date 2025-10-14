@@ -91,7 +91,8 @@ public class ManPresPro extends javax.swing.JDialog {
         boolean camposEditables = modo.equals("nuevo") || modo.equals("modificar");
         
         txtPrecioVenta.setEnabled(camposEditables);
-        chkVigencia.setEnabled(camposEditables);
+        
+        chkVigencia.setEnabled(modo.equals("modificar"));
         // El stock nunca es editable
         txtStock.setEnabled(false);
 
@@ -484,23 +485,24 @@ public class ManPresPro extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-          if (btnNuevo.getText().equals("Nuevo")) {
+         if (btnNuevo.getText().equals("Nuevo")) {
         // MODO "NUEVO": Prepara el formulario para recibir datos.
-        // Esta parte no cambia y sigue siendo la de la solución anterior.
+        // Esta parte está correcta y no cambia.
         limpiarControles();
         tblPresentacionProducto.clearSelection();
         gestionarEstadoControles("nuevo");
         lstPresentaciones.requestFocusInWindow();
         
         JOptionPane.showMessageDialog(this, 
-            "Modo de asignación activado.\n\n" +
-            "1. Seleccione una presentación de la lista.\n" +
-            "2. Ingrese el precio de venta.\n" +
-            "3. Haga clic en 'Guardar'.",
-            "Asignar Nueva Presentación", 
-            JOptionPane.INFORMATION_MESSAGE);
+                "Modo de asignación activado.\n\n" +
+                "1. Seleccione una presentación de la lista.\n" +
+                "2. Ingrese el precio de venta.\n" +
+                "3. Haga clic en 'Guardar'.",
+                "Asignar Nueva Presentación", 
+                JOptionPane.INFORMATION_MESSAGE);
 
-    } else { // MODO "GUARDAR": El botón dice "Guardar". Validamos y guardamos.
+    } else { 
+        // MODO "GUARDAR": El botón dice "Guardar". Validamos y guardamos.
         try {
             clsPresentacion presSeleccionada = lstPresentaciones.getSelectedValue();
 
@@ -516,21 +518,26 @@ public class ManPresPro extends javax.swing.JDialog {
                 return; 
             }
             
-            // --- ✅ NUEVA VALIDACIÓN PARA EVITAR DUPLICADOS ---
+            // 3. VALIDACIÓN PARA EVITAR DUPLICADOS
             int idSeleccionado = presSeleccionada.getId();
             DefaultTableModel modeloTabla = (DefaultTableModel) tblPresentacionProducto.getModel();
             for (int i = 0; i < modeloTabla.getRowCount(); i++) {
-                int idEnTabla = (int) modeloTabla.getValueAt(i, 0); // Asumiendo que el ID está en la columna 0
+                int idEnTabla = (int) modeloTabla.getValueAt(i, 0); 
                 if (idEnTabla == idSeleccionado) {
                     JOptionPane.showMessageDialog(this, "Esta presentación ya ha sido asignada al producto.", "Acción no Válida", JOptionPane.WARNING_MESSAGE);
                     return; // Detiene el proceso si ya existe
                 }
             }
-            // --- FIN DE LA NUEVA VALIDACIÓN ---
+            // --- FIN DE LA VALIDACIÓN ---
             
             // 4. Validar y procesar los datos.
             float precio = Float.parseFloat(txtPrecioVenta.getText());
+            
+            
+            
+            // Pasamos esa variable al método registrar
             objPresProd.registrar(productoID, presSeleccionada.getId(), precio, 0, true);
+            // --- FIN DE LA CORRECCIÓN ---
             
             JOptionPane.showMessageDialog(this, "Presentación asignada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 

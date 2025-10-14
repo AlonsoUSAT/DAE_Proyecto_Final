@@ -130,22 +130,22 @@ public class LoteDAO {
      * @param idProducto ID del producto.
      * @throws Exception Si ocurre un error.
      */
-   public void registrarLote(int idLote, String nroLote, Date fechaFab, Date fechaVen, int cantRecibida, int idPresentacion, int idProducto) throws Exception {
+   public void registrarLote(int idLote, String nroLote, Date fechaFab, Date fechaVen, int cantRecibida, int idPresentacion, int idProducto, boolean estado) throws Exception {
     Connection conn = null;
     PreparedStatement ps = null;
     
-    // ✅ CAMBIO: La columna idLote se añade al INSERT
-    String sql = "INSERT INTO LOTE (idLote, nroLote, fechaFabricacion, fechaVencimiento, cantidadRecibida, stockActual, idPresentacion, idProducto) " +
-                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // --- SQL CORREGIDO: Se añade la columna 'estado' ---
+    String sql = "INSERT INTO LOTE (idLote, nroLote, fechaFabricacion, fechaVencimiento, cantidadRecibida, stockActual, idPresentacion, idProducto, estado) " +
+                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     try {
         conn = objConectar.conectar();
         ps = conn.prepareStatement(sql);
         
-        ps.setInt(1, idLote); // <-- Parámetro nuevo
+        ps.setInt(1, idLote);
         ps.setString(2, nroLote);
         
-        // Para fechas, es más seguro manejar el caso de que sean nulas
+        // Manejo seguro de fechas
         if (fechaFab != null) {
             ps.setDate(3, new java.sql.Date(fechaFab.getTime()));
         } else {
@@ -154,9 +154,12 @@ public class LoteDAO {
         
         ps.setDate(4, new java.sql.Date(fechaVen.getTime()));
         ps.setInt(5, cantRecibida);
-        ps.setInt(6, cantRecibida); // Al registrar, el stock actual es igual a la cantidad recibida
+        ps.setInt(6, cantRecibida); // Al registrar, stock actual = cantidad recibida
         ps.setInt(7, idPresentacion);
         ps.setInt(8, idProducto);
+        
+        // --- PARÁMETRO NUEVO: Se añade el estado ---
+        ps.setBoolean(9, estado); 
         
         ps.executeUpdate();
     } catch (Exception e) {

@@ -201,7 +201,7 @@ public class ManLote extends javax.swing.JDialog {
     jdcFechaFabricacion.setEnabled(camposEditables);
     jdcFechaVencimiento.setEnabled(camposEditables);
     spnStock.setEnabled(camposEditables);
-    chkEstado.setEnabled(camposEditables);
+   chkEstado.setEnabled(modo.equals("seleccionado"));
     
     // --- CAMBIO IMPORTANTE AQUÍ ---
     // Permitimos editar el ID solo en el estado inicial para poder buscar.
@@ -693,7 +693,7 @@ public class ManLote extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-       // PRIMERA PARTE: Se ejecuta si el botón dice "Nuevo"
+    // PRIMERA PARTE: Se ejecuta si el botón dice "Nuevo"
     if (btnNuevo.getText().equals("Nuevo")) {
         
         esNuevo = true;
@@ -710,41 +710,63 @@ public class ManLote extends javax.swing.JDialog {
             gestionarEstadoControles("inicio"); // Si hay error, volvemos al estado inicial
         }
 
-    // SEGUNDA PARTE: Se ejecuta si el botón dice "Guardar"
     } else {
+    // SEGUNDA PARTE: Se ejecuta si el botón dice "Guardar"
+    
+    try {
+        // --- VALIDACIONES ANTES DE GUARDAR (ORDEN CORREGIDO) ---
         
-        try {
-            // --- VALIDACIONES ANTES DE GUARDAR ---
-            
-            // 1. Validación de stock (AHORA SÍ, EN EL LUGAR CORRECTO)
-            if ((Integer) spnStock.getValue() <= 0) {
-                JOptionPane.showMessageDialog(this, "El Stock debe ser mayor a cero.", "Validación", JOptionPane.WARNING_MESSAGE);
-                return; // Detiene el guardado
-            }
-
-            // 2. Validación de fechas
-            if (!validarFechas()) {
-                return; // Detiene el guardado si las fechas no son válidas
-            }
-
-            // --- Si todas las validaciones pasan, procedemos a guardar ---
-            
-            int idLote = Integer.parseInt(txtIDLote.getText());
-            int cantidad = (Integer) spnStock.getValue();
-            String nroLoteGenerado = objLote.generarNumeroLote(this.productoID, this.presentacionID, cantidad);
-            
-            objLote.registrarLote(idLote, nroLoteGenerado, jdcFechaFabricacion.getDate(), jdcFechaVencimiento.getDate(), cantidad, this.presentacionID, this.productoID);
-            
-            JOptionPane.showMessageDialog(this, "Lote registrado con éxito.\nNúmero de Lote: " + nroLoteGenerado, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-            // Actualizamos la tabla y reseteamos el formulario al estado inicial
-            listarLotesFiltrados();
-            gestionarEstadoControles("inicio");
-            
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al guardar el lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        // --- INICIO DE LA VALIDACIÓN DE CAMPOS VACÍOS ---
+        // 1. Validación de campos de fecha nulos (AHORA VA PRIMERO)
+        if (jdcFechaFabricacion.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una Fecha de Fabricación.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+            jdcFechaFabricacion.requestFocusInWindow(); // Ponemos foco
+            return; // Detiene el guardado
         }
+
+        if (jdcFechaVencimiento.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una Fecha de Vencimiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+            jdcFechaVencimiento.requestFocusInWindow(); // Ponemos foco
+            return; // Detiene el guardado
+        }
+        // --- FIN DE LA VALIDACIÓN DE CAMPOS VACÍOS ---
+
+        // 2. Validación de stock (AHORA VA SEGUNDO)
+        // (El JSpinner no puede estar "vacío", pero sí puede ser 0)
+        if ((Integer) spnStock.getValue() <= 0) {
+            JOptionPane.showMessageDialog(this, "El Stock debe ser mayor a cero.", "Validación", JOptionPane.WARNING_MESSAGE);
+            spnStock.requestFocusInWindow(); // Ponemos foco en el campo con error
+            return; // Detiene el guardado
+        }
+
+        // 3. Validación de lógica de fechas (Esta ya la tenías)
+        // (Se ejecuta después de saber que no son nulos y stock es > 0)
+        if (!validarFechas()) {
+            // El mensaje de error ya debería mostrarse dentro de validarFechas()
+            return; // Detiene el guardado si las fechas no son válidas
+        }
+
+        // --- Si todas las validaciones pasan, procedemos a guardar ---
+        
+        int idLote = Integer.parseInt(txtIDLote.getText());
+        int cantidad = (Integer) spnStock.getValue();
+       String nroLoteGenerado = objLote.generarNumeroLote(this.productoID, this.presentacionID, cantidad);
+
+        
+       objLote.registrarLote(idLote, nroLoteGenerado, jdcFechaFabricacion.getDate(), jdcFechaVencimiento.getDate(), cantidad, this.presentacionID, this.productoID, true);
+        
+        
+        
+        JOptionPane.showMessageDialog(this, "Lote registrado con éxito.\nNúmero de Lote: " + nroLoteGenerado, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+        // Actualizamos la tabla y reseteamos el formulario al estado inicial
+        listarLotesFiltrados();
+        gestionarEstadoControles("inicio");
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al guardar el lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed

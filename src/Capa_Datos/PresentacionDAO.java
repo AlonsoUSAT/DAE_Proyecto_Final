@@ -226,6 +226,53 @@ public class PresentacionDAO {
     }
     
     
+    public boolean verificarUsoTipoPresentacion(int idTipoPresentacion) throws Exception {
+    // CORREGIDO: Se llama a 'objConectar.conectar()'
+    java.sql.Connection cn = objConectar.conectar(); 
+    
+    // CORREGIDO: El nombre de la columna es 'tipoPresentacion'
+    String sql = "SELECT 1 FROM Presentacion WHERE tipoPresentacion = ? LIMIT 1";
+    
+    // El 'try-with-resources' para PreparedStatement y ResultSet ya es correcto
+    try (java.sql.PreparedStatement ps = cn.prepareStatement(sql)) {
+        ps.setInt(1, idTipoPresentacion);
+        try (java.sql.ResultSet rs = ps.executeQuery()) {
+            // rs.next() será 'true' si encuentra al menos un registro,
+            // y 'false' si no encuentra ninguno.
+            return rs.next(); 
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al verificar uso de TipoPresentacion: " + e.getMessage());
+    } finally {
+        // Asegúrate de que la conexión no sea nula antes de desconectar
+        if (cn != null) {
+            // CORREGIDO: Se llama a 'objConectar.desconectar()'
+            objConectar.desconectar();
+        }
+    }
+}
+    
+        public boolean verificarUsoUnidad(int idUnidad) throws Exception {
+    java.sql.Connection cn = objConectar.conectar();
+    
+    // Comprobamos la columna 'idUnidad' en la tabla Presentacion
+    String sql = "SELECT 1 FROM Presentacion WHERE idUnidad = ? LIMIT 1";
+    
+    try (java.sql.PreparedStatement ps = cn.prepareStatement(sql)) {
+        ps.setInt(1, idUnidad);
+        try (java.sql.ResultSet rs = ps.executeQuery()) {
+            // Retorna true si encuentra al menos un registro (está en uso)
+            return rs.next(); 
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al verificar uso de Unidad: " + e.getMessage());
+    } finally {
+        if (cn != null) {
+            objConectar.desconectar();
+        }
+    }
+}
+    
     
     
 }

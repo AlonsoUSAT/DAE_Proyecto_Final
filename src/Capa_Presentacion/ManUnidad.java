@@ -4,6 +4,7 @@
  */
 package Capa_Presentacion;
 import Capa_Datos.UnidadDAO;
+import Capa_Datos.PresentacionDAO; // <--- AÑADIDO
 import Capa_Negocio.clsUnidad;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -15,8 +16,10 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManUnidad extends javax.swing.JDialog {
 
-       private final UnidadDAO objDAO = new UnidadDAO();
+         private final UnidadDAO objDAO = new UnidadDAO();
+    private final PresentacionDAO objPresentacionDAO = new PresentacionDAO(); // <--- AÑADIDO
     private List<clsUnidad> listaUnidades;
+    private clsUnidad unidadSeleccionadaActual; // <--- AÑADIDO
     
     /**
      * Creates new form ManUnidad
@@ -80,6 +83,7 @@ public class ManUnidad extends javax.swing.JDialog {
                 btnBuscar.setEnabled(true);
                 jTable1.clearSelection();
                 limpiarCampos();
+                unidadSeleccionadaActual = null; // <--- AÑADIDO
                 break;
             case "nuevo":
                 btnNuevo.setText("Guardar");
@@ -381,7 +385,7 @@ public class ManUnidad extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        if (txtID.getText().trim().isEmpty()) {
+         if (txtID.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese un ID para buscar.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -389,6 +393,7 @@ public class ManUnidad extends javax.swing.JDialog {
             int id = Integer.parseInt(txtID.getText());
             clsUnidad unidad = objDAO.buscarPorId(id);
             if (unidad != null) {
+                unidadSeleccionadaActual = unidad; // <--- MODIFICADO
                 cargarDatos(unidad);
                 gestionarEstadoControles("seleccionado");
             } else {
@@ -402,7 +407,7 @@ public class ManUnidad extends javax.swing.JDialog {
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        if (btnNuevo.getText().equals("Nuevo")) {
+         if (btnNuevo.getText().equals("Nuevo")) {
             gestionarEstadoControles("nuevo");
             limpiarCampos();
             try {
@@ -436,17 +441,31 @@ public class ManUnidad extends javax.swing.JDialog {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        if (txtID.getText().isEmpty()) return;
-        int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible. ¿Desea eliminar la unidad?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                objDAO.eliminar(Integer.parseInt(txtID.getText()));
+         if (txtID.getText().isEmpty()) return;
+        
+        try { // <--- MODIFICADO
+            int idUnidad = Integer.parseInt(txtID.getText()); // <--- AÑADIDO
+
+            // --- INICIO DE LA VALIDACIÓN ---
+            boolean enUso = objPresentacionDAO.verificarUsoUnidad(idUnidad);
+            if (enUso) {
+                JOptionPane.showMessageDialog(this,
+                        "No se puede ELIMINAR esta Unidad porque está siendo utilizada.",
+                        "Acción Denegada",
+                        JOptionPane.WARNING_MESSAGE);
+                return; // Detenemos la operación
+            }
+            // --- FIN DE LA VALIDACIÓN ---
+
+            int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible. ¿Desea eliminar la unidad?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                objDAO.eliminar(idUnidad); // <--- MODIFICADO
                 JOptionPane.showMessageDialog(this, "Unidad eliminada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 actualizarTabla();
                 gestionarEstadoControles("inicio");
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al eliminar: " + e.getMessage() + "\nEs posible que la unidad esté en uso.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al eliminar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
@@ -459,40 +478,85 @@ public class ManUnidad extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(this, "El nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try {
+        
+        try { // <--- MODIFICADO
+            int idUnidad = Integer.parseInt(txtID.getText());
+            boolean nuevoEstado = chkEstado.isSelected();
+
+            if (unidadSeleccionadaActual == null) {
+                JOptionPane.showMessageDialog(this, "No se ha cargado un registro válido para modificar.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            boolean viejoEstado = unidadSeleccionadaActual.isEstado();
+
+            // --- INICIO DE LA VALIDACIÓN ---
+            // ¿Se está intentando desactivar (pasar de Activo a Inactivo)?
+            if (viejoEstado == true && nuevoEstado == false) {
+                // Si es así, verificar si está en uso
+                boolean enUso = objPresentacionDAO.verificarUsoUnidad(idUnidad);
+                if (enUso) {
+                    JOptionPane.showMessageDialog(this,
+                            "No se puede DESACTIVAR esta Unidad porque está siendo utilizada.",
+                            "Acción Denegada",
+                            JOptionPane.WARNING_MESSAGE);
+                    chkEstado.setSelected(true); // Revertimos el cambio en el checkbox
+                    return; // Detenemos la operación
+                }
+            }
+            // --- FIN DE LA VALIDACIÓN ---
+
+            // Si pasa la validación (o no se está desactivando), proceder a modificar
             clsUnidad unidad = new clsUnidad();
-            unidad.setId(Integer.parseInt(txtID.getText()));
+            unidad.setId(idUnidad);
             unidad.setNombre(txtNombre.getText());
-            unidad.setEstado(chkEstado.isSelected());
+            unidad.setEstado(nuevoEstado);
+            
             objDAO.modificar(unidad);
+            
             JOptionPane.showMessageDialog(this, "Unidad modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             actualizarTabla();
             gestionarEstadoControles("inicio");
+            
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-        if (txtID.getText().isEmpty()) return;
-        int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea dar de baja esta unidad?", "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                objDAO.darDeBaja(Integer.parseInt(txtID.getText()));
+         if (txtID.getText().isEmpty()) return;
+        
+        try { // <--- MODIFICADO
+            int idUnidad = Integer.parseInt(txtID.getText()); // <--- AÑADIDO
+
+            // --- INICIO DE LA VALIDACIÓN ---
+            boolean enUso = objPresentacionDAO.verificarUsoUnidad(idUnidad);
+            if (enUso) {
+                JOptionPane.showMessageDialog(this,
+                        "No se puede DAR DE BAJA esta Unidad porque está siendo utilizada.",
+                        "Acción Denegada",
+                        JOptionPane.WARNING_MESSAGE);
+                return; // Detenemos la operación
+            }
+            // --- FIN DE LA VALIDACIÓN ---
+
+            int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea dar de baja esta unidad?", "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                objDAO.darDeBaja(idUnidad); // <--- MODIFICADO
                 JOptionPane.showMessageDialog(this, "Unidad dada de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 actualizarTabla();
                 gestionarEstadoControles("inicio");
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al dar de baja: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al dar de baja: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
           int fila = jTable1.getSelectedRow();
         if (fila != -1) {
-            clsUnidad unidadSeleccionada = listaUnidades.get(fila);
-            cargarDatos(unidadSeleccionada);
+            unidadSeleccionadaActual = listaUnidades.get(fila); // <--- MODIFICADO
+            cargarDatos(unidadSeleccionadaActual); // <--- MODIFICADO
             gestionarEstadoControles("seleccionado");
         }
     }//GEN-LAST:event_jTable1MouseClicked
