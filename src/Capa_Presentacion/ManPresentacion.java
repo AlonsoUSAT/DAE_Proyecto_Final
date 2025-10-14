@@ -8,6 +8,7 @@ import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsTipoPresentacion;
 import Capa_Negocio.clsUnidad;
 import Capa_Datos.PresentacionDAO;
+import Capa_Datos.PresentacionProductoDAO;
 import Capa_Datos.TipoPresentacionDAO1;
 import Capa_Datos.UnidadDAO;
 import java.sql.ResultSet;
@@ -542,22 +543,37 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-     // 1. Validar que se ha seleccionado una presentación de la tabla.
+     // 1. Validar que se ha seleccionado una presentación. (Esto ya lo tienes)
     if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
         JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para darla de baja.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
         return; 
     }
 
-    // ✅ NUEVA VALIDACIÓN: Comprueba si la presentación ya está inactiva.
-    // La condición !chkActivo.isSelected() significa "Si el checkbox 'Activo' NO está seleccionado".
+    // (Esto también lo tienes, es para verificar si ya está inactiva)
     if (!chkActivo.isSelected()) {
         JOptionPane.showMessageDialog(this, "Esta presentación ya se encuentra inactiva.", "Acción no Válida", JOptionPane.INFORMATION_MESSAGE);
-        return; // Detiene la ejecución del método aquí.
+        return; 
     }
 
-    // Si la validación anterior pasa, significa que el item sí está activo y se puede continuar.
     try {
-        // 2. Pedir confirmación al usuario.
+        int id = Integer.parseInt(txtID.getText());
+        
+        // ✅ INICIO DE LA NUEVA VALIDACIÓN ✅
+        // Creamos una instancia del DAO que tiene el método de verificación.
+        PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
+        
+        // Verificamos si la presentación está en uso.
+        if (presProdDAO.presentacionEstaEnUso(id)) {
+            // Si está en uso, mostramos un mensaje y detenemos todo.
+            JOptionPane.showMessageDialog(this, 
+                "Esta presentación no se puede dar de baja porque está asignada a uno o más productos.", 
+                "Acción Denegada", 
+                JOptionPane.ERROR_MESSAGE);
+            return; // <-- Esto es crucial, detiene la ejecución del método aquí.
+        }
+        // ✅ FIN DE LA NUEVA VALIDACIÓN ✅
+
+        // 2. Si pasa la validación, el resto de tu código se ejecuta normalmente.
         int opt = JOptionPane.showConfirmDialog(
             this, 
             "¿Está seguro de que desea cambiar el estado de la presentación con ID " + txtID.getText() + " a 'Inactivo'?", 
@@ -566,10 +582,7 @@ public class ManPresentacion extends javax.swing.JDialog {
             JOptionPane.QUESTION_MESSAGE
         );
         
-        // 3. Si el usuario confirma, proceder con la acción.
         if (opt == JOptionPane.YES_OPTION) {
-            int id = Integer.parseInt(txtID.getText());
-            
             // 4. Llamar al método del DAO que cambia el estado a 'false'.
             objPresentacion.darBajaPresentacion(id);
             
@@ -585,23 +598,44 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-       try {
-            if (txtID.getText().equals("")) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar un presentacion para eliminar");
-            }else{
-                UIManager.put("OptionPane.yesButtonText", "Si");
-                UIManager.put("OptionPane.noButtonText", "No");
-                int opt = JOptionPane.showConfirmDialog(this, "Eliminar presentacion", "Eliminando presentacion", JOptionPane.YES_NO_OPTION);
-                if (opt==0) {
-                    objPresentacion.eliminarPresentacion(Integer.parseInt(txtID.getText()));
-                    limpiarControles();
-                    listarPresentaciones();
-                }
-            }
-        
-        
+        try {
+        if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación para eliminar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int id = Integer.parseInt(txtID.getText());
+
+        // ✅ INICIO DE LA VALIDACIÓN ✅
+        // Verificamos si la presentación está siendo utilizada antes de eliminar.
+        PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
+        if (presProdDAO.presentacionEstaEnUso(id)) {
+            JOptionPane.showMessageDialog(this,
+                "Esta presentación no se puede ELIMINAR porque está asignada a uno o más productos.",
+                "Acción Denegada",
+                JOptionPane.ERROR_MESSAGE);
+            return; // Detenemos la operación
+        }
+        // ✅ FIN DE LA VALIDACIÓN ✅
+
+        UIManager.put("OptionPane.yesButtonText", "Sí, Eliminar");
+        UIManager.put("OptionPane.noButtonText", "No");
+        int opt = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de que desea eliminar permanentemente esta presentación?\nEsta acción no se puede deshacer.",
+            "Confirmar Eliminación",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+
+        if (opt == JOptionPane.YES_OPTION) {
+            objPresentacion.eliminarPresentacion(id);
+            limpiarControles();
+            listarPresentaciones();
+            gestionarEstadoControles("inicio");
+            JOptionPane.showMessageDialog(this, "Presentación eliminada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        }
+
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error al eliminar la presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
@@ -610,28 +644,46 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-         try{
-            if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
-                 JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para modificar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
-                 return;
-            }
-
-            int id = Integer.parseInt(txtID.getText());
-            float cantidad = ((Number) spCantidad.getValue()).floatValue();
-            clsUnidad unidad = (clsUnidad) cmbUnidad.getSelectedItem();
-            clsTipoPresentacion tipo = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
-            boolean estado = chkActivo.isSelected();
-
-            objPresentacion.modificarPresentacion(id, cantidad, unidad.getId(), tipo.getId(), estado);
-        
-            limpiarControles();
-            listarPresentaciones();
-            gestionarEstadoControles("inicio");
-            JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
-        } catch(Exception e){
-             JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          try {
+        if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para modificar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+            return;
         }
+
+        int id = Integer.parseInt(txtID.getText());
+        float cantidad = ((Number) spCantidad.getValue()).floatValue();
+        clsUnidad unidad = (clsUnidad) cmbUnidad.getSelectedItem();
+        clsTipoPresentacion tipo = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
+        boolean nuevoEstado = chkActivo.isSelected();
+
+        // Validamos solo si se intenta DESACTIVAR una presentación.
+        if (!nuevoEstado) { // Si el nuevo estado es 'false' (Inactivo)
+            PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
+            if (presProdDAO.presentacionEstaEnUso(id)) {
+                JOptionPane.showMessageDialog(this,
+                    "No se puede desactivar esta presentación porque está asignada a uno o más productos.",
+                    "Acción Denegada",
+                    JOptionPane.ERROR_MESSAGE);
+                
+                // ----- LÍNEA AÑADIDA -----
+                chkActivo.setSelected(true); // <-- ¡ESTA ES LA CORRECCIÓN! Revierte el checkbox.
+                // -------------------------
+
+                return; // Detenemos la modificación
+            }
+        }
+
+        // Si pasa la validación, procedemos a modificar.
+        objPresentacion.modificarPresentacion(id, cantidad, unidad.getId(), tipo.getId(), nuevoEstado);
+
+        limpiarControles();
+        listarPresentaciones();
+        gestionarEstadoControles("inicio");
+        JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void tblPresentacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresentacionMouseClicked

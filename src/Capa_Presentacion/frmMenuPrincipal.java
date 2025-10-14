@@ -38,6 +38,9 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jButton11 = new javax.swing.JButton();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         jMenu4 = new javax.swing.JMenu();
+        jMenuItem9 = new javax.swing.JMenuItem();
+        jPopupMenu1 = new javax.swing.JPopupMenu();
+        jMenuItem10 = new javax.swing.JMenuItem();
         jPanel1 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         btnVentas = new javax.swing.JButton();
@@ -77,11 +80,13 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
-        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
-        jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem8 = new javax.swing.JMenuItem();
+        mPresentacion = new javax.swing.JMenuItem();
+        mTipoPre = new javax.swing.JMenuItem();
+        mUnidad = new javax.swing.JMenuItem();
 
         jMenu1.setText("jMenu1");
 
@@ -150,6 +155,10 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jToolBar2.add(jSeparator4);
 
         jMenu4.setText("jMenu4");
+
+        jMenuItem9.setText("jMenuItem9");
+
+        jMenuItem10.setText("jMenuItem10");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SISTEMA FARMACIA");
@@ -487,24 +496,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
 
         jMenu5.setText("Mantenimiento");
 
-        jCheckBoxMenuItem1.setSelected(true);
-        jCheckBoxMenuItem1.setText("Producto");
-        jCheckBoxMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMenuItem1ActionPerformed(evt);
-            }
-        });
-        jMenu5.add(jCheckBoxMenuItem1);
-
-        jCheckBoxMenuItem2.setSelected(true);
-        jCheckBoxMenuItem2.setText("Lote");
-        jCheckBoxMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMenuItem2ActionPerformed(evt);
-            }
-        });
-        jMenu5.add(jCheckBoxMenuItem2);
-
         jMenuItem2.setText("Marca");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -528,6 +519,38 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
             }
         });
         jMenu5.add(jMenuItem6);
+
+        jMenuItem8.setText("Producto");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem8);
+
+        mPresentacion.setText("Presentación");
+        mPresentacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mPresentacionActionPerformed(evt);
+            }
+        });
+        jMenu5.add(mPresentacion);
+
+        mTipoPre.setText("Tipo presentación");
+        mTipoPre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mTipoPreActionPerformed(evt);
+            }
+        });
+        jMenu5.add(mTipoPre);
+
+        mUnidad.setText("Unidad");
+        mUnidad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mUnidadActionPerformed(evt);
+            }
+        });
+        jMenu5.add(mUnidad);
 
         jMenuBar1.add(jMenu5);
 
@@ -581,15 +604,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnVentasActionPerformed
 
-    private void jCheckBoxMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem2ActionPerformed
-        
-    }//GEN-LAST:event_jCheckBoxMenuItem2ActionPerformed
-
-    private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
-       mantProducto mPro = new mantProducto(this,true);
-       mPro.setVisible(true);
-    }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
-
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
        mantMarca frm = new mantMarca(null, true);
     frm.setVisible(true);
@@ -604,6 +618,26 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         mantCategoria frm = new mantCategoria(null, true);
     frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        mantProducto mPro = new mantProducto(this,true);
+       mPro.setVisible(true);
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
+
+    private void mPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mPresentacionActionPerformed
+        ManPresentacion mPre = new ManPresentacion(this,true);
+        mPre.setVisible(true);
+    }//GEN-LAST:event_mPresentacionActionPerformed
+
+    private void mTipoPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mTipoPreActionPerformed
+        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this,true);
+        mTipoPre.setVisible(true);
+    }//GEN-LAST:event_mTipoPreActionPerformed
+
+    private void mUnidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mUnidadActionPerformed
+       ManUnidad mUni = new  ManUnidad(this,true);
+       mUni.setVisible(true);
+    }//GEN-LAST:event_mUnidadActionPerformed
 
     /**
      * @param args the command line arguments
@@ -624,8 +658,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
-    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
-    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -645,17 +677,21 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu9;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
@@ -665,6 +701,9 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField4;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JMenuItem mPresentacion;
+    private javax.swing.JMenuItem mTipoPre;
+    private javax.swing.JMenuItem mUnidad;
     private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtHora;
     // End of variables declaration//GEN-END:variables

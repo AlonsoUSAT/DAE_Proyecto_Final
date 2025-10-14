@@ -624,31 +624,44 @@ public class ManPresPro extends javax.swing.JDialog {
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
         int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un formato de la tabla para modificar.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        try {
-            int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
-            float precio = Float.parseFloat(txtPrecioVenta.getText());
-            boolean vigente = chkVigencia.isSelected();
-            // El stock no se modifica desde aquí, se pasa el valor actual.
-            int stockActual = Integer.parseInt(txtStock.getText());
 
-            // Se asume que modificar en PresentacionProductoDAO acepta estos parámetros
-            objPresProd.modificar(productoID, idPresentacion, precio, stockActual, vigente);
-            
-            JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un formato de la tabla para modificar.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-          actualizarAmbasListas();
-            limpiarControles();
-            gestionarEstadoControles("inicio");
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    try {
+        // --- 1. Obtener datos de la interfaz y la tabla ---
+        int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
+        float precio = Float.parseFloat(txtPrecioVenta.getText());
+        boolean vigente = chkVigencia.isSelected();
+        // El stock no se modifica desde aquí, se pasa el valor actual que ya está en la tabla.
+        int stockActual = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 3);
 
+        // --- 2. Ejecutar la modificación en la base de datos ---
+        objPresProd.modificar(productoID, idPresentacion, precio, stockActual, vigente);
+
+        // --- 3. ✅ ACTUALIZAR SOLO LA FILA EN LA TABLA (SIN RECARGAR TODO) ✅ ---
+        DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
+        
+        // Actualizamos la columna del precio (índice 2)
+        modelo.setValueAt(precio, filaSeleccionada, 2);
+        
+        // Actualizamos la columna de la vigencia (índice 4)
+        modelo.setValueAt(vigente ? "Vigente" : "No Vigente", filaSeleccionada, 4);
+        
+        // --- NO SE LLAMA a actualizarAmbasListas() ---
+
+        // --- 4. Limpiar y resetear el formulario ---
+        limpiarControles();
+        gestionarEstadoControles("inicio");
+        JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+    } catch (NumberFormatException nfe) {
+        JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void txtProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductoActionPerformed

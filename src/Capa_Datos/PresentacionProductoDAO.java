@@ -310,4 +310,33 @@ public List<Object[]> listarFormatosParaTabla(int idProducto) throws Exception {
         }
     }
     
+   public boolean presentacionEstaEnUso(int idPresentacion) throws Exception {
+    // 1. Declarar las variables como en los otros métodos
+    Connection con = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    String sql = "SELECT COUNT(*) FROM presentacion_producto WHERE idPresentacion = ?";
+
+    try {
+        // 2. Usar el objeto 'objConectar' que ya existe en la clase
+        con = objConectar.conectar();
+        ps = con.prepareStatement(sql);
+        ps.setInt(1, idPresentacion);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+            // Si el conteo es mayor a 0, significa que está en uso.
+            return rs.getInt(1) > 0;
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al verificar uso de presentación: " + e.getMessage());
+    } finally {
+        // 3. Cerrar todo en el bloque finally, como en los otros métodos
+        if (rs != null) rs.close();
+        if (ps != null) ps.close();
+        if (con != null) objConectar.desconectar();
+    }
+    return false; // Por defecto, si no encuentra nada, no está en uso.
+}
+    
 }
