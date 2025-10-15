@@ -72,7 +72,7 @@ public class frmPreguntaSeguridadd extends javax.swing.JDialog {
         jLabel2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel2.setText("Respuesta:");
 
-        btnValidar.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        btnValidar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnValidar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/validar.png"))); // NOI18N
         btnValidar.setText("Validar");
         btnValidar.addActionListener(new java.awt.event.ActionListener() {
@@ -88,7 +88,7 @@ public class frmPreguntaSeguridadd extends javax.swing.JDialog {
             }
         });
 
-        btnVolver.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        btnVolver.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnVolver.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/volver.png"))); // NOI18N
         btnVolver.setText("Volver");
         btnVolver.addActionListener(new java.awt.event.ActionListener() {
