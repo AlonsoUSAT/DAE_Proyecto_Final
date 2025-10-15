@@ -110,7 +110,7 @@ public class clsUsuario {
     }*/
     public ResultSet listarUsuarios() throws Exception {
         // ADVERTENCIA: Se recomienda especificar columnas en lugar de usar '*'
-        strSQL = "SELECT U.*, R.nombre as nombreRol FROM USUARIO U INNER JOIN ROL R ON U.id_rol = R.id_rol";
+        strSQL = "SELECT U.*, R.nombre as nombreRol FROM USUARIO U INNER JOIN ROL R ON U.idRol = R.idRol";
         try {
             rs = objConectar.consultarBD(strSQL);
             return rs;
@@ -133,7 +133,7 @@ public class clsUsuario {
     }
 
     public Integer obtenerIdRol(String nombreRol) throws Exception {
-        strSQL = "SELECT id_rol FROM ROL WHERE nombres = '" + nombreRol + "'";
+        strSQL = "SELECT idRol FROM ROL WHERE nombre = '" + nombreRol + "'";
         try {
             rs = objConectar.consultarBD(strSQL);
             if (rs.next()) {
@@ -146,7 +146,7 @@ public class clsUsuario {
     }
 
     public Integer generarIdUsuario() throws Exception {
-        strSQL = "SELECT COALESCE(MAX(codUsuario), 0) + 1 AS codigo FROM USUARIO";
+        strSQL = "SELECT COALESCE(MAX(idUsuario), 0) + 1 AS codigo FROM USUARIO";
         try {
             rs = objConectar.consultarBD(strSQL);
             if (rs.next()) {
@@ -159,7 +159,7 @@ public class clsUsuario {
     }
 
     public ResultSet buscarUsuario(Integer idUsuario) throws Exception {
-        strSQL = "SELECT U.*, R.nombre_rol as nombreRol FROM USUARIO U INNER JOIN ROL R ON U.id_rol = R.id_rol WHERE codusuario = " + idUsuario;
+        strSQL = "SELECT U.*, R.nombre as nombreRol FROM USUARIO U INNER JOIN ROL R ON U.idRol = R.idRol WHERE idUsuario = " + idUsuario;
         try {
             rs = objConectar.consultarBD(strSQL);
             return rs;
