@@ -18,25 +18,25 @@ public class clsJDBC {
     private Connection con;
     private Statement sent = null;
     
-    public Connection getCon() {
-        return con;
-    }
+ 
     
     public clsJDBC(){
         this.driver = "org.postgresql.Driver";
-        this.url = "jdbc:postgresql://localhost:5432/DAE_PROYECTO";
+        this.url = "jdbc:postgresql://localhost:5432/DAE_PROYECTO_FINAL";
         this.user = "postgres";
-        this.password = "72756176";
+        this.password = "postgres";
         this.con = null;
     }
     
     //Conectamos
     public Connection conectar() throws ClassNotFoundException, SQLException {
-        // Carga el driver
-        Class.forName(driver);
-        // Establece y devuelve la conexión
-        return DriverManager.getConnection(url, user, password);
-    }
+    // Carga el driver
+    Class.forName(driver);
+    // Establece la conexión y la asigna a la variable de instancia 'con'
+    this.con = DriverManager.getConnection(url, user, password);
+    // Devuelve la conexión (opcional, pero puede ser útil)
+    return this.con;
+}
     
     
     
@@ -52,8 +52,9 @@ public class clsJDBC {
         ResultSet rs = null;
         try {
             conectar();
-            sent = con.createStatement();
-            return sent.executeQuery(strSQL);
+             sent = con.createStatement();
+            rs = sent.executeQuery(strSQL);
+            return rs;
       //ACA
         } catch (Exception e) {
             throw new Exception("Error al ejecutar consulta"+e.getMessage());
@@ -78,5 +79,9 @@ public class clsJDBC {
                 desconectar();
             }
         }
+    }
+    
+    public Connection getCon() {
+        return con;
     }
 }

@@ -19,13 +19,15 @@ public class clsUsuario {
     ResultSet rs = null;
 
     public String[] login(String usu, String con) throws Exception {
-        strSQL = "select usuario,tipo_usuario from usuarios where nomusuario = '" + usu + "' and clave = '" + con + "'";
+        strSQL = "select U.nomusuario, R.nombre_rol from "
+                + "usuario U inner join rol R on U.id_rol = R.id_rol where U.nomusuario = '" + usu + "' and U.clave = '" + con + "'";
+        
         String[] valores = new String[2];
         try {
             rs = objConectar.consultarBD((strSQL));
             while (rs.next()) {
                 valores[0] = rs.getString("nomusuario");
-                valores[1] = rs.getString("tipo_usuario");
+                valores[1] = rs.getString("nombre_rol");
                 return valores;
             }
         } catch (Exception e) {
@@ -35,7 +37,7 @@ public class clsUsuario {
         return valores;
     }
    
-
+/*
     public boolean validarRespuesta(String usu, String respuesta) throws Exception {
         strSQL = "SELECT respuesta FROM usuario WHERE nomusuario = '" + usu + "'";
         try {
@@ -48,7 +50,7 @@ public class clsUsuario {
         }
         return false;
     }
-    /*
+    
 
     public String obtenerPregunta(String usu) throws Exception {
         strSQL = "SELECT pregunta FROM usuario WHERE nomusuario = '" + usu + "'";
