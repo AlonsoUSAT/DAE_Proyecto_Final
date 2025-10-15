@@ -251,32 +251,50 @@ public class ManLote extends javax.swing.JDialog {
     return cal.getTime();
 }
    
-   private boolean validarFechas() {
-    Date fechaHoy = getFechaSinHora(new Date());
-    Date fechaFab = getFechaSinHora(jdcFechaFabricacion.getDate());
-    Date fechaVen = getFechaSinHora(jdcFechaVencimiento.getDate());
-
-   
-    if (fechaVen == null) {
-        JOptionPane.showMessageDialog(this, "La fecha de vencimiento es obligatoria.", "Validación de Fechas", JOptionPane.WARNING_MESSAGE);
+  private boolean validarCamposParaGuardar() {
+    // 1. Validar Stock
+    if ((Integer) spnStock.getValue() <= 0) {
+        JOptionPane.showMessageDialog(this, "El Stock debe ser mayor a cero.", "Validación", JOptionPane.WARNING_MESSAGE);
+        spnStock.requestFocusInWindow();
         return false;
     }
 
+    // 2. Validar Fechas Nulas
+    Date fechaFab = jdcFechaFabricacion.getDate();
+    Date fechaVen = jdcFechaVencimiento.getDate();
     
-    if (fechaFab != null && fechaFab.after(fechaHoy)) {
+    if (fechaFab == null) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una Fecha de Fabricación.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+        jdcFechaFabricacion.requestFocusInWindow();
+        return false;
+    }
+    if (fechaVen == null) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una Fecha de Vencimiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+        jdcFechaVencimiento.requestFocusInWindow();
+        return false;
+    }
+
+    // 3. Validar Lógica de Fechas
+    Date fechaHoy = getFechaSinHora(new Date());
+    Date fechaFabNormalizada = getFechaSinHora(fechaFab);
+    Date fechaVenNormalizada = getFechaSinHora(fechaVen);
+
+    if (fechaFabNormalizada.after(fechaHoy)) {
         JOptionPane.showMessageDialog(this, "La fecha de fabricación no puede ser posterior a la fecha actual.", "Validación de Fechas", JOptionPane.WARNING_MESSAGE);
         return false;
     }
-
-    
-    if (fechaVen.before(fechaHoy)) {
+    if (fechaVenNormalizada.before(fechaHoy)) {
         JOptionPane.showMessageDialog(this, "La fecha de vencimiento no puede ser una fecha pasada.", "Validación de Fechas", JOptionPane.WARNING_MESSAGE);
         return false;
     }
-
+    if (fechaVenNormalizada.before(fechaFabNormalizada)) {
+        JOptionPane.showMessageDialog(this, "La fecha de vencimiento no puede ser anterior a la de fabricación.", "Validación de Fechas", JOptionPane.WARNING_MESSAGE);
+        return false;
+    }
     
-    if (fechaFab != null && fechaVen.before(fechaFab)) {
-        JOptionPane.showMessageDialog(this, "La fecha de vencimiento no puede ser anterior a la fecha de fabricación.", "Validación de Fechas", JOptionPane.WARNING_MESSAGE);
+   
+    if (fechaVenNormalizada.equals(fechaFabNormalizada)) {
+        JOptionPane.showMessageDialog(this, "La fecha de vencimiento no puede ser la misma que la de fabricación.", "Validación de Fechas", JOptionPane.WARNING_MESSAGE);
         return false;
     }
 
@@ -360,6 +378,8 @@ public class ManLote extends javax.swing.JDialog {
         });
 
         jLabel9.setText("ID:");
+
+        spnStock.setModel(new javax.swing.SpinnerNumberModel(1, 0, null, 1));
 
         jPanel4.setBackground(new java.awt.Color(153, 204, 255));
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Informacion del lote", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14), new java.awt.Color(255, 255, 255))); // NOI18N
@@ -462,12 +482,13 @@ public class ManLote extends javax.swing.JDialog {
                             .addComponent(jLabel6))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(spnStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(jdcFechaFabricacion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jdcFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(txtExistencias, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(chkEstado)))
+                            .addComponent(chkEstado)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(spnStock, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(txtExistencias, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(27, 27, 27)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -479,9 +500,9 @@ public class ManLote extends javax.swing.JDialog {
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(txtNumeroLote, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(btnBuscar)))
-                .addGap(30, 30, 30)
+                .addGap(18, 18, 18)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(39, Short.MAX_VALUE))
         );
@@ -695,74 +716,40 @@ public class ManLote extends javax.swing.JDialog {
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
     
-    if (btnNuevo.getText().equals("Nuevo")) {
-        
+      if (btnNuevo.getText().equals("Nuevo")) {
         esNuevo = true;
-        gestionarEstadoControles("nuevo"); 
-
+        gestionarEstadoControles("nuevo");
         try {
-           
             txtIDLote.setText(String.valueOf(objLote.generarCodeLote()));
-            txtNumeroLote.setText("<Se generará al guardar>");
-           
+            txtNumeroLote.setText("<Se generará>");
             spnStock.requestFocusInWindow();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al generar código de lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            gestionarEstadoControles("inicio"); 
+            gestionarEstadoControles("inicio");
         }
-
-    } else {
-    
-    
-    try {
-       
-        
-        
-        if (jdcFechaFabricacion.getDate() == null) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una Fecha de Fabricación.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            jdcFechaFabricacion.requestFocusInWindow(); 
-            return; 
-        }
-
-        if (jdcFechaVencimiento.getDate() == null) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una Fecha de Vencimiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            jdcFechaVencimiento.requestFocusInWindow(); 
-            return; 
-        }
-        
-        if ((Integer) spnStock.getValue() <= 0) {
-            JOptionPane.showMessageDialog(this, "El Stock debe ser mayor a cero.", "Validación", JOptionPane.WARNING_MESSAGE);
-            spnStock.requestFocusInWindow();
-            return; 
-        }
-
-        
-        if (!validarFechas()) {
+    } else { 
+        try {
            
-            return; 
+            if (!validarCamposParaGuardar()) {
+                return; // Si algo falla, la validación ya mostró el mensaje y detenemos todo.
+            }
+
+          
+            int idLote = Integer.parseInt(txtIDLote.getText());
+            int cantidad = (Integer) spnStock.getValue();
+            String nroLoteGenerado = objLote.generarNumeroLote(this.productoID, this.presentacionID, cantidad);
+
+            objLote.registrarLote(idLote, nroLoteGenerado, jdcFechaFabricacion.getDate(), jdcFechaVencimiento.getDate(), cantidad, this.presentacionID, this.productoID, true);
+            
+            JOptionPane.showMessageDialog(this, "Lote registrado con éxito.\nNúmero de Lote: " + nroLoteGenerado, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            listarLotesFiltrados();
+            gestionarEstadoControles("inicio");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        
-        
-        int idLote = Integer.parseInt(txtIDLote.getText());
-        int cantidad = (Integer) spnStock.getValue();
-       String nroLoteGenerado = objLote.generarNumeroLote(this.productoID, this.presentacionID, cantidad);
-
-        
-       objLote.registrarLote(idLote, nroLoteGenerado, jdcFechaFabricacion.getDate(), jdcFechaVencimiento.getDate(), cantidad, this.presentacionID, this.productoID, true);
-        
-        
-        
-        JOptionPane.showMessageDialog(this, "Lote registrado con éxito.\nNúmero de Lote: " + nroLoteGenerado, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-       
-        listarLotesFiltrados();
-        gestionarEstadoControles("inicio");
-        
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al guardar el lote: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
@@ -777,12 +764,12 @@ public class ManLote extends javax.swing.JDialog {
     }
 
     try {
-        
-        if (!validarFechas()) {
-            return;
+      
+        if (!validarCamposParaGuardar()) {
+            return; // Si la validación falla, nos detenemos.
         }
         
-        
+     
         int idLote = Integer.parseInt(txtIDLote.getText());
         int cantidad = (Integer) spnStock.getValue();
         boolean estado = chkEstado.isSelected();
