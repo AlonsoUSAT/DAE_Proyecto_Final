@@ -537,14 +537,11 @@ public class ManPresPro extends javax.swing.JDialog {
                 }
             }
           
-            float precio = Float.parseFloat(txtPrecioVenta.getText());
-            
-            
-            
-            
+           String textoPrecio = txtPrecioVenta.getText().replace(',', '.'); 
+            float precio = Float.parseFloat(textoPrecio);
+  
             objPresProd.registrar(productoID, presSeleccionada.getId(), precio, 0, true);
-            
-            
+  
             JOptionPane.showMessageDialog(this, "Presentación asignada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
             actualizarAmbasListas();
