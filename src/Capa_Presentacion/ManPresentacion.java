@@ -28,83 +28,62 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManPresentacion extends javax.swing.JDialog {
 
+    private final PresentacionDAO objPresentacion = new PresentacionDAO();
+    private final TipoPresentacionDAO1 objTipoPresentacion = new TipoPresentacionDAO1();
+    private final UnidadDAO objUnidad = new UnidadDAO();
     
- 
-    PresentacionDAO objPresentacion = new PresentacionDAO();
-    TipoPresentacionDAO1 objTipoPresentacion = new TipoPresentacionDAO1();
-    UnidadDAO objUnidad = new UnidadDAO();
-    
+    private final PresentacionProductoDAO objPresProdDAO = new PresentacionProductoDAO(); 
+    private List<clsPresentacion> listaDePresentaciones;
+
     public ManPresentacion(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-          configurarComponentes();
-
+        configurarComponentes();
     }
+
     
-     private void configurarComponentes() {
+    private void configurarComponentes() {
+        this.setTitle("Mantenimiento de Presentaciones");
         configurarSpinnerDecimal();
         configurarTabla();
-        listarTodo();
+        cargarDatosIniciales();
         this.setLocationRelativeTo(null);
         gestionarEstadoControles("inicio");
     }
-     private void configurarSpinnerDecimal() {
-        JSpinner.NumberEditor editor = (JSpinner.NumberEditor) spCantidad.getEditor();
-        DecimalFormat format = editor.getFormat();
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setDecimalSeparator('.');
-        format.setDecimalFormatSymbols(symbols);
-    }
-     
-    
- 
-     private void listarTodo() {
+
+    private void cargarDatosIniciales() {
         listarPresentaciones();
         listarTiposPresentacion();
         listarUnidades();
     }
     
-   
-       private void configurarTabla() {
-        DefaultTableModel modelo = new DefaultTableModel();
+    private void configurarTabla() {
+        DefaultTableModel modelo = new DefaultTableModel(){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; 
+            }
+        };
         modelo.addColumn("ID");
         modelo.addColumn("Tipo");
         modelo.addColumn("Cantidad");
         modelo.addColumn("Unidad");
-        modelo.addColumn("Estado"); 
+        modelo.addColumn("Estado");
         tblPresentacion.setModel(modelo);
     }
     
-   
-
-  private void limpiarControles() {
-        txtID.setText("");
-        spCantidad.setValue(1.0f); 
-        chkActivo.setSelected(true); 
-        if (cmbTipoPresentacion.getItemCount() > 0) {
-            cmbTipoPresentacion.setSelectedIndex(0);
-        }
-        if (cmbUnidad.getItemCount() > 0) {
-            cmbUnidad.setSelectedIndex(0);
-        }
-        txtID.requestFocus();
-    }
-
-    
-     private void listarPresentaciones() {
+    private void listarPresentaciones() {
         DefaultTableModel modelo = (DefaultTableModel) tblPresentacion.getModel();
         modelo.setRowCount(0);
-
         try {
-            ArrayList<clsPresentacion> lista = objPresentacion.listarPresentaciones();
-            
-            for (clsPresentacion dto : lista) {
+            this.listaDePresentaciones = objPresentacion.listarPresentaciones();
+            for (clsPresentacion dto : this.listaDePresentaciones) {
                 modelo.addRow(new Object[]{
                     dto.getId(),
                     dto.getNombreTipoPresentacion(),
                     dto.getCantidad(),
                     dto.getNombreUnidad(),
-                    dto.isActivo() ? "Activo" : "Inactivo" 
+                    dto.isActivo() ? "Activo" : "Inactivo"
                 });
             }
         } catch (Exception e) {
@@ -112,73 +91,128 @@ public class ManPresentacion extends javax.swing.JDialog {
         }
     }
 
-    
-   private void listarTiposPresentacion() {
-    try {
-        cmbTipoPresentacion.removeAllItems();
-      
-        List<clsTipoPresentacion> lista = objTipoPresentacion.listarTodos(); 
-        for (clsTipoPresentacion dto : lista) {
-            cmbTipoPresentacion.addItem(dto);
+    private void listarTiposPresentacion() {
+        try {
+            cmbTipoPresentacion.removeAllItems();
+            List<clsTipoPresentacion> lista = objTipoPresentacion.listarTodos();
+            for (clsTipoPresentacion dto : lista) {
+                cmbTipoPresentacion.addItem(dto);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar tipos de presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar tipos de presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
 
-
-    
- private void listarUnidades() {
-    try {
-        cmbUnidad.removeAllItems();
-       
-        List<clsUnidad> lista = objUnidad.listarActivas(); 
-        for (clsUnidad dao : lista) {
-            cmbUnidad.addItem(dao);
+    private void listarUnidades() {
+        try {
+            cmbUnidad.removeAllItems();
+            List<clsUnidad> lista = objUnidad.listarActivas();
+            for (clsUnidad dao : lista) {
+                cmbUnidad.addItem(dao);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar unidades: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar unidades: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
-
     
-      private void gestionarEstadoControles(String modo) {
-        boolean camposEditables = modo.equals("nuevo") || modo.equals("modificar");
+    private void configurarSpinnerDecimal() {
+        JSpinner.NumberEditor editor = (JSpinner.NumberEditor) spCantidad.getEditor();
+        DecimalFormat format = editor.getFormat();
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        format.setDecimalFormatSymbols(symbols);
+    }
+
+   
+    
+    private void cargarDatosEnFormulario(clsPresentacion presentacion) {
+        if (presentacion == null) return;
+
+        txtID.setText(String.valueOf(presentacion.getId()));
+        spCantidad.setValue(presentacion.getCantidad());
+        chkActivo.setSelected(presentacion.isActivo());
+
+        String tipoNombre = presentacion.getNombreTipoPresentacion();
+        for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
+            if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
+                cmbTipoPresentacion.setSelectedIndex(i);
+                break;
+            }
+        }
         
-        spCantidad.setEnabled(camposEditables);
-        cmbTipoPresentacion.setEnabled(camposEditables);
-        cmbUnidad.setEnabled(camposEditables);
-        chkActivo.setEnabled(camposEditables);
-
-        switch (modo) {
-            case "inicio":
-                txtID.setEnabled(true);
-                btnNuevo.setEnabled(true);
-                btnBuscar.setEnabled(true);
-                btnModificar.setEnabled(false);
-                btnDardeBaja.setEnabled(false);
-                btnEliminar.setEnabled(false);
+        String unidadNombre = presentacion.getNombreUnidad();
+        for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
+            if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
+                cmbUnidad.setSelectedIndex(i);
                 break;
-            
-            case "nuevo":
-                txtID.setEnabled(false);
-                btnNuevo.setEnabled(true); 
-                btnBuscar.setEnabled(false);
-                btnModificar.setEnabled(false);
-                btnDardeBaja.setEnabled(false);
-                btnEliminar.setEnabled(false);
-                break;
-
-            case "modificar":
-                txtID.setEnabled(false);
-                btnNuevo.setEnabled(false);
-                btnBuscar.setEnabled(true);
-                btnModificar.setEnabled(true);
-                btnDardeBaja.setEnabled(true);
-                btnEliminar.setEnabled(true);
-                break;
+            }
         }
     }
+    
+    private void seleccionarFilaEnTabla(int id) {
+        for (int i = 0; i < tblPresentacion.getRowCount(); i++) {
+            if (Integer.parseInt(tblPresentacion.getValueAt(i, 0).toString()) == id) {
+                tblPresentacion.setRowSelectionInterval(i, i);
+                tblPresentacion.scrollRectToVisible(tblPresentacion.getCellRect(i, 0, true));
+                break;
+            }
+        }
+    }
+
+    private void limpiarControles() {
+        txtID.setText("");
+        spCantidad.setValue(1.0f);
+        chkActivo.setSelected(true);
+        if (cmbTipoPresentacion.getItemCount() > 0) cmbTipoPresentacion.setSelectedIndex(0);
+        if (cmbUnidad.getItemCount() > 0) cmbUnidad.setSelectedIndex(0);
+        txtID.requestFocus();
+        tblPresentacion.clearSelection();
+    }
+    
+   private void gestionarEstadoControles(String modo) {
+    boolean camposEditables = modo.equals("nuevo") || modo.equals("modificar");
+    
+    spCantidad.setEnabled(camposEditables);
+    cmbTipoPresentacion.setEnabled(camposEditables);
+    cmbUnidad.setEnabled(camposEditables);
+
+    switch (modo) {
+        case "inicio":
+            txtID.setEnabled(true);
+            btnNuevo.setEnabled(true);
+            btnNuevo.setText("Nuevo");
+            btnBuscar.setEnabled(true);
+            btnModificar.setEnabled(false);
+            btnDardeBaja.setEnabled(false);
+            btnEliminar.setEnabled(false);
+            chkActivo.setEnabled(false); 
+            break;
+
+        case "nuevo":
+            txtID.setEnabled(false);
+            btnNuevo.setEnabled(true);
+            btnNuevo.setText("Guardar");
+            btnBuscar.setEnabled(false);
+            btnModificar.setEnabled(false);
+            btnDardeBaja.setEnabled(false);
+            btnEliminar.setEnabled(false);
+          
+            chkActivo.setSelected(true);
+            chkActivo.setEnabled(false); 
+            break;
+
+        case "modificar":
+            txtID.setEnabled(false);
+            btnNuevo.setEnabled(false);
+            btnBuscar.setEnabled(true);
+            btnModificar.setEnabled(true);
+            btnDardeBaja.setEnabled(true);
+            btnEliminar.setEnabled(true);
+          
+            chkActivo.setEnabled(true); 
+            break;
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -488,40 +522,30 @@ public class ManPresentacion extends javax.swing.JDialog {
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
        try {
             if (btnNuevo.getText().equals("Nuevo")) {
-                btnNuevo.setText("Guardar");
+                gestionarEstadoControles("nuevo");
                 limpiarControles();
                 txtID.setText(objPresentacion.generarCodePresentacion().toString());
-                
-                gestionarEstadoControles("nuevo");
-
-            } else { 
-                
+                btnNuevo.setText("Guardar");
+            } else {
                 if (cmbTipoPresentacion.getSelectedIndex() == -1 || cmbUnidad.getSelectedIndex() == -1) {
                     JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo y una unidad.", "Datos incompletos", JOptionPane.WARNING_MESSAGE);
-                    btnNuevo.setText("Guardar");
                     return;
                 }
 
                 clsTipoPresentacion tipoSeleccionado = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
-                int codPre = tipoSeleccionado.getId();
-
                 clsUnidad unidadSeleccionada = (clsUnidad) cmbUnidad.getSelectedItem();
-                int codUnidad = unidadSeleccionada.getId();
-                
-                float cantidad = ((Number) spCantidad.getValue()).floatValue();
                 
                 int id = Integer.parseInt(txtID.getText());
+                float cantidad = ((Number) spCantidad.getValue()).floatValue();
+              
                 
-                boolean estado = chkActivo.isSelected();
-                
-                objPresentacion.registrarPresentacion(id, cantidad, codUnidad, codPre, estado);
+                objPresentacion.registrarPresentacion(id, cantidad, unidadSeleccionada.getId(), tipoSeleccionado.getId(), true);
 
                 JOptionPane.showMessageDialog(this, "Presentación registrada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 
-                btnNuevo.setText("Nuevo");
-                limpiarControles();
                 listarPresentaciones();
-                gestionarEstadoControles("inicio"); 
+                gestionarEstadoControles("inicio");
+                limpiarControles();
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error Inesperado", JOptionPane.ERROR_MESSAGE);
@@ -530,102 +554,84 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        limpiarControles();
-        gestionarEstadoControles("inicio"); 
+           limpiarControles();
+        gestionarEstadoControles("inicio");
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-     
-    if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
-        JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para darla de baja.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
-        return; 
-    }
-
-   
-    if (!chkActivo.isSelected()) {
-        JOptionPane.showMessageDialog(this, "Esta presentación ya se encuentra inactiva.", "Acción no Válida", JOptionPane.INFORMATION_MESSAGE);
-        return; 
-    }
-
-    try {
-        int id = Integer.parseInt(txtID.getText());
-        
-        
-        PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
-        
-        
-        if (presProdDAO.presentacionEstaEnUso(id)) {
-           
-            JOptionPane.showMessageDialog(this, 
-                "Esta presentación no se puede dar de baja porque está asignada a uno o más productos.", 
-                "Acción Denegada", 
-                JOptionPane.ERROR_MESSAGE);
-            return; 
-        }
-        
-        
-        int opt = JOptionPane.showConfirmDialog(
-            this, 
-            "¿Está seguro de que desea cambiar el estado de la presentación con ID " + txtID.getText() + " a 'Inactivo'?", 
-            "Confirmar Acción", 
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-        );
-        
-        if (opt == JOptionPane.YES_OPTION) {
-            
-            objPresentacion.darBajaPresentacion(id);
-            
-           
-            limpiarControles();
-            listarPresentaciones();
-            gestionarEstadoControles("inicio");
-            JOptionPane.showMessageDialog(this, "La presentación ha sido dada de baja correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al dar de baja la presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }//GEN-LAST:event_btnDardeBajaActionPerformed
-
-    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        try {
-        if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación para eliminar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+    if (txtID.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe buscar o seleccionar una presentación para darla de baja.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int id = Integer.parseInt(txtID.getText());
-
-        
-        PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
-        if (presProdDAO.presentacionEstaEnUso(id)) {
-            JOptionPane.showMessageDialog(this,
-                "Esta presentación no se puede ELIMINAR porque está asignada a uno o más productos.",
-                "Acción Denegada",
-                JOptionPane.ERROR_MESSAGE);
-            return; 
-        }
-        
-
-        UIManager.put("OptionPane.yesButtonText", "Sí, Eliminar");
-        UIManager.put("OptionPane.noButtonText", "No");
-        int opt = JOptionPane.showConfirmDialog(this,
-            "¿Está seguro de que desea eliminar permanentemente esta presentación?\nEsta acción no se puede deshacer.",
-            "Confirmar Eliminación",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE);
-
-        if (opt == JOptionPane.YES_OPTION) {
-            objPresentacion.eliminarPresentacion(id);
-            limpiarControles();
-            listarPresentaciones();
-            gestionarEstadoControles("inicio");
-            JOptionPane.showMessageDialog(this, "Presentación eliminada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        if (!chkActivo.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Esta presentación ya se encuentra inactiva.", "Acción no Válida", JOptionPane.INFORMATION_MESSAGE);
+            return;
         }
 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al eliminar la presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
+        try {
+            int id = Integer.parseInt(txtID.getText());
+            
+            if (objPresProdDAO.presentacionEstaEnUso(id)) {
+                JOptionPane.showMessageDialog(this,
+                    "Esta presentación no se puede dar de baja porque está asignada a uno o más productos.",
+                    "Acción Denegada",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            int opt = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea cambiar el estado a 'Inactivo'?",
+                "Confirmar Acción",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+            
+            if (opt == JOptionPane.YES_OPTION) {
+                objPresentacion.darBajaPresentacion(id);
+                
+                listarPresentaciones();
+                gestionarEstadoControles("inicio");
+                limpiarControles();
+                JOptionPane.showMessageDialog(this, "La presentación ha sido dada de baja correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al dar de baja la presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnDardeBajaActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+          if (txtID.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe buscar o seleccionar una presentación para eliminar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        try {
+            int id = Integer.parseInt(txtID.getText());
+
+            if (objPresProdDAO.presentacionEstaEnUso(id)) {
+                JOptionPane.showMessageDialog(this,
+                    "Esta presentación no se puede ELIMINAR porque está asignada a uno o más productos.",
+                    "Acción Denegada",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            int opt = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea eliminar permanentemente esta presentación?\nEsta acción no se puede deshacer.",
+                "Confirmar Eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+            if (opt == JOptionPane.YES_OPTION) {
+                objPresentacion.eliminarPresentacion(id);
+                listarPresentaciones();
+                gestionarEstadoControles("inicio");
+                limpiarControles();
+                JOptionPane.showMessageDialog(this, "Presentación eliminada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al eliminar la presentación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
@@ -633,97 +639,53 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-          try {
-        if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para modificar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
+           if (txtID.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe buscar o seleccionar una presentación para modificar.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
+        try {
+            int id = Integer.parseInt(txtID.getText());
+            float cantidad = ((Number) spCantidad.getValue()).floatValue();
+            clsUnidad unidad = (clsUnidad) cmbUnidad.getSelectedItem();
+            clsTipoPresentacion tipo = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
+            boolean nuevoEstado = chkActivo.isSelected();
 
-        int id = Integer.parseInt(txtID.getText());
-        float cantidad = ((Number) spCantidad.getValue()).floatValue();
-        clsUnidad unidad = (clsUnidad) cmbUnidad.getSelectedItem();
-        clsTipoPresentacion tipo = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
-        boolean nuevoEstado = chkActivo.isSelected();
-
-     
-        if (!nuevoEstado) { 
-            PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
-            if (presProdDAO.presentacionEstaEnUso(id)) {
-                JOptionPane.showMessageDialog(this,
-                    "No se puede desactivar esta presentación porque está asignada a uno o más productos.",
-                    "Acción Denegada",
-                    JOptionPane.ERROR_MESSAGE);
-                
-                
-                chkActivo.setSelected(true); 
-               
-
-                return; 
+            if (!nuevoEstado) {
+                if (objPresProdDAO.presentacionEstaEnUso(id)) {
+                    JOptionPane.showMessageDialog(this,
+                        "No se puede desactivar esta presentación porque está asignada a uno o más productos.",
+                        "Acción Denegada",
+                        JOptionPane.ERROR_MESSAGE);
+                    chkActivo.setSelected(true);
+                    return;
+                }
             }
+            
+            objPresentacion.modificarPresentacion(id, cantidad, unidad.getId(), tipo.getId(), nuevoEstado);
+
+            listarPresentaciones();
+            gestionarEstadoControles("inicio");
+            limpiarControles();
+            JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-      
-        objPresentacion.modificarPresentacion(id, cantidad, unidad.getId(), tipo.getId(), nuevoEstado);
-
-        limpiarControles();
-        listarPresentaciones();
-        gestionarEstadoControles("inicio");
-        JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void tblPresentacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresentacionMouseClicked
       int fila = tblPresentacion.getSelectedRow();
-    if (fila == -1) {
-        return; 
-    }
-
-    try {
-     
-        String id = tblPresentacion.getValueAt(fila, 0).toString();
-        String tipoNombre = tblPresentacion.getValueAt(fila, 1).toString();
-        Object cantidadObj = tblPresentacion.getValueAt(fila, 2);
-        String unidadNombre = tblPresentacion.getValueAt(fila, 3).toString();
-        String estadoTabla = tblPresentacion.getValueAt(fila, 4).toString();
-
-       
-        txtID.setText(id);
-
-      
-        if (cantidadObj instanceof Number) {
-            spCantidad.setValue(((Number) cantidadObj).floatValue());
-        } else {
-            spCantidad.setValue(Float.parseFloat(cantidadObj.toString()));
+        if (fila == -1) {
+            return;
         }
-        
-        
-        chkActivo.setSelected(estadoTabla.equals("Activo"));
-        
-        
-        for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
-            if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
-                cmbTipoPresentacion.setSelectedIndex(i);
-                break;
-            }
+        try {
+            clsPresentacion presentacionSeleccionada = this.listaDePresentaciones.get(fila);
+            cargarDatosEnFormulario(presentacionSeleccionada);
+            gestionarEstadoControles("modificar");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos de la fila: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        
-        for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
-            if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
-                cmbUnidad.setSelectedIndex(i);
-                break;
-            }
-        }
-
-      
-        gestionarEstadoControles("modificar");
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar los datos de la fila: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
     }//GEN-LAST:event_tblPresentacionMouseClicked
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
@@ -732,36 +694,13 @@ public class ManPresentacion extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(this, "Debe ingresar un código para buscar.");
                 return;
             }
-
             int idABuscar = Integer.parseInt(txtID.getText());
-            
-        
             clsPresentacion presentacionEncontrada = objPresentacion.buscarPresentacion(idABuscar);
 
-           
             if (presentacionEncontrada != null) {
-              
-                txtID.setText(String.valueOf(presentacionEncontrada.getId()));
-                spCantidad.setValue(presentacionEncontrada.getCantidad());
-                
-                gestionarEstadoControles("modificar"); 
-
-               
-                String tipoNombre = presentacionEncontrada.getNombreTipoPresentacion();
-                for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
-                    if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
-                        cmbTipoPresentacion.setSelectedIndex(i);
-                        break;
-                    }
-                }
-
-                String unidadNombre = presentacionEncontrada.getNombreUnidad();
-                for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
-                    if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
-                        cmbUnidad.setSelectedIndex(i);
-                        break;
-                    }
-                }
+                cargarDatosEnFormulario(presentacionEncontrada);
+                gestionarEstadoControles("modificar");
+                seleccionarFilaEnTabla(idABuscar);
             } else {
                 JOptionPane.showMessageDialog(this, "El código de presentación no existe.");
                 limpiarControles();
@@ -774,13 +713,15 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       ManTipoPresentacion manTP = new ManTipoPresentacion(null,true);
-       manTP.setVisible(true);
+     ManTipoPresentacion manTP = new ManTipoPresentacion(null,true);
+        manTP.setVisible(true);
+        listarTiposPresentacion();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        ManUnidad mU = new  ManUnidad(null,true);
+          ManUnidad mU = new ManUnidad(null,true);
         mU.setVisible(true);
+        listarUnidades();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     

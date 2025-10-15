@@ -110,13 +110,15 @@
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="spnStock" min="-2" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                       <Component id="jdcFechaFabricacion" max="32767" attributes="0"/>
                                       <Component id="jdcFechaVencimiento" min="-2" pref="113" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="txtExistencias" alignment="0" min="-2" pref="89" max="-2" attributes="0"/>
                                   <Component id="chkEstado" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="spnStock" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="txtExistencias" alignment="0" pref="89" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -133,11 +135,11 @@
                                       <Component id="txtNumeroLote" min="-2" pref="82" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="btnBuscar" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace pref="39" max="32767" attributes="0"/>
                   </Group>
@@ -260,6 +262,11 @@
             <Component class="com.toedter.calendar.JDateChooser" name="jdcFechaVencimiento">
             </Component>
             <Component class="javax.swing.JSpinner" name="spnStock">
+              <Properties>
+                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                  <SpinnerModel initial="1" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                </Property>
+              </Properties>
             </Component>
             <Container class="javax.swing.JPanel" name="jPanel4">
               <Properties>

@@ -22,12 +22,13 @@ public class mantProducto extends javax.swing.JDialog {
   
    
     private final ProductoDAO pDAO = new ProductoDAO();
-    private final categoriaDAO cDAO = new categoriaDAO();
-    private final MarcaDAO mDAO = new MarcaDAO();
-    private final laboratorioDAO lDAO = new laboratorioDAO();
-    
-    
-    private List<clsProducto> listaProductos;
+private final categoriaDAO cDAO = new categoriaDAO();
+private final MarcaDAO mDAO = new MarcaDAO();
+private final laboratorioDAO lDAO = new laboratorioDAO();
+private final PresentacionProductoDAO ppDAO = new PresentacionProductoDAO(); // DAO para los formatos
+
+private List<clsProducto> listaProductos;
+private boolean estadoOriginalDelProducto = true; // Variable para la lógica de reactivación
 
     /**
      * Creates new form mantCategoria
@@ -626,38 +627,47 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        
-    if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
+     if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
         JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
     try {
-        
+        int idProducto = Integer.parseInt(txtID.getText());
+        boolean nuevoEstado = chkVigencia.isSelected();
+
         clsProducto producto = new clsProducto();
-        producto.setIdProducto(Integer.parseInt(txtID.getText()));
-        producto.setNombre(txtNombre.getText());
+        producto.setIdProducto(idProducto);
+        producto.setNombre(txtNombre.getText().trim());
         producto.setDescripcion(txtDescripcion.getText());
-        producto.setEstado(chkVigencia.isSelected());
+        producto.setEstado(nuevoEstado);
         producto.setCategoria((clsCategoria) cmbCategoria.getSelectedItem());
         producto.setMarca((clsMarca) cmbMarca.getSelectedItem());
         producto.setDistribuidor((clsLaboratorio) cmbDistribuidor.getSelectedItem());
 
-       
+        String mensajeExito = "";
+
         if (btnModificar.getText().equals("Guardar")) {
-            
-            pDAO.insertar(producto);
-            JOptionPane.showMessageDialog(this, "Producto registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            
+            pDAO.insertar(producto); // Asumiendo que tu DAO ya no usa ID autogenerado para Producto
+            mensajeExito = "Producto registrado correctamente.";
+        } else { // Lógica para modificar
             pDAO.modificar(producto);
-            JOptionPane.showMessageDialog(this, "Producto modificado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            mensajeExito = "Producto modificado correctamente.";
+
+            // --- LÓGICA DE REACTIVACIÓN EN CASCADA ---
+            // Si el estado original era FALSO (No Vigente) Y el nuevo estado es VERDADERO (Vigente)
+            if (!this.estadoOriginalDelProducto && nuevoEstado) {
+                // Entonces, reactivamos todas sus presentaciones.
+                ppDAO.reactivarPorProducto(idProducto); // Necesitas este método en PresentacionProductoDAO
+                mensajeExito = "Producto y sus presentaciones han sido reactivados.";
+            }
         }
-        
-        
+
+        JOptionPane.showMessageDialog(this, mensajeExito, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
         listarProductos();
         estadoInicialControles();
-        limpiarControles();
+        // Se quitó limpiarControles() para mantener consistencia con el flujo anterior
 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -673,32 +683,30 @@ private void cargarComboDistribuidores() {
         return;
     }
     
-    
     int confirmacion = JOptionPane.showConfirmDialog(
         this, 
-        "¿Está seguro de que desea dar de baja este producto?\nEl producto no se eliminará, pero se marcará como 'No Vigente'.", // El mensaje para el usuario
+        "¿Está seguro de que desea dar de baja este producto?\nTODOS sus formatos de venta también se desactivarán.",
         "Confirmar Acción", 
         JOptionPane.YES_NO_OPTION, 
-        JOptionPane.QUESTION_MESSAGE 
+        JOptionPane.QUESTION_MESSAGE
     );
-    
     
     if (confirmacion == JOptionPane.YES_OPTION) {
         try {
-            
             int idProducto = (int) tblProducto.getValueAt(filaSeleccionada, 0);
-            
-            
+
+            // 1. Dar de baja el producto principal
             pDAO.darDeBaja(idProducto);
-            
-            
+
+            // 2. Llamar al nuevo método para dar de baja sus presentaciones en cascada.
+            ppDAO.darBajaPorProducto(idProducto); // Necesitas este método en PresentacionProductoDAO
+
+            // 3. Refrescar la interfaz de usuario
             listarProductos();
             estadoInicialControles();
-            limpiarControles();
             
-            
-            JOptionPane.showMessageDialog(this, "Producto dado de baja correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
+            JOptionPane.showMessageDialog(this, "Producto y sus presentaciones han sido dados de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al dar de baja el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -726,55 +734,54 @@ private void cargarComboDistribuidores() {
     }
 
     try {
-        
         DefaultTableModel modelo = (DefaultTableModel) tblProducto.getModel();
         
-       
+        
+        int idProducto = (int) modelo.getValueAt(filaSeleccionada, 0);
+        String nombreProducto = modelo.getValueAt(filaSeleccionada, 1).toString();
+        
+        String estadoProducto = modelo.getValueAt(filaSeleccionada, 5).toString(); 
+        boolean productoEsVigente = estadoProducto.equals("Vigente");
         
         
-        Object idObjeto = modelo.getValueAt(filaSeleccionada, 0);
-        Object nombreObjeto = modelo.getValueAt(filaSeleccionada, 1);
+        ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto, productoEsVigente);
         
         
-        int idProducto = Integer.parseInt(idObjeto.toString());
-        String nombreProducto = nombreObjeto.toString();
-        
-        
-        ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto);
         dialogoFormatos.setVisible(true);
+        
+        
         
     } catch (NumberFormatException e) {
         JOptionPane.showMessageDialog(this, "El ID del producto en la tabla no es un número válido.", "Error de Datos", JOptionPane.ERROR_MESSAGE);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al abrir la ventana de formatos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace(); 
     }
-    
     }//GEN-LAST:event_btnMostrarFormatosActionPerformed
 
     private void tblProductoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductoMouseClicked
-        int fila = tblProducto.getSelectedRow();
+         int fila = tblProducto.getSelectedRow();
     if (fila >= 0) {
         try {
-           
             int idProducto = (int) tblProducto.getValueAt(fila, 0);
-            
-           
             clsProducto productoSeleccionado = pDAO.buscarPorId(idProducto);
 
             if (productoSeleccionado != null) {
+                // --- LÍNEA CLAVE ---
+                // Guardamos el estado original para saber si se intenta reactivar más tarde
+                this.estadoOriginalDelProducto = productoSeleccionado.isEstado();
                 
+                // Llenar los campos del formulario
                 txtID.setText(String.valueOf(productoSeleccionado.getIdProducto()));
                 txtNombre.setText(productoSeleccionado.getNombre());
-              
-                txtDescripcion.setText(productoSeleccionado.getDescripcion()); 
+                txtDescripcion.setText(productoSeleccionado.getDescripcion());
                 chkVigencia.setSelected(productoSeleccionado.isEstado());
-                
                 
                 cmbCategoria.setSelectedItem(productoSeleccionado.getCategoria());
                 cmbMarca.setSelectedItem(productoSeleccionado.getMarca());
                 cmbDistribuidor.setSelectedItem(productoSeleccionado.getDistribuidor());
 
-                
+                // Ajustar el estado de los botones para el modo edición
                 habilitarControles(false);
                 btnNuevo.setEnabled(true);
                 btnModificar.setText("Modificar");

@@ -69,41 +69,50 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         }
     }
     
-    private void gestionarEstadoControles(String modo) {
-        txtNombre.setEnabled(modo.equals("nuevo") || modo.equals("seleccionado"));
-        chkEstado.setEnabled(modo.equals("nuevo") || modo.equals("seleccionado"));
-        txtID.setEnabled(modo.equals("inicio"));
+   private void gestionarEstadoControles(String modo) {
+    
+    txtNombre.setEnabled(modo.equals("nuevo") || modo.equals("seleccionado"));
+    txtID.setEnabled(modo.equals("inicio"));
 
-        switch (modo) {
-            case "inicio":
-                btnNuevo.setText("Nuevo");
-                btnNuevo.setEnabled(true);
-                btnModificar.setEnabled(false);
-                btnDardeBaja.setEnabled(false);
-                btnEliminar.setEnabled(false);
-                btnBuscar.setEnabled(true);
-                tblTipoPresentacion.clearSelection();
-                limpiarCampos();
-                tipoSeleccionadoActual = null; 
-                break;
-            case "nuevo":
-                btnNuevo.setText("Guardar");
-                btnNuevo.setEnabled(true);
-                btnModificar.setEnabled(false);
-                btnDardeBaja.setEnabled(false);
-                btnEliminar.setEnabled(false);
-                btnBuscar.setEnabled(false);
-                break;
-            case "seleccionado":
-                btnNuevo.setText("Nuevo");
-                btnNuevo.setEnabled(false);
-                btnModificar.setEnabled(true);
-                btnDardeBaja.setEnabled(true);
-                btnEliminar.setEnabled(true);
-                btnBuscar.setEnabled(false);
-                break;
-        }
+   
+
+    switch (modo) {
+        case "inicio":
+            btnNuevo.setText("Nuevo");
+            btnNuevo.setEnabled(true);
+            btnModificar.setEnabled(false);
+            btnDardeBaja.setEnabled(false);
+            btnEliminar.setEnabled(false);
+            btnBuscar.setEnabled(true);
+            chkEstado.setEnabled(false); 
+            tblTipoPresentacion.clearSelection();
+            limpiarCampos();
+            tipoSeleccionadoActual = null;
+            break;
+            
+        case "nuevo":
+            btnNuevo.setText("Guardar");
+            btnNuevo.setEnabled(true);
+            btnModificar.setEnabled(false);
+            btnDardeBaja.setEnabled(false);
+            btnEliminar.setEnabled(false);
+            btnBuscar.setEnabled(false);
+
+            chkEstado.setSelected(true);
+            chkEstado.setEnabled(false);
+            break;
+            
+        case "seleccionado":
+            btnNuevo.setText("Nuevo");
+            btnNuevo.setEnabled(false);
+            btnModificar.setEnabled(true);
+            btnDardeBaja.setEnabled(true);
+            btnEliminar.setEnabled(true);
+            btnBuscar.setEnabled(false); 
+            chkEstado.setEnabled(true);
+            break;
     }
+}
     
     private void limpiarCampos() {
         txtID.setText("");

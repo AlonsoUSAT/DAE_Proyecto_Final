@@ -300,5 +300,51 @@ public List<Object[]> listarFormatosParaTabla(int idProducto) throws Exception {
     }
     return false; 
 }
+   
+    public void darBajaPorProducto(int idProducto) throws Exception {
+    Connection conn = null;
+    PreparedStatement ps = null;
+
+    
+    String sql = "UPDATE PRESENTACION_PRODUCTO SET estado = false WHERE idProducto = ?";
+    
+    try {
+        conn = objConectar.conectar();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, idProducto);
+        
+        ps.executeUpdate();
+        
+    } catch (Exception e) {
+        throw new Exception("Error al dar de baja las presentaciones por producto: " + e.getMessage());
+    } finally {
+        if (ps != null) ps.close();
+        if (conn != null) {
+           
+        }
+    }
+}
+    
+    public void reactivarPorProducto(int idProducto) throws Exception {
+    Connection conn = null;
+    PreparedStatement ps = null;
+    String sql = "UPDATE PRESENTACION_PRODUCTO SET estado = true WHERE idProducto = ?";
+
+    try {
+        conn = objConectar.conectar();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, idProducto);
+
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+        throw new Exception("Error al reactivar las presentaciones por producto: " + e.getMessage());
+    } finally {
+        if (ps != null) ps.close();
+       
+    }
+}
+ 
+    
     
 }
