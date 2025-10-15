@@ -238,7 +238,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jLabel1.setBackground(new java.awt.Color(0, 102, 51));
         jLabel1.setForeground(new java.awt.Color(51, 51, 51));
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/logo.png"))); // NOI18N
-        jLabel1.setText("LOGO");
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/cerrar-sesion-de-usuario (1).png"))); // NOI18N
         jButton1.setText("Cerrar sesión");
