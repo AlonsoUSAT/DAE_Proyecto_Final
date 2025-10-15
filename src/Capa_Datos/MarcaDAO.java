@@ -75,28 +75,28 @@ public class MarcaDAO {
     
     // ---- MÉTODO REGISTRAR MEJORADO ----
     public void registrarMarca(clsMarca marca) throws Exception {
-        // 1. AÑADIMOS estado A LA CONSULTA
-        String sql = "INSERT INTO MARCA (idMarca, nombre, descripcion, idLaboratorio, estado) VALUES (?, ?, ?, ?, ?)";
+    // 1. Se quita 'idMarca' de la consulta INSERT
+    String sql = "INSERT INTO MARCA (nombre, descripcion, idLaboratorio, estado) VALUES (?, ?, ?, ?)";
+    
+    try (Connection con = objConexion.conectar();
+         PreparedStatement ps = con.prepareStatement(sql)) {
         
-        try (Connection con = objConexion.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setInt(1, marca.getIdMarca());
-            ps.setString(2, marca.getNombre());
-            ps.setString(3, marca.getDescripcion());
-            ps.setInt(4, marca.getIdLaboratorio());
-            // 2. GUARDAMOS EL ESTADO (POR DEFECTO SERÁ TRUE/VIGENTE)
-            ps.setBoolean(5, marca.isEstado()); 
-            ps.executeUpdate();
-            
-        } catch (SQLException | ClassNotFoundException e) {
-            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
-                throw new Exception("Error: El ID de la marca ya existe.");
-            } else {
-                throw new Exception("Error al registrar marca: " + e.getMessage());
-            }
+        // 2. Ya no se envía el ID. Los parámetros se reordenan.
+        ps.setString(1, marca.getNombre());
+        ps.setString(2, marca.getDescripcion());
+        ps.setInt(3, marca.getIdLaboratorio());
+        ps.setBoolean(4, marca.isEstado());
+        ps.executeUpdate();
+        
+    } catch (SQLException | ClassNotFoundException e) {
+        if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
+            // El error de duplicado ahora se refiere al nombre o a otra restricción UNIQUE
+            throw new Exception("Error: El nombre de la marca ya existe.");
+        } else {
+            throw new Exception("Error al registrar marca: " + e.getMessage());
         }
     }
+}
 
     // ---- MÉTODO MODIFICAR MEJORADO ----
     public void modificarMarca(clsMarca marca) throws Exception {

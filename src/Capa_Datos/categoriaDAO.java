@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
 
 public class categoriaDAO {
 
@@ -59,26 +60,41 @@ public class categoriaDAO {
         return cat;
     }
 
-    public void registrarCategoria(clsCategoria cat) throws Exception {
-    // 1. Se quita 'idCategoria' de la consulta INSERT
-    String sql = "INSERT INTO CATEGORIA (nombreCategoria, estado) VALUES (?, ?)";
-    
-    try (Connection con = objConexion.conectar();
-         PreparedStatement ps = con.prepareStatement(sql)) {
+    public int registrarCategoria(clsCategoria cat) throws Exception {
         
-        // 2. Ya no se envía el ID. Los parámetros se reordenan.
-        ps.setString(1, cat.getNombreCategoria());
-        ps.setBoolean(2, cat.isEstado());
-        ps.executeUpdate();
+        String sql = "INSERT INTO CATEGORIA (nombreCategoria, estado) VALUES (?, ?)";
+        int idGenerado = -1; // Variable para guardar el nuevo ID, -1 si falla
         
-    } catch (SQLException | ClassNotFoundException e) {
-        if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
-            throw new Exception("Error: El Nombre de la categoría ya existe.");
-        } else {
-            throw new Exception("Error al registrar categoría: " + e.getMessage());
+        // 2. CAMBIO EN PREPARESTATEMENT: Le decimos que queremos recuperar las claves generadas
+        try (Connection con = objConexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            ps.setString(1, cat.getNombreCategoria());
+            ps.setBoolean(2, cat.isEstado());
+            
+            ps.executeUpdate();
+            
+            // 3. NUEVO BLOQUE: Recuperamos el ID que la base de datos acaba de crear
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    idGenerado = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("No se pudo obtener el ID de la categoría creada.");
+                }
+            }
+            
+        } catch (SQLException | ClassNotFoundException e) {
+            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
+                throw new Exception("Error: El Nombre de la categoría ya existe.");
+            } else {
+                throw new Exception("Error al registrar categoría: " + e.getMessage());
+            }
         }
+        
+        // 4. CAMBIO FINAL: Devolvemos el ID generado
+        return idGenerado;
     }
-}
+
 
     public void modificarCategoria(clsCategoria cat) throws Exception {
     String sql = "UPDATE CATEGORIA SET nombreCategoria = ?, estado = ? WHERE idCategoria = ?";

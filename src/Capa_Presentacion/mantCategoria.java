@@ -401,31 +401,39 @@ limpiarCampos();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
- if (txtNombre.getText().trim().isEmpty()) {
+if (txtNombre.getText().trim().isEmpty()) {
         JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
         return;
     }
     
     try {
         clsCategoria cat = new clsCategoria();
-        // Usamos trim() para eliminar espacios en blanco al inicio o al final
-        cat.setNombreCategoria(txtNombre.getText().trim()); 
+        cat.setNombreCategoria(txtNombre.getText().trim());
         cat.setEstado(chkVigencia.isSelected());
         
-        // Decide si insertar o modificar basándose en el texto del botón
         if (btnModificar.getText().equals("Guardar")) {
-            // --- Lógica de INSERTAR (SIN ID) ---
-            categoriaDAO.registrarCategoria(cat); // Llama al DAO modificado que no pide ID
-            JOptionPane.showMessageDialog(this, "Categoría registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            // --- Lógica de INSERTAR con captura de ID ---
+            
+            // 1. CAMBIO: Capturamos el ID que devuelve el método del DAO
+            int nuevoId = categoriaDAO.registrarCategoria(cat);
+            
+            JOptionPane.showMessageDialog(this, "Categoría registrada con éxito con el ID: " + nuevoId, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            
+            actualizarTabla();
+            limpiarCampos();
+            
+            // 2. CAMBIO EXTRA: Mostramos el nuevo ID en el campo de texto (opcional pero útil)
+            // txtID.setText(String.valueOf(nuevoId)); // Podrías hacer esto antes de limpiar
+            
         } else {
-            // --- Lógica de MODIFICAR (CON ID) ---
+            // --- Lógica de MODIFICAR (sin cambios) ---
             cat.setIdCategoria(Integer.parseInt(txtID.getText()));
             categoriaDAO.modificarCategoria(cat);
             JOptionPane.showMessageDialog(this, "Categoría modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            
+            actualizarTabla();
+            limpiarCampos();
         }
-        
-        actualizarTabla();
-        limpiarCampos();
         
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al procesar la categoría: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

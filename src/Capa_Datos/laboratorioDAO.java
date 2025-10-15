@@ -64,28 +64,28 @@ public class laboratorioDAO {
     }
 
     public void registrarLaboratorio(clsLaboratorio lab) throws Exception {
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
-        String sql = "INSERT INTO LABORATORIO (idLaboratorio, nombreLaboratorio, direccion, telefono, estado) VALUES (?, ?, ?, ?, ?)";
+    // La consulta NO incluye idLaboratorio
+    String sql = "INSERT INTO LABORATORIO (nombreLaboratorio, direccion, telefono, estado) VALUES (?, ?, ?, ?)";
+    
+    try (Connection con = objConexion.conectar();
+         PreparedStatement ps = con.prepareStatement(sql)) {
         
-        try (Connection con = objConexion.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setInt(1, lab.getIdLaboratorio());
-            ps.setString(2, lab.getNombreLaboratorio());
-            ps.setString(3, lab.getDireccion());
-            ps.setString(4, lab.getTelefono());
-            // 2. GUARDAMOS EL ESTADO
-            ps.setBoolean(5, lab.isEstado());
-            ps.executeUpdate();
-            
-        } catch (SQLException | ClassNotFoundException e) {
-            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
-                throw new Exception("Error: El ID o el Nombre del laboratorio ya existe.");
-            } else {
-                throw new Exception("Error al registrar laboratorio: " + e.getMessage());
-            }
+        // Los parámetros están reordenados y no se envía el ID
+        ps.setString(1, lab.getNombreLaboratorio());
+        ps.setString(2, lab.getDireccion());
+        ps.setString(3, lab.getTelefono());
+        ps.setBoolean(4, lab.isEstado());
+        ps.executeUpdate();
+        
+    } catch (SQLException | ClassNotFoundException e) {
+        if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) {
+            // Este error ahora se refiere casi exclusivamente al nombre, ya que el ID es automático
+            throw new Exception("Error: El nombre del laboratorio ya existe.");
+        } else {
+            throw new Exception("Error al registrar laboratorio: " + e.getMessage());
         }
     }
+}
 
     public void modificarLaboratorio(clsLaboratorio lab) throws Exception {
         // 1. AÑADIMOS 'estado' A LA CONSULTA

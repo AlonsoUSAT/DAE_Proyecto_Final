@@ -65,18 +65,31 @@ private void actualizarTabla() {
 }
 
     private void limpiarCampos() {
-        txtID.setText("");
-        txtNombre.setText("");
-        txtDireccion.setText("");
-        txtTelefono.setText("");
-        chkVigencia.setSelected(true);
-        txtID.setEnabled(true);
-        btnNuevo.setEnabled(true);
-        btnModificar.setEnabled(false);
-        btnEliminar.setEnabled(false);
-        btnDardeBaja.setEnabled(false);
-        tblLaboratorio.clearSelection(); // Asegúrate que tu JTable se llame así
-    }
+    txtID.setText("");
+    txtNombre.setText("");
+    txtDireccion.setText("");
+    txtTelefono.setText("");
+    chkVigencia.setSelected(true);
+    
+    // --- LÓGICA DE ESTADO INICIAL ---
+    txtID.setEnabled(false);
+    txtNombre.setEnabled(false);
+    txtDireccion.setEnabled(false);
+    txtTelefono.setEnabled(false);
+    chkVigencia.setEnabled(false);
+    
+    btnNuevo.setText("Nuevo");
+    btnNuevo.setEnabled(true);
+    
+    btnModificar.setText("Modificar");
+    btnModificar.setEnabled(false);
+    
+    btnEliminar.setEnabled(false);
+    btnDardeBaja.setEnabled(false);
+    
+    tblLaboratorio.clearSelection();
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -421,50 +434,52 @@ if (txtID.getText().isEmpty()) {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-if (txtID.getText().isEmpty() || txtNombre.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "El ID y el Nombre son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    try {
-        clsLaboratorio lab = new clsLaboratorio();
-        lab.setIdLaboratorio(Integer.parseInt(txtID.getText()));
-        lab.setNombreLaboratorio(txtNombre.getText());
-        lab.setDireccion(txtDireccion.getText());
-        lab.setTelefono(txtTelefono.getText());
-        lab.setEstado(chkVigencia.isSelected()); // <-- LEER EL ESTADO DEL CHECKBOX
+limpiarCampos();
 
-        laboratorioDAO.registrarLaboratorio(lab);
-        
-        JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        actualizarTabla();
-        limpiarCampos();
-    } catch (NumberFormatException nfe) {
-        JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
-    }
+    // --- HABILITAR CONTROLES PARA EL NUEVO REGISTRO ---
+    txtNombre.setEnabled(true);
+    txtDireccion.setEnabled(true);
+    txtTelefono.setEnabled(true);
+    chkVigencia.setEnabled(true);
+    
+    // --- PREPARAR EL FLUJO DE GUARDADO ---
+    btnModificar.setText("Guardar");
+    btnModificar.setEnabled(true);
+    
+    btnNuevo.setEnabled(false);
+    
+    txtID.setText("(Automático)");
+    txtNombre.requestFocus();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-   if (txtID.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Seleccione un laboratorio de la tabla.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+    if (txtNombre.getText().trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
         return;
     }
+    
     try {
         clsLaboratorio lab = new clsLaboratorio();
-        lab.setIdLaboratorio(Integer.parseInt(txtID.getText()));
-        lab.setNombreLaboratorio(txtNombre.getText());
-        lab.setDireccion(txtDireccion.getText());
-        lab.setTelefono(txtTelefono.getText());
-        lab.setEstado(chkVigencia.isSelected()); // <-- LEER EL ESTADO DEL CHECKBOX
-
-        laboratorioDAO.modificarLaboratorio(lab);
+        // --- CORRECCIÓN CLAVE: Usamos .trim() en todos los campos de texto ---
+        lab.setNombreLaboratorio(txtNombre.getText().trim()); 
+        lab.setDireccion(txtDireccion.getText().trim());
+        lab.setTelefono(txtTelefono.getText().trim());
+        lab.setEstado(chkVigencia.isSelected());
         
-        JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        if (btnModificar.getText().equals("Guardar")) {
+            laboratorioDAO.registrarLaboratorio(lab);
+            JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            lab.setIdLaboratorio(Integer.parseInt(txtID.getText()));
+            laboratorioDAO.modificarLaboratorio(lab);
+            JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        }
+        
         actualizarTabla();
         limpiarCampos();
+        
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Modificación", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error al procesar el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnModificarActionPerformed
 
@@ -513,22 +528,28 @@ int fila = tblLaboratorio.getSelectedRow();
     if (fila != -1) {
         try {
             int idLaboratorio = (int) tblLaboratorio.getValueAt(fila, 0);
-            
-            // Buscamos el objeto completo para tener todos los datos, incluido el 'estado'
             clsLaboratorio labSeleccionado = laboratorioDAO.buscarPorId(idLaboratorio);
             
             if (labSeleccionado != null) {
+                // --- 1. CARGAR DATOS ---
                 txtID.setText(String.valueOf(labSeleccionado.getIdLaboratorio()));
                 txtNombre.setText(labSeleccionado.getNombreLaboratorio());
                 txtDireccion.setText(labSeleccionado.getDireccion());
                 txtTelefono.setText(labSeleccionado.getTelefono());
-                chkVigencia.setSelected(labSeleccionado.isEstado()); // <-- ACTUALIZAR EL CHECKBOX
+                chkVigencia.setSelected(labSeleccionado.isEstado());
 
-                txtID.setEnabled(false);
-                btnNuevo.setEnabled(false);
+                // --- 2. HABILITAR CONTROLES PARA MODO EDICIÓN ---
+                txtID.setEnabled(false); // ID no se edita
+                txtNombre.setEnabled(true);
+                txtDireccion.setEnabled(true);
+                txtTelefono.setEnabled(true);
+                chkVigencia.setEnabled(true);
+
+                btnNuevo.setEnabled(false); // No se puede crear nuevo mientras se edita
+                btnModificar.setText("Modificar"); // Asegurar texto correcto
                 btnModificar.setEnabled(true);
                 btnEliminar.setEnabled(true);
-                btnDardeBaja.setEnabled(true); // Habilitar el botón de dar de baja
+                btnDardeBaja.setEnabled(true);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al seleccionar el laboratorio: " + e.getMessage());
