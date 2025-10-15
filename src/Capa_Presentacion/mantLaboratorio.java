@@ -65,7 +65,7 @@ private void actualizarTabla() {
 }
 
     private void limpiarCampos() {
-    // 1. Limpiar los valores de los campos de texto
+    
     txtID.setText("");
     txtNombre.setText("");
     txtDireccion.setText("");
