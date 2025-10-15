@@ -1,6 +1,6 @@
 package Capa_Negocio;
 
-// NO hay import de BigDecimal, ya no se necesita aquí.
+// autor: Fernando Hernández
 
 public class clsProducto {
 
@@ -9,16 +9,16 @@ public class clsProducto {
     private String descripcion;
     private boolean estado;
     
-    // Atributos para las llaves foráneas como objetos
+    
     private clsMarca marca;
     private clsCategoria categoria;
     private clsLaboratorio distribuidor;
 
-    // Constructor vacío
+   
     public clsProducto() {
     }
 
-    // --- Getters y Setters (solo los necesarios) ---
+    
     
     public int getIdProducto() { return idProducto; }
     public void setIdProducto(int idProducto) { this.idProducto = idProducto; }
@@ -43,6 +43,6 @@ public class clsProducto {
     
     @Override
     public String toString() {
-        return this.nombre; // Mostrar solo el nombre es más amigable en listas.
+        return this.nombre; 
     }
 }

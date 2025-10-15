@@ -16,17 +16,17 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
  *
- * @author Usuario
+ * @author Fernando Hernández
  */
 public class mantProducto extends javax.swing.JDialog {
   
-   // --- DAOs para acceso a datos (Nombres de variable consistentes) ---
+   
     private final ProductoDAO pDAO = new ProductoDAO();
     private final categoriaDAO cDAO = new categoriaDAO();
     private final MarcaDAO mDAO = new MarcaDAO();
     private final laboratorioDAO lDAO = new laboratorioDAO();
     
-    // --- Lista para almacenar los productos de la tabla ---
+    
     private List<clsProducto> listaProductos;
 
     /**
@@ -42,7 +42,7 @@ public class mantProducto extends javax.swing.JDialog {
         estadoInicialControles();
     }
 
-    // --- MÉTODOS DE CONFIGURACIÓN Y CARGA DE DATOS ---
+    
 
     private void configurarTabla() {
         DefaultTableModel modelo = new DefaultTableModel();
@@ -65,10 +65,10 @@ public class mantProducto extends javax.swing.JDialog {
         modelo.setRowCount(0);
 
         try {
-            // CORRECCIÓN: Se usó el nombre correcto de la variable "listaProductos" y "pDAO".
+            
             this.listaProductos = pDAO.listar(); 
             
-            // CORRECCIÓN: Se iteró sobre la variable correcta "this.listaProductos".
+            
             for (clsProducto producto : this.listaProductos) {
                 modelo.addRow(new Object[]{
                     producto.getIdProducto(),
@@ -93,7 +93,7 @@ public class mantProducto extends javax.swing.JDialog {
 private void cargarComboCategorias() {
     try {
         DefaultComboBoxModel<clsCategoria> modelo = new DefaultComboBoxModel<>();
-        cDAO.listarCategoriasActivas().forEach(modelo::addElement); // Usamos el método que trae solo las activas
+        cDAO.listarCategoriasActivas().forEach(modelo::addElement); 
         cmbCategoria.setModel(modelo);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al cargar categorías: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -103,7 +103,7 @@ private void cargarComboCategorias() {
 private void cargarComboMarcas() {
     try {
         DefaultComboBoxModel<clsMarca> modelo = new DefaultComboBoxModel<>();
-        mDAO.listarMarcasActivas().forEach(modelo::addElement); // Usamos el método que trae solo las activas
+        mDAO.listarMarcasActivas().forEach(modelo::addElement); 
         cmbMarca.setModel(modelo);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al cargar marcas: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -113,14 +113,14 @@ private void cargarComboMarcas() {
 private void cargarComboDistribuidores() {
     try {
         DefaultComboBoxModel<clsLaboratorio> modelo = new DefaultComboBoxModel<>();
-        lDAO.listarLaboratoriosActivos().forEach(modelo::addElement); // Usamos el método que trae solo los activos
+        lDAO.listarLaboratoriosActivos().forEach(modelo::addElement); 
         cmbDistribuidor.setModel(modelo);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al cargar distribuidores: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
 
-    // --- GESTIÓN DE ESTADO DE CONTROLES DEL FORMULARIO ---
+    
 
     private void limpiarControles() {
         txtID.setText("");
@@ -134,22 +134,42 @@ private void cargarComboDistribuidores() {
     }
 
     private void estadoInicialControles() {
-        txtID.setEnabled(false);
-        txtNombre.setEnabled(false);
-        txtDescripcion.setEnabled(false);
-        chkVigencia.setEnabled(false);
-        cmbCategoria.setEnabled(false);
-        cmbMarca.setEnabled(false);
-        cmbDistribuidor.setEnabled(false);
-        
-        btnNuevo.setText("Nuevo");
-        btnNuevo.setEnabled(true);
-        btnModificar.setEnabled(false);
-        btnDardeBaja.setEnabled(false);
-        btnEliminar.setEnabled(false);
-        btnModificar.setText("Modificar"); // <-- Asegúrate de resetear el texto aquí también
+    
+    txtID.setText("");
+    txtNombre.setText("");
+    txtDescripcion.setText("");
+    chkVigencia.setSelected(true);
+    cmbCategoria.setSelectedIndex(-1); 
+    cmbMarca.setSelectedIndex(-1);
+    cmbDistribuidor.setSelectedIndex(-1);
+
+   
+    txtID.setEnabled(true);
+    
+    jButton1.setEnabled(true); 
+
+    
+    txtNombre.setEnabled(false);
+    txtDescripcion.setEnabled(false);
+    chkVigencia.setEnabled(false);
+    cmbCategoria.setEnabled(false);
+    cmbMarca.setEnabled(false);
+    cmbDistribuidor.setEnabled(false);
+
+    
     btnNuevo.setText("Nuevo");
-    }
+    btnNuevo.setEnabled(true);
+    
+    btnModificar.setText("Modificar");
+    btnModificar.setEnabled(false);
+    
+    btnEliminar.setEnabled(false);
+    btnDardeBaja.setEnabled(false);
+    
+    
+    tblProducto.clearSelection();
+    txtID.requestFocus(); 
+}
     
     private void habilitarControles(boolean esNuevo) {
         txtID.setEnabled(esNuevo);
@@ -160,10 +180,10 @@ private void cargarComboDistribuidores() {
         cmbMarca.setEnabled(true);
         cmbDistribuidor.setEnabled(true);
         
-        btnNuevo.setEnabled(false); // Deshabilitar "Nuevo" mientras se edita/crea
+        btnNuevo.setEnabled(false); 
         btnModificar.setEnabled(true);
-        btnDardeBaja.setEnabled(!esNuevo); // Solo habilitar si no es nuevo
-        btnEliminar.setEnabled(!esNuevo);  // Solo habilitar si no es nuevo
+        btnDardeBaja.setEnabled(!esNuevo); 
+        btnEliminar.setEnabled(!esNuevo);  
     }
     
   
@@ -585,37 +605,35 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        // Si el botón dice "Nuevo", preparamos el formulario para un nuevo registro.
+        
     limpiarControles();
-    habilitarControles(true); // Habilita los campos para la entrada de datos
+    habilitarControles(true); 
 
     try {
         Integer nuevoID = pDAO.generarCodigo();
         txtID.setText(String.valueOf(nuevoID));
-        txtID.setEnabled(false); // El ID generado no debe ser editable
+        txtID.setEnabled(false); 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al generar el código: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         estadoInicialControles();
         return;
     }
 
-    // --- LA LÓGICA CLAVE ---
-    // Cambiamos el texto del botón de acción para que el usuario sepa qué hacer.
+    
     btnModificar.setText("Guardar"); 
     
     txtNombre.requestFocus();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-         // Este botón sirve para Guardar un nuevo registro o Modificar uno existente
-        // --- Validación de campos obligatorios ---
+        
     if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
         JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
     try {
-        // --- Recopilar datos del formulario (común para insertar y modificar) ---
+        
         clsProducto producto = new clsProducto();
         producto.setIdProducto(Integer.parseInt(txtID.getText()));
         producto.setNombre(txtNombre.getText());
@@ -625,18 +643,18 @@ private void cargarComboDistribuidores() {
         producto.setMarca((clsMarca) cmbMarca.getSelectedItem());
         producto.setDistribuidor((clsLaboratorio) cmbDistribuidor.getSelectedItem());
 
-        // --- Decidir la acción basada en el texto del botón ---
+       
         if (btnModificar.getText().equals("Guardar")) {
-            // Acción de INSERTAR
+            
             pDAO.insertar(producto);
             JOptionPane.showMessageDialog(this, "Producto registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            // Acción de MODIFICAR
+            
             pDAO.modificar(producto);
             JOptionPane.showMessageDialog(this, "Producto modificado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         }
         
-        // --- Actualizar y limpiar el formulario después de la operación ---
+        
         listarProductos();
         estadoInicialControles();
         limpiarControles();
@@ -647,7 +665,7 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-         // MEJORA 1: La validación más robusta es comprobar si hay una fila seleccionada en la tabla.
+         
     int filaSeleccionada = tblProducto.getSelectedRow();
     
     if (filaSeleccionada == -1) {
@@ -655,43 +673,43 @@ private void cargarComboDistribuidores() {
         return;
     }
     
-    // --- MEJORA 2: AÑADIR EL DIÁLOGO DE CONFIRMACIÓN ---
+    
     int confirmacion = JOptionPane.showConfirmDialog(
-        this, // El componente padre (este formulario)
+        this, 
         "¿Está seguro de que desea dar de baja este producto?\nEl producto no se eliminará, pero se marcará como 'No Vigente'.", // El mensaje para el usuario
-        "Confirmar Acción", // El título de la ventana
-        JOptionPane.YES_NO_OPTION, // Los botones a mostrar (Sí / No)
-        JOptionPane.QUESTION_MESSAGE // El ícono de pregunta
+        "Confirmar Acción", 
+        JOptionPane.YES_NO_OPTION, 
+        JOptionPane.QUESTION_MESSAGE 
     );
     
-    // Solo si el usuario hace clic en "Sí" (YES_OPTION), procedemos con la acción.
+    
     if (confirmacion == JOptionPane.YES_OPTION) {
         try {
-            // MEJORA 3: Obtenemos el ID directamente de la tabla para mayor seguridad.
+            
             int idProducto = (int) tblProducto.getValueAt(filaSeleccionada, 0);
             
-            // 1. Llamar al DAO para ejecutar la acción en la base de datos.
+            
             pDAO.darDeBaja(idProducto);
             
-            // 2. Refrescar la interfaz de usuario.
+            
             listarProductos();
             estadoInicialControles();
             limpiarControles();
             
-            // MEJORA 4: Añadir un mensaje de éxito.
+            
             JOptionPane.showMessageDialog(this, "Producto dado de baja correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al dar de baja el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    // Si el usuario presiona "No" o cierra el diálogo, no se hace nada.
+    
     }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        limpiarControles();
+        
         estadoInicialControles();
-        btnModificar.setText("Modificar");
+        
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
@@ -699,7 +717,7 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void btnMostrarFormatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarFormatosActionPerformed
-     // 1. Validar que hay una fila seleccionada.
+     
     int filaSeleccionada = tblProducto.getSelectedRow();
     
     if (filaSeleccionada == -1) {
@@ -708,23 +726,20 @@ private void cargarComboDistribuidores() {
     }
 
     try {
-        // 2. Obtener los datos del producto de forma SEGURA.
+        
         DefaultTableModel modelo = (DefaultTableModel) tblProducto.getModel();
         
-        // --- INICIO DE LA CORRECCIÓN CLAVE ---
+       
         
-        // Obtenemos el valor como un 'Object' para evitar errores de casteo.
+        
         Object idObjeto = modelo.getValueAt(filaSeleccionada, 0);
         Object nombreObjeto = modelo.getValueAt(filaSeleccionada, 1);
         
-        // Convertimos los 'Object' a los tipos de datos que necesitamos.
+        
         int idProducto = Integer.parseInt(idObjeto.toString());
         String nombreProducto = nombreObjeto.toString();
         
-        // --- FIN DE LA CORRECCIÓN CLAVE ---
-
-        // 3. Crear y mostrar la ventana ManPresPro, pasando los datos correctos.
-        // Nos aseguramos de que el primer parámetro sea el frame padre (this)
+        
         ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto);
         dialogoFormatos.setVisible(true);
         
@@ -740,26 +755,26 @@ private void cargarComboDistribuidores() {
         int fila = tblProducto.getSelectedRow();
     if (fila >= 0) {
         try {
-            // 1. Obtener el ID de la fila seleccionada.
+           
             int idProducto = (int) tblProducto.getValueAt(fila, 0);
             
-            // 2. Usar el DAO para buscar el objeto Producto COMPLETO.
+           
             clsProducto productoSeleccionado = pDAO.buscarPorId(idProducto);
 
             if (productoSeleccionado != null) {
-                // 3. Llenar los campos del formulario con los datos del objeto.
+                
                 txtID.setText(String.valueOf(productoSeleccionado.getIdProducto()));
                 txtNombre.setText(productoSeleccionado.getNombre());
-                // ¡Ahora sí podemos cargar la descripción!
+              
                 txtDescripcion.setText(productoSeleccionado.getDescripcion()); 
                 chkVigencia.setSelected(productoSeleccionado.isEstado());
                 
-                // 4. Seleccionar los ítems correctos en los ComboBox usando el objeto.
+                
                 cmbCategoria.setSelectedItem(productoSeleccionado.getCategoria());
                 cmbMarca.setSelectedItem(productoSeleccionado.getMarca());
                 cmbDistribuidor.setSelectedItem(productoSeleccionado.getDistribuidor());
 
-                // 5. Ajustar el estado de los botones.
+                
                 habilitarControles(false);
                 btnNuevo.setEnabled(true);
                 btnModificar.setText("Modificar");
@@ -781,11 +796,11 @@ private void cargarComboDistribuidores() {
     try {
         int idProducto = Integer.parseInt(textoBusqueda);
         
-        // La misma lógica que en tblProductoMouseClicked: buscar el objeto completo.
+        
         clsProducto productoEncontrado = pDAO.buscarPorId(idProducto);
 
         if (productoEncontrado != null) {
-            // Llenar los campos del formulario
+            
             txtNombre.setText(productoEncontrado.getNombre());
             txtDescripcion.setText(productoEncontrado.getDescripcion());
             chkVigencia.setSelected(productoEncontrado.isEstado());
@@ -794,12 +809,12 @@ private void cargarComboDistribuidores() {
             cmbMarca.setSelectedItem(productoEncontrado.getMarca());
             cmbDistribuidor.setSelectedItem(productoEncontrado.getDistribuidor());
 
-            // Ajustar estado de botones
+            
             habilitarControles(false);
             btnNuevo.setEnabled(true);
             btnModificar.setText("Modificar");
             
-            // Opcional: Seleccionar la fila correspondiente en la tabla
+            
             seleccionarFilaEnTabla(idProducto);
 
         } else {
@@ -813,7 +828,7 @@ private void cargarComboDistribuidores() {
     }
 }
 
-// Método de ayuda para seleccionar la fila en la tabla después de buscar
+
 private void seleccionarFilaEnTabla(int idProducto) {
     for (int i = 0; i < tblProducto.getRowCount(); i++) {
         if ((int) tblProducto.getValueAt(i, 0) == idProducto) {

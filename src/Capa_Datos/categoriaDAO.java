@@ -8,14 +8,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Statement;
-
+// autor: Fernando Hernández
 public class categoriaDAO {
 
     private clsJDBC objConexion = new clsJDBC();
 
     public List<clsCategoria> listarCategorias() throws Exception {
         List<clsCategoria> categorias = new ArrayList<>();
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        
         String sql = "SELECT idCategoria, nombreCategoria, estado FROM CATEGORIA ORDER BY nombreCategoria";
         
         try (Connection con = objConexion.conectar();
@@ -26,7 +26,7 @@ public class categoriaDAO {
                 clsCategoria cat = new clsCategoria();
                 cat.setIdCategoria(rs.getInt("idCategoria"));
                 cat.setNombreCategoria(rs.getString("nombreCategoria"));
-                // 2. LEEMOS EL ESTADO
+               
                 cat.setEstado(rs.getBoolean("estado"));
                 categorias.add(cat);
             }
@@ -38,7 +38,7 @@ public class categoriaDAO {
 
     public clsCategoria buscarPorId(int id) throws Exception {
         clsCategoria cat = null;
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        
         String sql = "SELECT idCategoria, nombreCategoria, estado FROM CATEGORIA WHERE idCategoria = ?";
         
         try (Connection con = objConexion.conectar();
@@ -50,7 +50,7 @@ public class categoriaDAO {
                     cat = new clsCategoria();
                     cat.setIdCategoria(rs.getInt("idCategoria"));
                     cat.setNombreCategoria(rs.getString("nombreCategoria"));
-                    // 2. LEEMOS EL ESTADO
+                    
                     cat.setEstado(rs.getBoolean("estado"));
                 }
             }
@@ -63,9 +63,9 @@ public class categoriaDAO {
     public int registrarCategoria(clsCategoria cat) throws Exception {
         
         String sql = "INSERT INTO CATEGORIA (nombreCategoria, estado) VALUES (?, ?)";
-        int idGenerado = -1; // Variable para guardar el nuevo ID, -1 si falla
+        int idGenerado = -1; 
         
-        // 2. CAMBIO EN PREPARESTATEMENT: Le decimos que queremos recuperar las claves generadas
+        
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
@@ -74,7 +74,7 @@ public class categoriaDAO {
             
             ps.executeUpdate();
             
-            // 3. NUEVO BLOQUE: Recuperamos el ID que la base de datos acaba de crear
+            
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     idGenerado = generatedKeys.getInt(1);
@@ -91,7 +91,7 @@ public class categoriaDAO {
             }
         }
         
-        // 4. CAMBIO FINAL: Devolvemos el ID generado
+        
         return idGenerado;
     }
 
@@ -108,11 +108,11 @@ public class categoriaDAO {
         ps.executeUpdate();
         
     } catch (SQLException | ClassNotFoundException e) {
-        // --- AQUÍ ESTÁ LA LÓGICA MEJORADA ---
+        
         if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) {
-            // El error de duplicado ocurrió. Ahora verificamos si el nombre ya existe EN OTRA FILA.
+            
             try {
-                // Buscamos si existe otra categoría con el mismo nombre pero diferente ID.
+                
                 boolean existeEnOtro = false;
                 List<clsCategoria> todas = listarCategorias(); // Traemos todas
                 for (clsCategoria c : todas) {
@@ -125,18 +125,15 @@ public class categoriaDAO {
                 if (existeEnOtro) {
                     throw new Exception("Error: El nombre '" + cat.getNombreCategoria() + "' ya está en uso por otra categoría.");
                 } else {
-                    // Si no existe en OTRA categoría, el error de duplicado es un falso positivo.
-                    // Esto puede pasar en algunas configuraciones de BD si no se cambia el nombre.
-                    // Podemos ignorarlo o simplemente relanzar un error genérico.
-                    // Por simplicidad, aquí lo tratamos como un duplicado real.
+                    
                     throw new Exception("Error: El nombre de la categoría ya existe.");
                 }
             } catch (Exception checkEx) {
-                throw checkEx; // Relanzamos la excepción con el mensaje más específico.
+                throw checkEx; 
             }
 
         } else {
-            // Para cualquier otro tipo de error.
+            
             throw new Exception("Error al modificar categoría: " + e.getMessage());
         }
     }
@@ -173,7 +170,7 @@ public class categoriaDAO {
         }
     }
     
-    // ---- (OPCIONAL PERO RECOMENDADO) NUEVO MÉTODO PARA LLENAR LA TABLA/COMBOBOX ----
+    
     public List<clsCategoria> listarCategoriasActivas() throws Exception {
         List<clsCategoria> categorias = new ArrayList<>();
         // Consulta que solo trae las categorías vigentes

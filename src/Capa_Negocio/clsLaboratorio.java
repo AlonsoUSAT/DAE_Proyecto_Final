@@ -6,7 +6,7 @@ package Capa_Negocio;
 
 /**
  *
- * @author Usuario
+ * // autor: Fernando Hernández
  */
 public class clsLaboratorio {
     private int idLaboratorio;
@@ -57,7 +57,7 @@ public class clsLaboratorio {
     
     @Override
 public String toString() {
-    return this.getNombreLaboratorio(); // Esto hará que el ComboBox muestre el nombre
+    return this.getNombreLaboratorio(); 
 }
 @Override
 public int hashCode() {

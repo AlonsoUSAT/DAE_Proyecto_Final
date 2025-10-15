@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 /**
  *
- * @author Usuario
+ * @author Fernando Hernández
  */
 public class mantCategoria extends javax.swing.JDialog {
 
@@ -27,11 +27,11 @@ public class mantCategoria extends javax.swing.JDialog {
     private categoriaDAO categoriaDAO = new categoriaDAO();
     
     private void actualizarTabla() {
-        // CORRECCIÓN: Se añade la columna "Vigencia"
+        
         String[] titulos = {"ID", "Nombre", "Vigencia"};
-        // El DefaultTableModel se crea una vez y se limpia.
+        
         DefaultTableModel model = new DefaultTableModel(null, titulos) {
-            // Hacemos que la columna de vigencia no sea editable
+            
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false; 
@@ -39,13 +39,13 @@ public class mantCategoria extends javax.swing.JDialog {
         };
 
         try {
-            // MEJORA: Usamos el método que solo trae las categorías activas para una mejor UX.
+           
             List<clsCategoria> lista = categoriaDAO.listarCategorias();
             for (clsCategoria cat : lista) {
                 Object[] row = {
                     cat.getIdCategoria(), 
                     cat.getNombreCategoria(),
-                    // Mostramos el estado de forma amigable
+                    
                     cat.isEstado() ? "Vigente" : "No Vigente" 
                 };
                 model.addRow(row);
@@ -55,33 +55,45 @@ public class mantCategoria extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    private void limpiarCampos() {
+    
+
+private void limpiarCampos() {
+    
     txtID.setText("");
     txtNombre.setText("");
-    chkVigencia.setSelected(true);
+    chkVigencia.setSelected(true); 
+
     
-    habilitarControles(false); // Deshabilita campos
+    txtID.setEnabled(true);
+    btnBuscar.setEnabled(true);
+
     
-    btnNuevo.setText("Nuevo"); // Resetea textos
-    btnModificar.setText("Modificar");
+    txtNombre.setEnabled(false);
+    chkVigencia.setEnabled(false);
+
     
-    txtID.setEnabled(false); // El ID nunca es editable
+    btnNuevo.setText("Nuevo");
     btnNuevo.setEnabled(true);
+
+    btnModificar.setText("Modificar");
     btnModificar.setEnabled(false);
+
     btnEliminar.setEnabled(false);
     btnDardeBaja.setEnabled(false);
+
     
     tblCategoria.clearSelection();
+    txtID.requestFocus(); 
 }
     
     private void habilitarControles(boolean habilitar) {
     txtNombre.setEnabled(habilitar);
     chkVigencia.setEnabled(habilitar);
     
-    btnNuevo.setEnabled(!habilitar); // Si se habilita, el botón Nuevo se deshabilita
+    btnNuevo.setEnabled(!habilitar); 
     btnModificar.setEnabled(habilitar);
     
-    // Los botones de acción solo se habilitan si hay una selección (no al crear uno nuevo)
+    
     boolean haySeleccion = tblCategoria.getSelectedRow() != -1;
     btnEliminar.setEnabled(habilitar && haySeleccion);
     btnDardeBaja.setEnabled(habilitar && haySeleccion);
@@ -393,9 +405,9 @@ public class mantCategoria extends javax.swing.JDialog {
 limpiarCampos();
     habilitarControles(true);
     
-    btnModificar.setText("Guardar"); // Cambia el texto para indicar la acción
+    btnModificar.setText("Guardar"); 
     
-    txtID.setText("(Automático)"); // Indicador visual para el usuario
+    txtID.setText("(Automático)"); 
     txtNombre.requestFocus();
 
     }//GEN-LAST:event_btnNuevoActionPerformed
@@ -412,9 +424,9 @@ if (txtNombre.getText().trim().isEmpty()) {
         cat.setEstado(chkVigencia.isSelected());
         
         if (btnModificar.getText().equals("Guardar")) {
-            // --- Lógica de INSERTAR con captura de ID ---
             
-            // 1. CAMBIO: Capturamos el ID que devuelve el método del DAO
+            
+            
             int nuevoId = categoriaDAO.registrarCategoria(cat);
             
             JOptionPane.showMessageDialog(this, "Categoría registrada con éxito con el ID: " + nuevoId, "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -422,11 +434,10 @@ if (txtNombre.getText().trim().isEmpty()) {
             actualizarTabla();
             limpiarCampos();
             
-            // 2. CAMBIO EXTRA: Mostramos el nuevo ID en el campo de texto (opcional pero útil)
-            // txtID.setText(String.valueOf(nuevoId)); // Podrías hacer esto antes de limpiar
+            
             
         } else {
-            // --- Lógica de MODIFICAR (sin cambios) ---
+            
             cat.setIdCategoria(Integer.parseInt(txtID.getText()));
             categoriaDAO.modificarCategoria(cat);
             JOptionPane.showMessageDialog(this, "Categoría modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -452,7 +463,7 @@ if (txtID.getText().isEmpty()) {
             
             if (cat != null) {
                 txtNombre.setText(cat.getNombreCategoria());
-                // CORRECCIÓN: Se actualiza el estado del checkbox
+                
                 chkVigencia.setSelected(cat.isEstado());
                 
                 txtID.setEnabled(false);
@@ -492,12 +503,12 @@ int filaSeleccionada = tblCategoria.getSelectedRow();
                 txtNombre.setText(catSeleccionada.getNombreCategoria());
                 chkVigencia.setSelected(catSeleccionada.isEstado());
 
-                // Habilitamos y deshabilitamos controles para el modo edición
+                
                 txtNombre.setEnabled(true);
                 chkVigencia.setEnabled(true);
                 txtID.setEnabled(false);
-                btnNuevo.setEnabled(false); // No se puede crear uno nuevo mientras se edita
-                btnModificar.setText("Modificar"); // Aseguramos el texto correcto
+                btnNuevo.setEnabled(false); 
+                btnModificar.setText("Modificar"); 
                 btnModificar.setEnabled(true);
                 btnEliminar.setEnabled(true);
                 btnDardeBaja.setEnabled(true);

@@ -13,18 +13,16 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
  *
- * @author Usuario
+ * @author Fernando Hernández
  */
 public class mantMarca extends javax.swing.JDialog {
 private MarcaDAO marcaDAO = new MarcaDAO();
     private laboratorioDAO laboratorioDAO = new laboratorioDAO();
-    /**
-     * Creates new form mantCategoria
-     */
+   
     public mantMarca(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        llenarComboLaboratorio(); // Primero llenamos los datos de referencia
+        llenarComboLaboratorio(); 
         actualizarTabla();
         limpiarCampos();
     }
@@ -35,9 +33,7 @@ private MarcaDAO marcaDAO = new MarcaDAO();
             for (clsLaboratorio lab : lista) {
                 model.addElement(lab);
             }
-            // Sobreescribimos el método toString en la clase clsLaboratorio para que muestre el nombre
-            // O creamos un "renderer" para el ComboBox. Por simplicidad, asumimos que sobreescribes toString()
-            // Si no quieres hacer eso, puedes hacer un ComboBox de Strings, pero es más complejo manejar el ID.
+            
             cmbLaboratorio.setModel(model);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al cargar laboratorios: " + e.getMessage());
@@ -45,19 +41,19 @@ private MarcaDAO marcaDAO = new MarcaDAO();
     }
 
     private void actualizarTabla() {
-    // Añade "Vigencia" a los títulos
+    
     String[] titulos = {"ID", "Nombre", "Descripción", "Laboratorio", "Vigencia"};
     DefaultTableModel model = new DefaultTableModel(null, titulos);
     
     try {
-        List<clsMarca> lista = marcaDAO.listarMarcas(); // Llama a un método que solo trae las activas
+        List<clsMarca> lista = marcaDAO.listarMarcas(); 
         for (clsMarca marca : lista) {
             Object[] row = {
                 marca.getIdMarca(),
                 marca.getNombre(),
                 marca.getDescripcion(),
                 marca.getNombreLaboratorio(),
-                marca.isEstado() ? "Vigente" : "No Vigente" // Muestra el estado
+                marca.isEstado() ? "Vigente" : "No Vigente" 
             };
             model.addRow(row);
         }
@@ -67,21 +63,27 @@ private MarcaDAO marcaDAO = new MarcaDAO();
     }
 }
 
-     private void limpiarCampos() {
+    private void limpiarCampos() {
+    
     txtID.setText("");
     txtNombre.setText("");
     txtDescripcion.setText("");
     if (cmbLaboratorio.getItemCount() > 0) {
-        cmbLaboratorio.setSelectedIndex(0);
+        
+        cmbLaboratorio.setSelectedIndex(0); 
     }
     chkVigencia.setSelected(true);
     
-    // --- LÓGICA DE ESTADO INICIAL ---
-    txtID.setEnabled(false);
+    
+    txtID.setEnabled(true);
+    btnBuscar.setEnabled(true);
+
+    
     txtNombre.setEnabled(false);
     txtDescripcion.setEnabled(false);
     cmbLaboratorio.setEnabled(false);
     chkVigencia.setEnabled(false);
+
     
     btnNuevo.setText("Nuevo");
     btnNuevo.setEnabled(true);
@@ -92,8 +94,50 @@ private MarcaDAO marcaDAO = new MarcaDAO();
     btnEliminar.setEnabled(false);
     btnDardeBaja.setEnabled(false);
     
+    
     tblMarca.clearSelection();
+    txtID.requestFocus(); 
 }
+    
+    private void cargarDatosEnFormulario(clsMarca marca) {
+    if (marca == null) {
+        limpiarCampos();
+        return;
+    }
+    
+   
+    txtID.setText(String.valueOf(marca.getIdMarca()));
+    txtNombre.setText(marca.getNombre());
+    txtDescripcion.setText(marca.getDescripcion());
+    chkVigencia.setSelected(marca.isEstado());
+
+    
+    clsLaboratorio labASeleccionar = null;
+    for (int i = 0; i < cmbLaboratorio.getItemCount(); i++) {
+        clsLaboratorio item = (clsLaboratorio) cmbLaboratorio.getItemAt(i);
+        if (item.getIdLaboratorio() == marca.getIdLaboratorio()) {
+            labASeleccionar = item;
+            break;
+        }
+    }
+    if (labASeleccionar != null) {
+        cmbLaboratorio.setSelectedItem(labASeleccionar);
+    }
+    
+    
+    txtID.setEnabled(false);
+    txtNombre.setEnabled(true);
+    txtDescripcion.setEnabled(true);
+    cmbLaboratorio.setEnabled(true);
+    chkVigencia.setEnabled(true);
+    
+    btnNuevo.setEnabled(false);
+    btnModificar.setText("Modificar");
+    btnModificar.setEnabled(true);
+    btnEliminar.setEnabled(true);
+    btnDardeBaja.setEnabled(true);
+}
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -263,6 +307,11 @@ private MarcaDAO marcaDAO = new MarcaDAO();
         btnBuscar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/buscar-usuario.png"))); // NOI18N
         btnBuscar.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel4.setText("Nombre:");
@@ -398,19 +447,52 @@ private MarcaDAO marcaDAO = new MarcaDAO();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+   int filaSeleccionada = tblMarca.getSelectedRow();
+    
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una marca de la tabla para eliminar.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+   
+    int confirmacion = JOptionPane.showConfirmDialog(
+        this, 
+        "¿Seguro desea eliminar la marca seleccionada?", 
+        "Confirmar Eliminación Física", 
+        JOptionPane.YES_NO_OPTION, 
+        JOptionPane.WARNING_MESSAGE 
+    );
+    
+    if (confirmacion == JOptionPane.YES_OPTION) {
+        try {
+            int idMarca = (int) tblMarca.getValueAt(filaSeleccionada, 0);
+            
+            
+            marcaDAO.eliminarMarca(idMarca);
+            
+            
+            actualizarTabla();
+            limpiarCampos();
+            
+            JOptionPane.showMessageDialog(this, "Marca eliminada permanentemente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            
+        } catch (Exception e) {
+            
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Eliminación", JOptionPane.ERROR_MESSAGE);
+        }
+    }    
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
 limpiarCampos();
 
-    // --- HABILITAR CONTROLES PARA EL NUEVO REGISTRO ---
+    
     txtNombre.setEnabled(true);
     txtDescripcion.setEnabled(true);
     cmbLaboratorio.setEnabled(true);
     chkVigencia.setEnabled(true);
     
-    // --- PREPARAR EL FLUJO DE GUARDADO ---
+    
     btnModificar.setText("Guardar");
     btnModificar.setEnabled(true);
     
@@ -421,12 +503,12 @@ limpiarCampos();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnNuevoLaboratorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoLaboratorioActionPerformed
-// Abre el formulario para crear un nuevo laboratorio
-    mantLaboratorio formLab = new mantLaboratorio(null, true); // (parent, modal)
+
+    mantLaboratorio formLab = new mantLaboratorio(null, true); 
     formLab.setVisible(true);
     
-    // Después de que se cierre, actualizamos el ComboBox por si se agregó uno nuevo
-    llenarComboLaboratorio();        // TODO add your handling code here:
+    
+    llenarComboLaboratorio();       
     }//GEN-LAST:event_btnNuevoLaboratorioActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
@@ -445,11 +527,11 @@ limpiarCampos();
         marca.setIdLaboratorio(labSeleccionado.getIdLaboratorio());
         
         if (btnModificar.getText().equals("Guardar")) {
-            // --- Lógica de INSERTAR (SIN ID) ---
+          
             marcaDAO.registrarMarca(marca);
             JOptionPane.showMessageDialog(this, "Marca registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            // --- Lógica de MODIFICAR (CON ID) ---
+            
             marca.setIdMarca(Integer.parseInt(txtID.getText()));
             marcaDAO.modificarMarca(marca);
             JOptionPane.showMessageDialog(this, "Marca modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -472,14 +554,13 @@ int fila = tblMarca.getSelectedRow();
             clsMarca marcaSeleccionada = marcaDAO.buscarPorId(idMarca);
             if (marcaSeleccionada == null) return;
             
-            // --- 1. CARGAR DATOS EN LOS CAMPOS ---
+            
             txtID.setText(String.valueOf(marcaSeleccionada.getIdMarca()));
             txtNombre.setText(marcaSeleccionada.getNombre());
             txtDescripcion.setText(marcaSeleccionada.getDescripcion());
             chkVigencia.setSelected(marcaSeleccionada.isEstado());
             
-            // --- Lógica para seleccionar el item correcto en el ComboBox ---
-            // (Tu lógica actual con el bucle for es 100% válida y la mantenemos)
+            
             clsLaboratorio labASeleccionar = null;
             for (int i = 0; i < cmbLaboratorio.getItemCount(); i++) {
                 clsLaboratorio item = (clsLaboratorio) cmbLaboratorio.getItemAt(i);
@@ -492,15 +573,15 @@ int fila = tblMarca.getSelectedRow();
                 cmbLaboratorio.setSelectedItem(labASeleccionar);
             }
             
-            // --- 2. LA CORRECCIÓN: HABILITAR CONTROLES PARA MODO EDICIÓN ---
-            txtID.setEnabled(false); // ID no se edita
+          
+            txtID.setEnabled(false); 
             txtNombre.setEnabled(true);
             txtDescripcion.setEnabled(true);
             cmbLaboratorio.setEnabled(true);
             chkVigencia.setEnabled(true);
             
-            btnNuevo.setEnabled(false); // No se puede crear nuevo mientras se edita
-            btnModificar.setText("Modificar"); // Asegurar texto correcto
+            btnNuevo.setEnabled(false); 
+            btnModificar.setText("Modificar"); 
             btnModificar.setEnabled(true);
             btnEliminar.setEnabled(true);
             btnDardeBaja.setEnabled(true);
@@ -527,10 +608,10 @@ this.dispose();        // TODO add your handling code here:
         return;
     }
     
-    // --- Pedir Confirmación ---
+    
     int confirmacion = JOptionPane.showConfirmDialog(
         this, 
-        "¿Está seguro de que desea dar de baja esta marca?\nLa marca no se eliminará, pero no aparecerá para nuevos registros.", 
+        "¿Está seguro de que desea dar de baja esta marca?", 
         "Confirmar Acción", 
         JOptionPane.YES_NO_OPTION, 
         JOptionPane.QUESTION_MESSAGE
@@ -540,13 +621,13 @@ this.dispose();        // TODO add your handling code here:
         try {
             int idMarca = (int) tblMarca.getValueAt(filaSeleccionada, 0);
             
-            // 1. Llamar al método correcto del DAO
+            
             marcaDAO.darDeBaja(idMarca);
             
-            // 2. Refrescar la tabla con el método correcto
+            
             actualizarTabla();
             
-            // 3. Limpiar y resetear el formulario
+            
             limpiarCampos();
             
             JOptionPane.showMessageDialog(this, "Marca dada de baja con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -556,6 +637,38 @@ this.dispose();        // TODO add your handling code here:
         }
     }
     }//GEN-LAST:event_btnDardeBajaActionPerformed
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+       String textoBusqueda = txtID.getText().trim();
+
+    if (textoBusqueda.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, ingrese un ID para buscar.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+        txtID.requestFocus();
+        return;
+    }
+
+    try {
+        int id = Integer.parseInt(textoBusqueda);
+        
+        
+        clsMarca marcaEncontrada = marcaDAO.buscarPorId(id);
+
+        if (marcaEncontrada != null) {
+            
+            cargarDatosEnFormulario(marcaEncontrada);
+            
+            
+            
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontró ninguna marca con el ID: " + id, "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El ID debe ser un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Ocurrió un error al buscar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
      * @param args the command line arguments

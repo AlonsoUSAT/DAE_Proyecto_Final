@@ -7,15 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+// autor: Fernando Hernández
 public class MarcaDAO {
 
     private clsJDBC objConexion = new clsJDBC();
 
-    // ---- MÉTODO LISTAR MEJORADO ----
+    
     public List<clsMarca> listarMarcas() throws Exception {
         List<clsMarca> marcas = new ArrayList<>();
-        // 1. AÑADIMOS m.estado A LA CONSULTA
+        
         String sql = "SELECT m.idMarca, m.nombre, m.descripcion, m.estado, m.idLaboratorio, l.nombreLaboratorio " +
                      "FROM MARCA m " +
                      "JOIN LABORATORIO l ON m.idLaboratorio = l.idLaboratorio " +
@@ -32,7 +32,7 @@ public class MarcaDAO {
                 marca.setDescripcion(rs.getString("descripcion"));
                 marca.setIdLaboratorio(rs.getInt("idLaboratorio"));
                 marca.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
-                // 2. LEEMOS EL ESTADO DE LA BASE DE DATOS
+                
                 marca.setEstado(rs.getBoolean("estado")); 
                 marcas.add(marca);
             }
@@ -42,10 +42,10 @@ public class MarcaDAO {
         return marcas;
     }
 
-    // ---- MÉTODO BUSCAR MEJORADO ----
+    
     public clsMarca buscarPorId(int id) throws Exception {
         clsMarca marca = null;
-        // 1. AÑADIMOS m.estado A LA CONSULTA
+        
         String sql = "SELECT m.idMarca, m.nombre, m.descripcion, m.estado, m.idLaboratorio, l.nombreLaboratorio " +
                      "FROM MARCA m " +
                      "JOIN LABORATORIO l ON m.idLaboratorio = l.idLaboratorio " +
@@ -63,7 +63,7 @@ public class MarcaDAO {
                     marca.setDescripcion(rs.getString("descripcion"));
                     marca.setIdLaboratorio(rs.getInt("idLaboratorio"));
                     marca.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
-                    // 2. LEEMOS EL ESTADO DE LA BASE DE DATOS
+                    
                     marca.setEstado(rs.getBoolean("estado"));
                 }
             }
@@ -73,15 +73,15 @@ public class MarcaDAO {
         return marca;
     }
     
-    // ---- MÉTODO REGISTRAR MEJORADO ----
+    
     public void registrarMarca(clsMarca marca) throws Exception {
-    // 1. Se quita 'idMarca' de la consulta INSERT
+    
     String sql = "INSERT INTO MARCA (nombre, descripcion, idLaboratorio, estado) VALUES (?, ?, ?, ?)";
     
     try (Connection con = objConexion.conectar();
          PreparedStatement ps = con.prepareStatement(sql)) {
         
-        // 2. Ya no se envía el ID. Los parámetros se reordenan.
+        
         ps.setString(1, marca.getNombre());
         ps.setString(2, marca.getDescripcion());
         ps.setInt(3, marca.getIdLaboratorio());
@@ -90,7 +90,7 @@ public class MarcaDAO {
         
     } catch (SQLException | ClassNotFoundException e) {
         if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
-            // El error de duplicado ahora se refiere al nombre o a otra restricción UNIQUE
+           
             throw new Exception("Error: El nombre de la marca ya existe.");
         } else {
             throw new Exception("Error al registrar marca: " + e.getMessage());
@@ -98,9 +98,9 @@ public class MarcaDAO {
     }
 }
 
-    // ---- MÉTODO MODIFICAR MEJORADO ----
+   
     public void modificarMarca(clsMarca marca) throws Exception {
-        // 1. AÑADIMOS estado A LA CONSULTA
+        
         String sql = "UPDATE MARCA SET nombre = ?, descripcion = ?, idLaboratorio = ?, estado = ? WHERE idMarca = ?";
         
         try (Connection con = objConexion.conectar();
@@ -109,7 +109,7 @@ public class MarcaDAO {
             ps.setString(1, marca.getNombre());
             ps.setString(2, marca.getDescripcion());
             ps.setInt(3, marca.getIdLaboratorio());
-            // 2. GUARDAMOS EL ESTADO QUE VENGA DEL CHECKBOX
+            
             ps.setBoolean(4, marca.isEstado());
             ps.setInt(5, marca.getIdMarca());
             ps.executeUpdate();
@@ -119,7 +119,7 @@ public class MarcaDAO {
         }
     }
     
-    // ---- MÉTODO DAR DE BAJA (YA LO TENÍAS, ESTÁ CORRECTO) ----
+    
     public void darDeBaja(int idMarca) throws Exception {
         String sql = "UPDATE MARCA SET estado = false WHERE idMarca = ?";
 
@@ -133,21 +133,41 @@ public class MarcaDAO {
         }
     }
 
-    // ---- MÉTODO ELIMINAR (SIN CAMBIOS, YA ERA CORRECTO) ----
-    public void eliminarMarca(int id) throws Exception {
-        // ... (tu código de eliminar no necesita cambios)
-    }
+   
+    public void eliminarMarca(int idMarca) throws Exception {
+    String sql = "DELETE FROM MARCA WHERE idMarca = ?";
     
-    // ---- (OPCIONAL PERO RECOMENDADO) NUEVO MÉTODO PARA LLENAR LA TABLA ----
+    try (Connection con = objConexion.conectar();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        
+        ps.setInt(1, idMarca);
+        
+        
+        int filasAfectadas = ps.executeUpdate();
+        if (filasAfectadas == 0) {
+            throw new Exception("No se encontró ninguna marca con el ID " + idMarca + " para eliminar.");
+        }
+        
+    } catch (SQLException | ClassNotFoundException e) {
+       
+        if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23503")) {
+            throw new Exception("Error: No se puede eliminar la marca porque está asignada a uno o más productos.");
+        } else {
+            throw new Exception("Error al eliminar la marca: " + e.getMessage());
+        }
+    }
+}
+    
+    
     public List<clsMarca> listarMarcasActivas() throws Exception {
         List<clsMarca> marcas = new ArrayList<>();
-        // Consulta que solo trae las marcas vigentes
+       
         String sql = "SELECT m.idMarca, m.nombre, m.descripcion, m.estado, m.idLaboratorio, l.nombreLaboratorio " +
                      "FROM MARCA m " +
                      "JOIN LABORATORIO l ON m.idLaboratorio = l.idLaboratorio " +
                      "WHERE m.estado = true " +
                      "ORDER BY m.nombre";
-        // El resto del método es igual a listarMarcas()
+        
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -167,4 +187,5 @@ public class MarcaDAO {
         }
         return marcas;
     }
+    
 }

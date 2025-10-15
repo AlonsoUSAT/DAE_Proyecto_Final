@@ -1,7 +1,7 @@
-// Paquete de la capa de datos
+
 package Capa_Datos;
 
-// Imports de la capa de negocio
+
 import Capa_Negocio.clsCategoria;
 import Capa_Negocio.clsLaboratorio;
 import Capa_Negocio.clsMarca;
@@ -13,18 +13,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+// autor: Fernando Hernández
 public class ProductoDAO {
 
     private final clsJDBC objConexion = new clsJDBC();
 
-    /**
-     * Lista los productos de la BD.
-     * AJUSTE: La consulta SQL y la lectura del ResultSet ahora coinciden con la tabla PRODUCTO.
-     */
+    
     public List<clsProducto> listar() throws Exception {
         List<clsProducto> productos = new ArrayList<>();
-        // Se quitaron las columnas 'precio', 'stock' y 'unidad' de la consulta
+        
         String sql = "SELECT p.idProducto, p.nombre, p.descripcion, p.estado, "
                 + "m.idMarca, m.nombre AS nombreMarca, "
                 + "c.idCategoria, c.nombreCategoria, "
@@ -55,7 +52,7 @@ public class ProductoDAO {
                 clsProducto producto = new clsProducto();
                 producto.setIdProducto(rs.getInt("idProducto"));
                 producto.setNombre(rs.getString("nombre"));
-                // Se quitaron los 'set' para precio, stock y unidad
+                
                 producto.setDescripcion(rs.getString("descripcion"));
                 producto.setEstado(rs.getBoolean("estado"));
                 producto.setMarca(marca);
@@ -70,12 +67,9 @@ public class ProductoDAO {
         return productos;
     }
 
-    /**
-     * Inserta un nuevo producto en la BD.
-     * AJUSTE: La consulta INSERT y los parámetros ahora coinciden con la tabla PRODUCTO.
-     */
+    
     public void insertar(clsProducto producto) throws Exception {
-        // Se quitaron las columnas 'precio', 'stock' y 'unidad'
+        
         String sql = "INSERT INTO PRODUCTO(idProducto, nombre, descripcion, estado, idMarca, idCategoria, idDistribuidor) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?)";
 
@@ -84,7 +78,7 @@ public class ProductoDAO {
 
             ps.setInt(1, producto.getIdProducto());
             ps.setString(2, producto.getNombre());
-            // Se quitaron los 'set' para precio, stock y unidad y se reordenaron los índices
+            
             ps.setString(3, producto.getDescripcion());
             ps.setBoolean(4, producto.isEstado());
             ps.setInt(5, producto.getMarca().getIdMarca());
@@ -101,12 +95,9 @@ public class ProductoDAO {
         }
     }
 
-    /**
-     * Modifica un producto existente en la BD.
-     * AJUSTE: La consulta UPDATE y los parámetros ahora coinciden con la tabla PRODUCTO.
-     */
+    
     public void modificar(clsProducto producto) throws Exception {
-        // Se quitaron las columnas 'precio', 'stock' y 'unidad'
+        
         String sql = "UPDATE PRODUCTO SET nombre=?, descripcion=?, estado=?, idMarca=?, idCategoria=?, idDistribuidor=? "
                 + "WHERE idProducto=?";
 
@@ -114,7 +105,7 @@ public class ProductoDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, producto.getNombre());
-            // Se quitaron los 'set' para precio, stock y unidad y se reordenaron los índices
+            
             ps.setString(2, producto.getDescripcion());
             ps.setBoolean(3, producto.isEstado());
             ps.setInt(4, producto.getMarca().getIdMarca());
@@ -128,9 +119,7 @@ public class ProductoDAO {
         }
     }
 
-    /**
-     * Elimina físicamente un producto de la BD. (Sin cambios, ya era correcto)
-     */
+    
     public void eliminar(int idProducto) throws Exception {
         String sql = "DELETE FROM PRODUCTO WHERE idProducto = ?";
 
@@ -148,9 +137,7 @@ public class ProductoDAO {
         }
     }
 
-    /**
-     * Realiza una eliminación lógica del producto. (Sin cambios, ya era correcto)
-     */
+    
     public void darDeBaja(int idProducto) throws Exception {
         String sql = "UPDATE PRODUCTO SET estado = false WHERE idProducto = ?";
 
@@ -165,7 +152,7 @@ public class ProductoDAO {
     }
     
     public clsProducto buscarPorId(int idProducto) throws Exception {
-    clsProducto producto = null; // Empezamos con null
+    clsProducto producto = null; 
     String sql = "SELECT p.idProducto, p.nombre, p.descripcion, p.estado, "
             + "m.idMarca, m.nombre AS nombreMarca, "
             + "c.idCategoria, c.nombreCategoria, "
@@ -179,13 +166,13 @@ public class ProductoDAO {
     try (Connection con = objConexion.conectar();
          PreparedStatement ps = con.prepareStatement(sql)) {
 
-        ps.setInt(1, idProducto); // Asignamos el ID al '?'
+        ps.setInt(1, idProducto); 
         
         try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) { // Si se encontró una fila
-                producto = new clsProducto(); // Creamos el objeto
+            if (rs.next()) { 
+                producto = new clsProducto(); 
                 
-                // Construimos los objetos anidados (Marca, Categoria, etc.)
+                
                 clsMarca marca = new clsMarca();
                 marca.setIdMarca(rs.getInt("idMarca"));
                 marca.setNombre(rs.getString("nombreMarca"));
@@ -198,7 +185,7 @@ public class ProductoDAO {
                 distribuidor.setIdLaboratorio(rs.getInt("idLaboratorio"));
                 distribuidor.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
 
-                // Llenamos el objeto producto principal
+                
                 producto.setIdProducto(rs.getInt("idProducto"));
                 producto.setNombre(rs.getString("nombre"));
                 producto.setDescripcion(rs.getString("descripcion"));
@@ -211,31 +198,29 @@ public class ProductoDAO {
     } catch (SQLException | ClassNotFoundException e) {
         throw new Exception("Error al buscar el producto: " + e.getMessage());
     }
-    return producto; // Devuelve el producto encontrado o null si no se encontró
+    return producto; 
 }
     
      public Integer generarCodigo() throws Exception {
-        Integer codigo = 1; // Por defecto, si no hay registros, el código será 1.
-        
-        // 1. Consulta SQL para obtener el máximo ID y sumarle 1.
-        // COALESCE se usa para manejar el caso en que la tabla esté vacía (MAX devolvería NULL).
+        Integer codigo = 1; 
+      
         String sql = "SELECT COALESCE(MAX(idProducto), 0) + 1 AS codigo FROM PRODUCTO";
 
-        // 2. Usar try-with-resources para manejar la conexión y los recursos automáticamente.
+       
         try (Connection con = objConexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
-            // 3. Leer el resultado de la consulta.
+          
             if (rs.next()) {
                 codigo = rs.getInt("codigo");
             }
         } catch (SQLException | ClassNotFoundException e) {
-            // 4. Manejar cualquier posible error.
+            
             throw new Exception("Error al generar el código del producto: " + e.getMessage());
         }
 
-        // 5. Devolver el código generado.
+        
         return codigo;
     }
 }

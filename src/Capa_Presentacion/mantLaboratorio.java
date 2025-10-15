@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
  *
- * @author Usuario
+ * @author Fernando Hernández
  */
 public class mantLaboratorio extends javax.swing.JDialog {
  private laboratorioDAO laboratorioDAO = new laboratorioDAO();
@@ -23,10 +23,10 @@ public class mantLaboratorio extends javax.swing.JDialog {
         actualizarTabla();
         limpiarCampos();
     }
-    // En tu mantLaboratorio.java
+    
 
 private void actualizarTabla() {
-    // 1. Añade la columna "Vigencia" a los títulos
+    
     String[] titulos = {"ID", "Nombre", "Dirección", "Teléfono", "Vigencia"};
     DefaultTableModel model = new DefaultTableModel(null, titulos) {
         @Override
@@ -38,23 +38,23 @@ private void actualizarTabla() {
     try {
         List<clsLaboratorio> lista;
         
-        // 2. Decide qué método del DAO llamar
+        
         if (chkVerInactivos.isSelected()) {
-            // Si el checkbox está marcado, trae TODOS los laboratorios
+            
             lista = laboratorioDAO.listarLaboratorios();
         } else {
-            // Si no está marcado (lo normal), trae SOLO los activos
+            
             lista = laboratorioDAO.listarLaboratoriosActivos();
         }
 
-        // 3. Llena la tabla (el resto del código es igual)
+        
         for (clsLaboratorio lab : lista) {
             Object[] row = {
                 lab.getIdLaboratorio(), 
                 lab.getNombreLaboratorio(), 
                 lab.getDireccion(), 
                 lab.getTelefono(),
-                lab.isEstado() ? "Vigente" : "No Vigente" // Muestra el estado
+                lab.isEstado() ? "Vigente" : "No Vigente" 
             };
             model.addRow(row);
         }
@@ -65,18 +65,23 @@ private void actualizarTabla() {
 }
 
     private void limpiarCampos() {
+    // 1. Limpiar los valores de los campos de texto
     txtID.setText("");
     txtNombre.setText("");
     txtDireccion.setText("");
     txtTelefono.setText("");
-    chkVigencia.setSelected(true);
+    chkVigencia.setSelected(true); 
+
     
-    // --- LÓGICA DE ESTADO INICIAL ---
-    txtID.setEnabled(false);
+    txtID.setEnabled(true);
+    btnBuscar.setEnabled(true);
+
+    
     txtNombre.setEnabled(false);
     txtDireccion.setEnabled(false);
     txtTelefono.setEnabled(false);
     chkVigencia.setEnabled(false);
+
     
     btnNuevo.setText("Nuevo");
     btnNuevo.setEnabled(true);
@@ -87,7 +92,9 @@ private void actualizarTabla() {
     btnEliminar.setEnabled(false);
     btnDardeBaja.setEnabled(false);
     
+    
     tblLaboratorio.clearSelection();
+    txtID.requestFocus(); 
 }
 
 
@@ -436,13 +443,13 @@ if (txtID.getText().isEmpty()) {
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
 limpiarCampos();
 
-    // --- HABILITAR CONTROLES PARA EL NUEVO REGISTRO ---
+    
     txtNombre.setEnabled(true);
     txtDireccion.setEnabled(true);
     txtTelefono.setEnabled(true);
     chkVigencia.setEnabled(true);
     
-    // --- PREPARAR EL FLUJO DE GUARDADO ---
+    
     btnModificar.setText("Guardar");
     btnModificar.setEnabled(true);
     
@@ -460,7 +467,7 @@ limpiarCampos();
     
     try {
         clsLaboratorio lab = new clsLaboratorio();
-        // --- CORRECCIÓN CLAVE: Usamos .trim() en todos los campos de texto ---
+        
         lab.setNombreLaboratorio(txtNombre.getText().trim()); 
         lab.setDireccion(txtDireccion.getText().trim());
         lab.setTelefono(txtTelefono.getText().trim());
@@ -515,11 +522,11 @@ if (txtID.getText().isEmpty()) {
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-limpiarCampos();        // TODO add your handling code here:
+limpiarCampos();        
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
-this.dispose();        // TODO add your handling code here:
+this.dispose();        
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void tblLaboratorioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblLaboratorioMouseClicked
@@ -531,22 +538,22 @@ int fila = tblLaboratorio.getSelectedRow();
             clsLaboratorio labSeleccionado = laboratorioDAO.buscarPorId(idLaboratorio);
             
             if (labSeleccionado != null) {
-                // --- 1. CARGAR DATOS ---
+                
                 txtID.setText(String.valueOf(labSeleccionado.getIdLaboratorio()));
                 txtNombre.setText(labSeleccionado.getNombreLaboratorio());
                 txtDireccion.setText(labSeleccionado.getDireccion());
                 txtTelefono.setText(labSeleccionado.getTelefono());
                 chkVigencia.setSelected(labSeleccionado.isEstado());
 
-                // --- 2. HABILITAR CONTROLES PARA MODO EDICIÓN ---
-                txtID.setEnabled(false); // ID no se edita
+                
+                txtID.setEnabled(false); 
                 txtNombre.setEnabled(true);
                 txtDireccion.setEnabled(true);
                 txtTelefono.setEnabled(true);
                 chkVigencia.setEnabled(true);
 
-                btnNuevo.setEnabled(false); // No se puede crear nuevo mientras se edita
-                btnModificar.setText("Modificar"); // Asegurar texto correcto
+                btnNuevo.setEnabled(false); 
+                btnModificar.setText("Modificar"); 
                 btnModificar.setEnabled(true);
                 btnEliminar.setEnabled(true);
                 btnDardeBaja.setEnabled(true);
@@ -565,7 +572,7 @@ int fila = tblLaboratorio.getSelectedRow();
         return;
     }
     
-    // --- Pedir Confirmación ---
+    
     int confirmacion = JOptionPane.showConfirmDialog(
         this, 
         "¿Está seguro de que desea dar de baja este laboratorio?\nEl laboratorio no se eliminará, pero no aparecerá para nuevos registros.", 
@@ -578,13 +585,13 @@ int fila = tblLaboratorio.getSelectedRow();
         try {
             int idLaboratorio = (int) tblLaboratorio.getValueAt(filaSeleccionada, 0);
             
-            // 1. Llamar al método correcto del DAO
+            
             laboratorioDAO.darDeBaja(idLaboratorio);
             
-            // 2. Refrescar la tabla con el método correcto
+           
             actualizarTabla();
             
-            // 3. Limpiar y resetear el formulario
+            
             limpiarCampos();
             
             JOptionPane.showMessageDialog(this, "Laboratorio dado de baja con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);

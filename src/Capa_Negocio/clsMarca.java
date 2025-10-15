@@ -6,7 +6,7 @@ package Capa_Negocio;
 
 /**
  *
- * @author Usuario
+ * // autor: Fernando Hernández
  */
 public class clsMarca {
      private int idMarca;
@@ -68,7 +68,7 @@ public class clsMarca {
     
     @Override
 public String toString() {
-    return this.getNombreLaboratorio(); // Esto hace que el JComboBox muestre el nombre.
+    return this.getNombreLaboratorio(); 
 }
 
 @Override

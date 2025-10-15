@@ -7,14 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+// autor: Fernando Hernández
 public class laboratorioDAO {
     
     private clsJDBC objConexion = new clsJDBC();
 
     public List<clsLaboratorio> listarLaboratorios() throws Exception {
         List<clsLaboratorio> laboratorios = new ArrayList<>();
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        
         String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono, estado FROM LABORATORIO ORDER BY nombreLaboratorio";
         
         try (Connection con = objConexion.conectar();
@@ -27,7 +27,7 @@ public class laboratorioDAO {
                 lab.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
                 lab.setDireccion(rs.getString("direccion"));
                 lab.setTelefono(rs.getString("telefono"));
-                // 2. LEEMOS EL ESTADO
+                
                 lab.setEstado(rs.getBoolean("estado")); 
                 laboratorios.add(lab);
             }
@@ -39,7 +39,7 @@ public class laboratorioDAO {
     
     public clsLaboratorio buscarPorId(int id) throws Exception {
         clsLaboratorio lab = null;
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        
         String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono, estado FROM LABORATORIO WHERE idLaboratorio = ?";
         
         try (Connection con = objConexion.conectar();
@@ -53,7 +53,7 @@ public class laboratorioDAO {
                     lab.setNombreLaboratorio(rs.getString("nombreLaboratorio"));
                     lab.setDireccion(rs.getString("direccion"));
                     lab.setTelefono(rs.getString("telefono"));
-                    // 2. LEEMOS EL ESTADO
+                    
                     lab.setEstado(rs.getBoolean("estado"));
                 }
             }
@@ -64,13 +64,13 @@ public class laboratorioDAO {
     }
 
     public void registrarLaboratorio(clsLaboratorio lab) throws Exception {
-    // La consulta NO incluye idLaboratorio
+    
     String sql = "INSERT INTO LABORATORIO (nombreLaboratorio, direccion, telefono, estado) VALUES (?, ?, ?, ?)";
     
     try (Connection con = objConexion.conectar();
          PreparedStatement ps = con.prepareStatement(sql)) {
         
-        // Los parámetros están reordenados y no se envía el ID
+        
         ps.setString(1, lab.getNombreLaboratorio());
         ps.setString(2, lab.getDireccion());
         ps.setString(3, lab.getTelefono());
@@ -79,7 +79,7 @@ public class laboratorioDAO {
         
     } catch (SQLException | ClassNotFoundException e) {
         if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) {
-            // Este error ahora se refiere casi exclusivamente al nombre, ya que el ID es automático
+            
             throw new Exception("Error: El nombre del laboratorio ya existe.");
         } else {
             throw new Exception("Error al registrar laboratorio: " + e.getMessage());
@@ -88,7 +88,7 @@ public class laboratorioDAO {
 }
 
     public void modificarLaboratorio(clsLaboratorio lab) throws Exception {
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
+        
         String sql = "UPDATE LABORATORIO SET nombreLaboratorio = ?, direccion = ?, telefono = ?, estado = ? WHERE idLaboratorio = ?";
         
         try (Connection con = objConexion.conectar();
@@ -97,7 +97,7 @@ public class laboratorioDAO {
             ps.setString(1, lab.getNombreLaboratorio());
             ps.setString(2, lab.getDireccion());
             ps.setString(3, lab.getTelefono());
-            // 2. GUARDAMOS EL ESTADO
+           
             ps.setBoolean(4, lab.isEstado());
             ps.setInt(5, lab.getIdLaboratorio());
             ps.executeUpdate();
@@ -140,10 +140,10 @@ public class laboratorioDAO {
         }
     }
     
-    // ---- (OPCIONAL PERO RECOMENDADO) NUEVO MÉTODO PARA LLENAR LA TABLA ----
+    
     public List<clsLaboratorio> listarLaboratoriosActivos() throws Exception {
         List<clsLaboratorio> laboratorios = new ArrayList<>();
-        // Consulta que solo trae los laboratorios vigentes
+        
         String sql = "SELECT idLaboratorio, nombreLaboratorio, direccion, telefono, estado FROM LABORATORIO WHERE estado = true ORDER BY nombreLaboratorio";
         
         try (Connection con = objConexion.conectar();

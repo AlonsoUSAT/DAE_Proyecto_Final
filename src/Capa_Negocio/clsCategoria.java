@@ -6,7 +6,7 @@ package Capa_Negocio;
 
 /**
  *
- * @author Usuario
+ * @author Fernando Hernández
  */
 public class clsCategoria {
      private int idCategoria;
@@ -39,7 +39,7 @@ public class clsCategoria {
     
     @Override
 public String toString() {
-    return this.nombreCategoria; // Esto hace que el JComboBox muestre el nombre.
+    return this.nombreCategoria; 
 }
 
 @Override
