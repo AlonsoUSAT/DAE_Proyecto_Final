@@ -273,17 +273,22 @@ public class LoteDAO {
     }
     
     
-   public String generarNumeroLote(int idProducto, int idPresentacion, int cantidadRecibida) throws Exception { // ✅ CAMBIO 1: Añadido idProducto
+   public String generarNumeroLote(int idProducto, int idPresentacion, int cantidadRecibida) throws Exception {
     Connection conn = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
     int correlativo = 1;
-    String sql = "SELECT COUNT(*) + 1 AS siguiente FROM LOTE WHERE idPresentacion = ?";
+    
+    
+    String sql = "SELECT COUNT(*) + 1 AS siguiente FROM LOTE WHERE idProducto = ?";
 
     try {
         conn = objConectar.conectar();
         ps = conn.prepareStatement(sql);
-        ps.setInt(1, idPresentacion);
+        
+       
+        ps.setInt(1, idProducto); 
+        
         rs = ps.executeQuery();
         if (rs.next()) {
             correlativo = rs.getInt("siguiente");
@@ -296,6 +301,7 @@ public class LoteDAO {
         if (conn != null) objConectar.desconectar();
     }
     
+   
     String correlativoFormateado = String.format("%02d", correlativo);
     
   
@@ -338,4 +344,32 @@ public class LoteDAO {
             if (conn != null) objConectar.desconectar();
         }
     }
+    
+    public boolean existenLotesParaPresentacion(int idProducto, int idPresentacion) throws Exception {
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+   
+    String sql = "SELECT COUNT(*) FROM LOTE WHERE idProducto = ? AND idPresentacion = ?";
+
+    try {
+        conn = objConectar.conectar();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, idProducto);
+        ps.setInt(2, idPresentacion);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+         
+            return rs.getInt(1) > 0;
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al verificar la existencia de lotes: " + e.getMessage());
+    } finally {
+        if (rs != null) rs.close();
+        if (ps != null) ps.close();
+  
+    }
+    return false; 
+}
 }

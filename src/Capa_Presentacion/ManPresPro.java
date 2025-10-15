@@ -10,6 +10,7 @@ package Capa_Presentacion;
  */
 
 
+import Capa_Datos.LoteDAO;
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsPresentacionProducto;
 import Capa_Datos.ProductoDAO;
@@ -26,21 +27,22 @@ import javax.swing.table.DefaultTableModel;
 
 public class ManPresPro extends javax.swing.JDialog {
 
-   
-    
  
     PresentacionProductoDAO objPresProd = new PresentacionProductoDAO();
     PresentacionDAO objPresentacion = new PresentacionDAO();
+    LoteDAO objLoteDAO = new LoteDAO();
     
     
     private final int productoID;
     private final String productoNombre;
+    private final boolean productoEstaVigente;
 
     
-   public ManPresPro(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto) {
+   public ManPresPro(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, boolean productoEsVigente) {
        super(parent, modal);
         this.productoID = idProducto;
         this.productoNombre = nombreProducto;
+        this.productoEstaVigente = productoEsVigente;
         initComponents();
         configurarComponentes(); 
     }
@@ -60,6 +62,13 @@ public class ManPresPro extends javax.swing.JDialog {
     actualizarAmbasListas();
     
     gestionarEstadoControles("inicio");
+    
+    if (!this.productoEstaVigente) {
+        btnNuevo.setEnabled(false);
+        btnNuevo.setToolTipText("No se pueden asignar presentaciones a un producto no vigente.");
+        btnNuevaPresentacion.setEnabled(false);
+        btnNuevaPresentacion.setToolTipText("No se pueden crear presentaciones para un producto no vigente.");
+    }
 }
 
       private void configurarTabla() {
@@ -96,13 +105,14 @@ public class ManPresPro extends javax.swing.JDialog {
 
         switch (modo) {
             case "inicio":
-                lstPresentaciones.setEnabled(true);
-                btnNuevo.setEnabled(true);
-                btnModificar.setEnabled(false);
-                btnDarDeBaja.setEnabled(false);
-                btnEliminar.setEnabled(false);
-                btnNuevo.setText("Nuevo");
-                break;
+            lstPresentaciones.setEnabled(true);
+            
+            btnNuevo.setEnabled(this.productoEstaVigente); 
+            btnModificar.setEnabled(false);
+            btnDarDeBaja.setEnabled(false);
+            btnEliminar.setEnabled(false);
+            btnNuevo.setText("Nuevo");
+            break;
             
             case "nuevo":
                 lstPresentaciones.setEnabled(true); 
@@ -591,26 +601,43 @@ public class ManPresPro extends javax.swing.JDialog {
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
           int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un formato de la tabla para eliminar.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un formato de la tabla para eliminar.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    try {
+        int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
+
+       
+        if (objLoteDAO.existenLotesParaPresentacion(this.productoID, idPresentacion)) {
+            JOptionPane.showMessageDialog(this,
+                "No se puede eliminar esta presentación porque tiene lotes registrados.\n\n",
+                "Acción no Permitida",
+                JOptionPane.ERROR_MESSAGE);
+            return; 
         }
-        
-        int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible y borrará la asignación del formato a este producto.\n¿Está seguro de que desea ELIMINAR este formato?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+      
+
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Esta acción es irreversible y borrará la asignación del formato a este producto.\n¿Está seguro de que desea ELIMINAR este formato?", 
+            "Confirmar Eliminación", 
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.WARNING_MESSAGE);
+
         if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
-                objPresProd.eliminar(productoID, idPresentacion);
-                
-                JOptionPane.showMessageDialog(this, "Formato eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                
-               actualizarAmbasListas();
-                limpiarControles();
-                gestionarEstadoControles("inicio");
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al eliminar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            objPresProd.eliminar(productoID, idPresentacion);
+
+            JOptionPane.showMessageDialog(this, "Formato eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            actualizarAmbasListas();
+            limpiarControles();
+            gestionarEstadoControles("inicio");
         }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al eliminar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     }//GEN-LAST:event_btnEliminarActionPerformed
 
@@ -713,7 +740,7 @@ public class ManPresPro extends javax.swing.JDialog {
             if (vigencia.equals("Vigente")) {
                 
                 System.out.println("Presentación vigente. Abriendo gestión de lotes...");
-                ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion);
+               ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion, true);
                 dialogoLote.setVisible(true);
                 
                 
@@ -732,7 +759,7 @@ public class ManPresPro extends javax.swing.JDialog {
                         "Aviso", 
                         JOptionPane.INFORMATION_MESSAGE);
                     
-                    ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion);
+                   ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion, false);
                     dialogoLote.setVisible(true);
 
                    

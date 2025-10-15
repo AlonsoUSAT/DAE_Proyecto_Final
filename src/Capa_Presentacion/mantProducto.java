@@ -25,9 +25,11 @@ public class mantProducto extends javax.swing.JDialog {
     private final categoriaDAO cDAO = new categoriaDAO();
     private final MarcaDAO mDAO = new MarcaDAO();
     private final laboratorioDAO lDAO = new laboratorioDAO();
+    private final PresentacionProductoDAO ppDAO = new PresentacionProductoDAO();
     
     // --- Lista para almacenar los productos de la tabla ---
     private List<clsProducto> listaProductos;
+     private boolean estadoOriginalDelProducto = true;
 
     /**
      * Creates new form mantCategoria
@@ -615,28 +617,39 @@ private void cargarComboDistribuidores() {
     }
 
     try {
-        // --- Recopilar datos del formulario (común para insertar y modificar) ---
+         int idProducto = Integer.parseInt(txtID.getText());
+        boolean nuevoEstado = chkVigencia.isSelected();
+
         clsProducto producto = new clsProducto();
-        producto.setIdProducto(Integer.parseInt(txtID.getText()));
+        producto.setIdProducto(idProducto);
         producto.setNombre(txtNombre.getText());
         producto.setDescripcion(txtDescripcion.getText());
-        producto.setEstado(chkVigencia.isSelected());
+        producto.setEstado(nuevoEstado);
         producto.setCategoria((clsCategoria) cmbCategoria.getSelectedItem());
         producto.setMarca((clsMarca) cmbMarca.getSelectedItem());
         producto.setDistribuidor((clsLaboratorio) cmbDistribuidor.getSelectedItem());
 
-        // --- Decidir la acción basada en el texto del botón ---
+        String mensajeExito = "";
+
         if (btnModificar.getText().equals("Guardar")) {
-            // Acción de INSERTAR
             pDAO.insertar(producto);
-            JOptionPane.showMessageDialog(this, "Producto registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            mensajeExito = "Producto registrado correctamente.";
         } else {
-            // Acción de MODIFICAR
             pDAO.modificar(producto);
-            JOptionPane.showMessageDialog(this, "Producto modificado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            mensajeExito = "Producto modificado correctamente.";
+
+            // --- ✅ NUEVA LÓGICA CONDICIONAL ---
+            // Si el estado original era FALSO (No Vigente) Y el nuevo estado es VERDADERO (Vigente)
+            if (!this.estadoOriginalDelProducto && nuevoEstado) {
+                // Entonces, reactivamos todas sus presentaciones en cascada.
+                ppDAO.reactivarPorProducto(idProducto);
+                mensajeExito = "Producto y sus presentaciones han sido reactivados.";
+            }
+            // --- FIN DE LA LÓGICA ---
         }
-        
-        // --- Actualizar y limpiar el formulario después de la operación ---
+
+        JOptionPane.showMessageDialog(this, mensajeExito, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
         listarProductos();
         estadoInicialControles();
         limpiarControles();
@@ -667,20 +680,21 @@ private void cargarComboDistribuidores() {
     // Solo si el usuario hace clic en "Sí" (YES_OPTION), procedemos con la acción.
     if (confirmacion == JOptionPane.YES_OPTION) {
         try {
-            // MEJORA 3: Obtenemos el ID directamente de la tabla para mayor seguridad.
             int idProducto = (int) tblProducto.getValueAt(filaSeleccionada, 0);
-            
-            // 1. Llamar al DAO para ejecutar la acción en la base de datos.
+
+            // 1. Dar de baja el producto principal (esto ya lo tenías)
             pDAO.darDeBaja(idProducto);
-            
-            // 2. Refrescar la interfaz de usuario.
+
+            // ✅ PASO CLAVE: Llamar al nuevo método para dar de baja sus presentaciones en cascada.
+            ppDAO.darBajaPorProducto(idProducto);
+
+            // 2. Refrescar la interfaz de usuario (esto ya lo tenías)
             listarProductos();
             estadoInicialControles();
             limpiarControles();
-            
-            // MEJORA 4: Añadir un mensaje de éxito.
-            JOptionPane.showMessageDialog(this, "Producto dado de baja correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
+
+            JOptionPane.showMessageDialog(this, "Producto y sus presentaciones han sido dados de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al dar de baja el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -721,11 +735,14 @@ private void cargarComboDistribuidores() {
         int idProducto = Integer.parseInt(idObjeto.toString());
         String nombreProducto = nombreObjeto.toString();
         
+        String estadoProducto = modelo.getValueAt(filaSeleccionada, 5).toString();
+        boolean productoEsVigente = estadoProducto.equals("Vigente");
+        
         // --- FIN DE LA CORRECCIÓN CLAVE ---
 
         // 3. Crear y mostrar la ventana ManPresPro, pasando los datos correctos.
         // Nos aseguramos de que el primer parámetro sea el frame padre (this)
-        ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto);
+        ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto, productoEsVigente);
         dialogoFormatos.setVisible(true);
         
     } catch (NumberFormatException e) {
@@ -747,6 +764,7 @@ private void cargarComboDistribuidores() {
             clsProducto productoSeleccionado = pDAO.buscarPorId(idProducto);
 
             if (productoSeleccionado != null) {
+                 this.estadoOriginalDelProducto = productoSeleccionado.isEstado();
                 // 3. Llenar los campos del formulario con los datos del objeto.
                 txtID.setText(String.valueOf(productoSeleccionado.getIdProducto()));
                 txtNombre.setText(productoSeleccionado.getNombre());

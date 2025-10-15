@@ -33,15 +33,17 @@ public class ManLote extends javax.swing.JDialog {
     private final String productoNombre;
     private final int presentacionID;
     private final String presentacionDescripcion;
+    private final boolean permiteNuevosLotes; 
     
     
-    public ManLote(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, int idPresentacion, String presentacionDesc) {
+   public ManLote(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, int idPresentacion, String presentacionDesc, boolean permiteNuevos) {
         super(parent, modal);
 
         this.productoID = idProducto;
         this.productoNombre = nombreProducto;
         this.presentacionID = idPresentacion;
         this.presentacionDescripcion = presentacionDesc;
+        this.permiteNuevosLotes = permiteNuevos; 
 
         initComponents(); 
 
@@ -55,6 +57,10 @@ public class ManLote extends javax.swing.JDialog {
     listarLotesFiltrados();
   
     gestionarEstadoControles("inicio"); 
+    if (!this.permiteNuevosLotes) {
+        btnNuevo.setEnabled(false);
+        btnNuevo.setToolTipText("No se pueden agregar nuevos lotes a una presentación no vigente.");
+    }
 }
 
     private void poblarInformacionLote() {
@@ -203,15 +209,15 @@ public class ManLote extends javax.swing.JDialog {
 
    
     switch (modo) {
-        case "inicio":
-            btnNuevo.setText("Nuevo");
-            btnNuevo.setEnabled(true);
-            btnModificar.setEnabled(false);
-            btnDarBaja.setEnabled(false);
-            btnEliminar.setEnabled(false);
-            tblLote.clearSelection();
-            limpiarControles();
-            break;
+          case "inicio":
+        btnNuevo.setText("Nuevo");
+        btnNuevo.setEnabled(this.permiteNuevosLotes); 
+        btnModificar.setEnabled(false);
+        btnDarBaja.setEnabled(false);
+        btnEliminar.setEnabled(false);
+        tblLote.clearSelection();
+        limpiarControles();
+        break;
             
         case "nuevo":
             btnNuevo.setText("Guardar");
