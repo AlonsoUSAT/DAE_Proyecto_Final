@@ -311,7 +311,7 @@ public class ManPresPro extends javax.swing.JDialog {
                 .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(153, 204, 255));
@@ -453,21 +453,21 @@ public class ManPresPro extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(12, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(btnLotes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnLotes)
+                        .addGap(32, 32, 32))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -724,56 +724,46 @@ public class ManPresPro extends javax.swing.JDialog {
     }//GEN-LAST:event_tblPresentacionProductoMouseClicked
 
     private void btnLotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLotesActionPerformed
-         
     int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
 
     if (filaSeleccionada >= 0) {
         try {
             DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
-            
-           
             int idPres = (int) modelo.getValueAt(filaSeleccionada, 0);
             String presentacionDescripcion = modelo.getValueAt(filaSeleccionada, 1).toString();
-            String vigencia = modelo.getValueAt(filaSeleccionada, 4).toString(); 
+            String vigencia = modelo.getValueAt(filaSeleccionada, 4).toString();
 
-        
+           
             if (vigencia.equals("Vigente")) {
-                
-                System.out.println("Presentación vigente. Abriendo gestión de lotes...");
-               ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion, true);
+                ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion, true);
                 dialogoLote.setVisible(true);
-                
-                
-                actualizarAmbasListas();
-
             } else {
-                
-                System.out.println("Presentación no vigente. Verificando stock de lotes...");
                 int stockActualDeLotes = objPresProd.obtenerStockTotalDeLotes(this.productoID, idPres);
-
                 if (stockActualDeLotes > 0) {
-                   
-                    System.out.println("Tiene stock restante. Abriendo gestión de lotes en modo consulta/gestión.");
-                    JOptionPane.showMessageDialog(this, 
-                        "Esta presentación no está vigente, pero tiene lotes con stock por gestionar.", 
-                        "Aviso", 
+                    JOptionPane.showMessageDialog(this,
+                        "Esta presentación no está vigente, pero tiene lotes con stock por gestionar.",
+                        "Aviso",
                         JOptionPane.INFORMATION_MESSAGE);
-                    
-                   ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion, false);
+                    ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion, false);
                     dialogoLote.setVisible(true);
-
-                   
-                    actualizarAmbasListas();
-
                 } else {
-                    
-                    System.out.println("No tiene stock. Bloqueando acceso.");
-                    JOptionPane.showMessageDialog(this, 
-                        "Esta presentación no está vigente y no tiene lotes con stock.\nNo se pueden agregar nuevos lotes.", 
-                        "Acción no Permitida", 
+                    JOptionPane.showMessageDialog(this,
+                        "Esta presentación no está vigente y no tiene lotes con stock.\nNo se pueden agregar nuevos lotes.",
+                        "Acción no Permitida",
                         JOptionPane.WARNING_MESSAGE);
                 }
             }
+            
+           
+            actualizarAmbasListas();
+
+           
+            if (filaSeleccionada < tblPresentacionProducto.getRowCount()) {
+                tblPresentacionProducto.setRowSelectionInterval(filaSeleccionada, filaSeleccionada); 
+                Object nuevoStock = tblPresentacionProducto.getValueAt(filaSeleccionada, 3); 
+                txtStock.setText(nuevoStock.toString());
+            }
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al procesar la solicitud de lotes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -804,7 +794,7 @@ public class ManPresPro extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JList<clsPresentacion> lstPresentaciones;
+    private javax.swing.JList<Capa_Negocio.clsPresentacion> lstPresentaciones;
     private javax.swing.JTable tblPresentacionProducto;
     private javax.swing.JTextField txtPrecioVenta;
     private javax.swing.JTextField txtProducto;
