@@ -28,11 +28,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManPresentacion extends javax.swing.JDialog {
 
-    /**
-     * Creates new form ManPresentacion
-     */
     
-   // Instancias de las clases DAO para interactuar con la base de datos.
+ 
     PresentacionDAO objPresentacion = new PresentacionDAO();
     TipoPresentacionDAO1 objTipoPresentacion = new TipoPresentacionDAO1();
     UnidadDAO objUnidad = new UnidadDAO();
@@ -60,23 +57,21 @@ public class ManPresentacion extends javax.swing.JDialog {
     }
      
     
-   
-   
-    // Método unificado para cargar todos los datos iniciales
+ 
      private void listarTodo() {
         listarPresentaciones();
         listarTiposPresentacion();
         listarUnidades();
     }
     
-    // Método para configurar las columnas de la tabla una sola vez
+   
        private void configurarTabla() {
         DefaultTableModel modelo = new DefaultTableModel();
         modelo.addColumn("ID");
         modelo.addColumn("Tipo");
         modelo.addColumn("Cantidad");
         modelo.addColumn("Unidad");
-        modelo.addColumn("Estado"); // Columna para mostrar si está activo o inactivo
+        modelo.addColumn("Estado"); 
         tblPresentacion.setModel(modelo);
     }
     
@@ -84,8 +79,8 @@ public class ManPresentacion extends javax.swing.JDialog {
 
   private void limpiarControles() {
         txtID.setText("");
-        spCantidad.setValue(1.0f); // Usar 1.0f para float
-        chkActivo.setSelected(true); // Por defecto, una nueva presentación está activa
+        spCantidad.setValue(1.0f); 
+        chkActivo.setSelected(true); 
         if (cmbTipoPresentacion.getItemCount() > 0) {
             cmbTipoPresentacion.setSelectedIndex(0);
         }
@@ -95,7 +90,7 @@ public class ManPresentacion extends javax.swing.JDialog {
         txtID.requestFocus();
     }
 
-    // 2. Método para listar presentaciones (corregido para usar DTO)
+    
      private void listarPresentaciones() {
         DefaultTableModel modelo = (DefaultTableModel) tblPresentacion.getModel();
         modelo.setRowCount(0);
@@ -109,7 +104,7 @@ public class ManPresentacion extends javax.swing.JDialog {
                     dto.getNombreTipoPresentacion(),
                     dto.getCantidad(),
                     dto.getNombreUnidad(),
-                    dto.isActivo() ? "Activo" : "Inactivo" // Muestra el estado como texto
+                    dto.isActivo() ? "Activo" : "Inactivo" 
                 });
             }
         } catch (Exception e) {
@@ -117,11 +112,11 @@ public class ManPresentacion extends javax.swing.JDialog {
         }
     }
 
-    // 3. Método para listar tipos de presentación (corregido para usar DTO)
+    
    private void listarTiposPresentacion() {
     try {
         cmbTipoPresentacion.removeAllItems();
-        // Se cambia el nombre del método a listarTodos() y el tipo de la lista a List
+      
         List<clsTipoPresentacion> lista = objTipoPresentacion.listarTodos(); 
         for (clsTipoPresentacion dto : lista) {
             cmbTipoPresentacion.addItem(dto);
@@ -132,11 +127,11 @@ public class ManPresentacion extends javax.swing.JDialog {
 }
 
 
-    // 4. Método para listar unidades (COMPLETAMENTE CORREGIDO)
+    
  private void listarUnidades() {
     try {
         cmbUnidad.removeAllItems();
-        // CAMBIO: Se llama al nuevo método 'listarActivas' y se usa 'List'
+       
         List<clsUnidad> lista = objUnidad.listarActivas(); 
         for (clsUnidad dao : lista) {
             cmbUnidad.addItem(dao);
@@ -167,7 +162,7 @@ public class ManPresentacion extends javax.swing.JDialog {
             
             case "nuevo":
                 txtID.setEnabled(false);
-                btnNuevo.setEnabled(true); // Sigue habilitado para "Guardar"
+                btnNuevo.setEnabled(true); 
                 btnBuscar.setEnabled(false);
                 btnModificar.setEnabled(false);
                 btnDardeBaja.setEnabled(false);
@@ -318,7 +313,7 @@ public class ManPresentacion extends javax.swing.JDialog {
                         .addComponent(jLabel4)
                         .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jButton2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(chkActivo)))
@@ -404,30 +399,31 @@ public class ManPresentacion extends javax.swing.JDialog {
                     .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnDardeBaja, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnEliminar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(45, 45, 45))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(34, 34, 34)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEliminar))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(btnEliminar)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(22, 22, 22)
-                        .addComponent(btnDardeBaja, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnDardeBaja, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -454,28 +450,24 @@ public class ManPresentacion extends javax.swing.JDialog {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(29, 29, 29)
+                .addGap(17, 17, 17)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(78, 78, 78)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -487,7 +479,7 @@ public class ManPresentacion extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -502,7 +494,7 @@ public class ManPresentacion extends javax.swing.JDialog {
                 
                 gestionarEstadoControles("nuevo");
 
-            } else { // El botón dice "Guardar"
+            } else { 
                 
                 if (cmbTipoPresentacion.getSelectedIndex() == -1 || cmbUnidad.getSelectedIndex() == -1) {
                     JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo y una unidad.", "Datos incompletos", JOptionPane.WARNING_MESSAGE);
@@ -543,13 +535,13 @@ public class ManPresentacion extends javax.swing.JDialog {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-     // 1. Validar que se ha seleccionado una presentación. (Esto ya lo tienes)
+     
     if (txtID.getText().trim().isEmpty() || tblPresentacion.getSelectedRow() == -1) {
         JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la tabla para darla de baja.", "Selección requerida", JOptionPane.WARNING_MESSAGE);
         return; 
     }
 
-    // (Esto también lo tienes, es para verificar si ya está inactiva)
+   
     if (!chkActivo.isSelected()) {
         JOptionPane.showMessageDialog(this, "Esta presentación ya se encuentra inactiva.", "Acción no Válida", JOptionPane.INFORMATION_MESSAGE);
         return; 
@@ -558,22 +550,20 @@ public class ManPresentacion extends javax.swing.JDialog {
     try {
         int id = Integer.parseInt(txtID.getText());
         
-        // ✅ INICIO DE LA NUEVA VALIDACIÓN ✅
-        // Creamos una instancia del DAO que tiene el método de verificación.
+        
         PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
         
-        // Verificamos si la presentación está en uso.
+        
         if (presProdDAO.presentacionEstaEnUso(id)) {
-            // Si está en uso, mostramos un mensaje y detenemos todo.
+           
             JOptionPane.showMessageDialog(this, 
                 "Esta presentación no se puede dar de baja porque está asignada a uno o más productos.", 
                 "Acción Denegada", 
                 JOptionPane.ERROR_MESSAGE);
-            return; // <-- Esto es crucial, detiene la ejecución del método aquí.
+            return; 
         }
-        // ✅ FIN DE LA NUEVA VALIDACIÓN ✅
-
-        // 2. Si pasa la validación, el resto de tu código se ejecuta normalmente.
+        
+        
         int opt = JOptionPane.showConfirmDialog(
             this, 
             "¿Está seguro de que desea cambiar el estado de la presentación con ID " + txtID.getText() + " a 'Inactivo'?", 
@@ -583,10 +573,10 @@ public class ManPresentacion extends javax.swing.JDialog {
         );
         
         if (opt == JOptionPane.YES_OPTION) {
-            // 4. Llamar al método del DAO que cambia el estado a 'false'.
+            
             objPresentacion.darBajaPresentacion(id);
             
-            // 5. Actualizar la interfaz.
+           
             limpiarControles();
             listarPresentaciones();
             gestionarEstadoControles("inicio");
@@ -606,17 +596,16 @@ public class ManPresentacion extends javax.swing.JDialog {
 
         int id = Integer.parseInt(txtID.getText());
 
-        // ✅ INICIO DE LA VALIDACIÓN ✅
-        // Verificamos si la presentación está siendo utilizada antes de eliminar.
+        
         PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
         if (presProdDAO.presentacionEstaEnUso(id)) {
             JOptionPane.showMessageDialog(this,
                 "Esta presentación no se puede ELIMINAR porque está asignada a uno o más productos.",
                 "Acción Denegada",
                 JOptionPane.ERROR_MESSAGE);
-            return; // Detenemos la operación
+            return; 
         }
-        // ✅ FIN DE LA VALIDACIÓN ✅
+        
 
         UIManager.put("OptionPane.yesButtonText", "Sí, Eliminar");
         UIManager.put("OptionPane.noButtonText", "No");
@@ -656,8 +645,8 @@ public class ManPresentacion extends javax.swing.JDialog {
         clsTipoPresentacion tipo = (clsTipoPresentacion) cmbTipoPresentacion.getSelectedItem();
         boolean nuevoEstado = chkActivo.isSelected();
 
-        // Validamos solo si se intenta DESACTIVAR una presentación.
-        if (!nuevoEstado) { // Si el nuevo estado es 'false' (Inactivo)
+     
+        if (!nuevoEstado) { 
             PresentacionProductoDAO presProdDAO = new PresentacionProductoDAO();
             if (presProdDAO.presentacionEstaEnUso(id)) {
                 JOptionPane.showMessageDialog(this,
@@ -665,15 +654,15 @@ public class ManPresentacion extends javax.swing.JDialog {
                     "Acción Denegada",
                     JOptionPane.ERROR_MESSAGE);
                 
-                // ----- LÍNEA AÑADIDA -----
-                chkActivo.setSelected(true); // <-- ¡ESTA ES LA CORRECCIÓN! Revierte el checkbox.
-                // -------------------------
+                
+                chkActivo.setSelected(true); 
+               
 
-                return; // Detenemos la modificación
+                return; 
             }
         }
 
-        // Si pasa la validación, procedemos a modificar.
+      
         objPresentacion.modificarPresentacion(id, cantidad, unidad.getId(), tipo.getId(), nuevoEstado);
 
         limpiarControles();
@@ -689,33 +678,31 @@ public class ManPresentacion extends javax.swing.JDialog {
     private void tblPresentacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresentacionMouseClicked
       int fila = tblPresentacion.getSelectedRow();
     if (fila == -1) {
-        return; // No hacer nada si el clic es inválido
+        return; 
     }
 
     try {
-        // --- OBTENCIÓN DE DATOS DIRECTAMENTE DE LA TABLA ---
+     
         String id = tblPresentacion.getValueAt(fila, 0).toString();
         String tipoNombre = tblPresentacion.getValueAt(fila, 1).toString();
         Object cantidadObj = tblPresentacion.getValueAt(fila, 2);
         String unidadNombre = tblPresentacion.getValueAt(fila, 3).toString();
         String estadoTabla = tblPresentacion.getValueAt(fila, 4).toString();
 
-        // --- CARGA DE DATOS EN LOS COMPONENTES ---
+       
         txtID.setText(id);
 
-        // Cargar valor en el JSpinner
+      
         if (cantidadObj instanceof Number) {
             spCantidad.setValue(((Number) cantidadObj).floatValue());
         } else {
             spCantidad.setValue(Float.parseFloat(cantidadObj.toString()));
         }
         
-        // ✅ LA CORRECCIÓN CLAVE ESTÁ AQUÍ
-        // Comparamos el TEXTO de la tabla para marcar/desmarcar el JRadioButton.
+        
         chkActivo.setSelected(estadoTabla.equals("Activo"));
         
-        // --- BÚSQUEDA Y SELECCIÓN EN COMBOBOXES ---
-        // Itera para seleccionar el Tipo de Presentación correcto
+        
         for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
             if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {
                 cmbTipoPresentacion.setSelectedIndex(i);
@@ -723,7 +710,7 @@ public class ManPresentacion extends javax.swing.JDialog {
             }
         }
 
-        // Itera para seleccionar la Unidad correcta
+        
         for (int i = 0; i < cmbUnidad.getItemCount(); i++) {
             if (cmbUnidad.getItemAt(i).getNombre().equals(unidadNombre)) {
                 cmbUnidad.setSelectedIndex(i);
@@ -731,7 +718,7 @@ public class ManPresentacion extends javax.swing.JDialog {
             }
         }
 
-        // Finalmente, cambiamos al modo "modificar"
+      
         gestionarEstadoControles("modificar");
 
     } catch (Exception e) {
@@ -743,24 +730,23 @@ public class ManPresentacion extends javax.swing.JDialog {
          try {
             if (txtID.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Debe ingresar un código para buscar.");
-                return; // Salir del método si no hay ID
+                return;
             }
 
             int idABuscar = Integer.parseInt(txtID.getText());
             
-            // 1. La variable ahora es de tipo PresentacionDAO
+        
             clsPresentacion presentacionEncontrada = objPresentacion.buscarPresentacion(idABuscar);
 
-            // 2. Se comprueba si el objeto es null (si no se encontró)
+           
             if (presentacionEncontrada != null) {
-                // 3. Se usan los getters del objeto para obtener los datos
+              
                 txtID.setText(String.valueOf(presentacionEncontrada.getId()));
                 spCantidad.setValue(presentacionEncontrada.getCantidad());
-                 // AÑADE ESTA LÍNEA AL FINAL DE LA BÚSQUEDA EXITOSA
+                
                 gestionarEstadoControles("modificar"); 
 
-                // 4. Lógica correcta para seleccionar el item en los ComboBox
-                // Se busca el objeto que coincida con el nombre y se selecciona.
+               
                 String tipoNombre = presentacionEncontrada.getNombreTipoPresentacion();
                 for (int i = 0; i < cmbTipoPresentacion.getItemCount(); i++) {
                     if (cmbTipoPresentacion.getItemAt(i).getNombre().equals(tipoNombre)) {

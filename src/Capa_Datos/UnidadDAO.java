@@ -118,7 +118,7 @@ public class UnidadDAO {
     
        public List<clsUnidad> listarActivas() throws Exception {
         List<clsUnidad> lista = new ArrayList<>();
-        // Esta consulta filtra para traer solo las unidades con estado = true
+        
         String sql = "SELECT * FROM UNIDAD WHERE estado = true ORDER BY nombreUnidad";
         try (Connection conn = objConectar.conectar();
              PreparedStatement ps = conn.prepareStatement(sql);

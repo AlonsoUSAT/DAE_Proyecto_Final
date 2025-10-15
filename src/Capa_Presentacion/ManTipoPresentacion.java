@@ -13,16 +13,14 @@ import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author USER
+ * @author Tiznado Leon
  */
 public class ManTipoPresentacion extends javax.swing.JDialog {
 
-    /**
-     * Creates new form ManTipoPresentacion
-     */
+   
     
      private final TipoPresentacionDAO1 objDAO = new TipoPresentacionDAO1();
-    private final PresentacionDAO objPresentacionDAO = new PresentacionDAO(); // <--- AÑADE ESTA LÍNEA
+    private final PresentacionDAO objPresentacionDAO = new PresentacionDAO(); 
     private List<clsTipoPresentacion> listaTipos;
     private clsTipoPresentacion tipoSeleccionadoActual; 
     
@@ -86,7 +84,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
                 btnBuscar.setEnabled(true);
                 tblTipoPresentacion.clearSelection();
                 limpiarCampos();
-                tipoSeleccionadoActual = null; // <--- AÑADE ESTA LÍNEA
+                tipoSeleccionadoActual = null; 
                 break;
             case "nuevo":
                 btnNuevo.setText("Guardar");
@@ -428,7 +426,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
     try {
         int idTipoPresentacion = Integer.parseInt(txtID.getText());
 
-        // --- INICIO DE LA VALIDACIÓN ---
+      
         boolean enUso = objPresentacionDAO.verificarUsoTipoPresentacion(idTipoPresentacion);
 
         if (enUso) {
@@ -437,9 +435,9 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
                     "en uno o más registros de 'Presentación'.",
                     "Acción Denegada",
                     JOptionPane.WARNING_MESSAGE);
-            return; // Detiene la operación
+            return; 
         }
-        // --- FIN DE LA VALIDACIÓN ---
+       
 
         int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible. ¿Desea eliminar el registro?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
@@ -463,23 +461,23 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         return;
     }
 
-    // 1. Obtener el ID y el *nuevo* estado del formulario
+   
     int idTipoPresentacion = Integer.parseInt(txtID.getText());
-    boolean nuevoEstado = chkEstado.isSelected(); // El estado que el usuario quiere guardar
+    boolean nuevoEstado = chkEstado.isSelected();
 
-    // 2. Comprobar si el registro seleccionado existe
+   
     if (tipoSeleccionadoActual == null) {
         JOptionPane.showMessageDialog(this, "No se ha cargado un registro válido para modificar.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
     
-    // 3. Obtener el estado *original* del objeto guardado
+   
     boolean viejoEstado = tipoSeleccionadoActual.isEstado();
 
-    // 4. VALIDACIÓN: ¿Se está intentando desactivar (pasar de Activo a Inactivo)?
+   
     if (viejoEstado == true && nuevoEstado == false) {
         try {
-            // 5. Si es así, verificar si está en uso
+           
             boolean enUso = objPresentacionDAO.verificarUsoTipoPresentacion(idTipoPresentacion);
             
             if (enUso) {
@@ -487,8 +485,8 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
                         "No se puede DESACTIVAR este Tipo de Presentación porque está en uso.",
                         "Acción Denegada",
                         JOptionPane.WARNING_MESSAGE);
-                chkEstado.setSelected(true); // Revertimos el cambio en el checkbox
-                return; // Detenemos la operación
+                chkEstado.setSelected(true); 
+                return; 
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al verificar uso: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -496,19 +494,18 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         }
     }
 
-    // --- FIN DE LA VALIDACIÓN ---
-    // Si pasa la validación (o no se está desactivando), proceder a modificar
+    
     try {
         clsTipoPresentacion tipo = new clsTipoPresentacion();
         tipo.setId(idTipoPresentacion);
         tipo.setNombre(txtNombre.getText());
-        tipo.setEstado(nuevoEstado); // Guardar el nuevo estado
+        tipo.setEstado(nuevoEstado); 
 
         objDAO.modificar(tipo);
 
         JOptionPane.showMessageDialog(this, "Modificado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         actualizarTabla();
-        gestionarEstadoControles("inicio"); // Esto limpiará 'tipoSeleccionadoActual'
+        gestionarEstadoControles("inicio"); 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error al modificar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -520,7 +517,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
     try {
         int idTipoPresentacion = Integer.parseInt(txtID.getText());
 
-        // --- INICIO DE LA VALIDACIÓN ---
+       
         boolean enUso = objPresentacionDAO.verificarUsoTipoPresentacion(idTipoPresentacion);
 
         if (enUso) {
@@ -529,11 +526,9 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
                     "en uno o más registros de 'Presentación'.",
                     "Acción Denegada",
                     JOptionPane.WARNING_MESSAGE);
-            return; // Detiene la operación
+            return; 
         }
-        // --- FIN DE LA VALIDACIÓN ---
-
-        // Si llega aquí, NO está en uso y puede continuar.
+        
         int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea dar de baja este registro?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             objDAO.darDeBaja(idTipoPresentacion);
@@ -555,7 +550,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
             int id = Integer.parseInt(txtID.getText());
             clsTipoPresentacion tipo = objDAO.buscarPorId(id);
             if (tipo != null) {
-                tipoSeleccionadoActual = tipo; // <--- AÑADE ESTA LÍNEA
+                tipoSeleccionadoActual = tipo; 
                 cargarDatos(tipo);
                 gestionarEstadoControles("seleccionado");
             } else {
@@ -571,7 +566,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
     private void tblTipoPresentacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTipoPresentacionMouseClicked
         int fila = tblTipoPresentacion.getSelectedRow();
     if (fila != -1) {
-        // En lugar de una variable local, usamos la de la clase:
+       
         tipoSeleccionadoActual = listaTipos.get(fila); 
         
         cargarDatos(tipoSeleccionadoActual);

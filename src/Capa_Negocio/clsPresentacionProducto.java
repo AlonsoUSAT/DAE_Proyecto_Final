@@ -6,7 +6,7 @@ package Capa_Negocio;
 
 /**
  *
- * @author USER
+ * @author Tiznado Leon
  */
 public class clsPresentacionProducto {
 
@@ -14,22 +14,22 @@ public class clsPresentacionProducto {
     private int idPresentacion;
     private int stock;
     private float precio;
-     private boolean estado; // <-- 1. ATRIBUTO AÑADIDO
+     private boolean estado; 
 
-    // Constructor vacío
+  
     public clsPresentacionProducto() {
     }
 
-   // --- CONSTRUCTOR CORREGIDO ---
+   
 public clsPresentacionProducto(int idProducto, int idPresentacion, int stock, float precio, boolean estado) {
     this.idProducto = idProducto;
     this.idPresentacion = idPresentacion;
     this.stock = stock;
     this.precio = precio;
-    this.estado = estado; // <-- Parámetro añadido
+    this.estado = estado; 
 }
 
-    // Getters y Setters
+    
     public int getIdProducto() {
         return idProducto;
     }
@@ -62,7 +62,7 @@ public clsPresentacionProducto(int idProducto, int idPresentacion, int stock, fl
         this.precio = precio;
     }
     
-      // --- 3. MÉTODOS GETTER Y SETTER AÑADIDOS ---
+    
     public boolean getEstado() {
         return estado;
     }

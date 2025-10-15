@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class clsLote {
      
-     // Campos directos de la tabla LOTE
+    
     private int idLote;
     private String nroLote;
     private Date fechaFabricacion;
@@ -21,16 +21,16 @@ public class clsLote {
     private int stockActual;
     private boolean estado;
     private int idPresentacion;
-    private int idProducto; // <-- 1. CAMPO AÑADIDO
+    private int idProducto; 
     
-    // Campos que vendrán de tablas relacionadas (JOINs)
+   
     private String nombreProducto;
     private String descripcionPresentacion;
 
-    // Se añade 'idProducto' al constructor
+    
     public clsLote(int idLote, String nroLote, Date fechaFabricacion, Date fechaVencimiento, 
                    int cantidadRecibida, int stockActual, boolean estado, int idPresentacion, 
-                   int idProducto, // <-- 2. PARÁMETRO AÑADIDO
+                   int idProducto, 
                    String nombreProducto, String descripcionPresentacion) {
         
         this.idLote = idLote;
@@ -41,12 +41,12 @@ public class clsLote {
         this.stockActual = stockActual;
         this.estado = estado;
         this.idPresentacion = idPresentacion;
-        this.idProducto = idProducto; // <-- 3. ASIGNACIÓN AÑADIDA
+        this.idProducto = idProducto; 
         this.nombreProducto = nombreProducto;
         this.descripcionPresentacion = descripcionPresentacion;
     }
 
-    // --- Getters ---
+   
     public int getIdLote() { return idLote; }
     public String getNroLote() { return nroLote; }
     public Date getFechaFabricacion() { return fechaFabricacion; }
@@ -58,8 +58,8 @@ public class clsLote {
     public String getNombreProducto() { return nombreProducto; }
     public String getDescripcionPresentacion() { return descripcionPresentacion; }
 
-    // --- MÉTODO GETTER FALTANTE ---
-    public int getIdProducto() { // <-- 4. MÉTODO AÑADIDO
+    
+    public int getIdProducto() { 
         return idProducto;
     }
 }

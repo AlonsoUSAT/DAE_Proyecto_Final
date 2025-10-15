@@ -9,25 +9,21 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Clase de negocio para gestionar las operaciones de la entidad Lote.
- * @author USER
+ * 
+ * @author Tiznado Leon
  */
 public class LoteDAO {
 
     private final clsJDBC objConectar = new clsJDBC();
 
-    /**
-     * Devuelve una lista de todos los lotes de la base de datos con información detallada.
-     * @return ArrayList con los datos de los lotes.
-     * @throws Exception Si ocurre un error de base de datos.
-     */
+    
     public ArrayList<clsLote> listarLotes() throws Exception {
     ArrayList<clsLote> lotes = new ArrayList<>();
     Connection conn = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // Se añade l.idProducto y el alias para pr.nombre
+   
     String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
                  "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, l.idProducto, pr.nombre AS nombreproducto, " + 
                  "CONCAT(tp.nombretipopresentacion, ' x ', p.cantidad, ' ', u.nombreunidad) AS descripcionPresentacion " +
@@ -52,7 +48,7 @@ public class LoteDAO {
                 rs.getInt("stockActual"),
                 rs.getBoolean("estado"),
                 rs.getInt("idPresentacion"),
-                rs.getInt("idProducto"), // <-- CAMBIO: Se añade el idProducto
+                rs.getInt("idProducto"), 
                 rs.getString("nombreproducto"),
                 rs.getString("descripcionPresentacion")
             );
@@ -61,25 +57,19 @@ public class LoteDAO {
     } catch (Exception e) {
         throw new Exception("Error al listar lotes: " + e.getMessage());
     } finally {
-        // ... (código para cerrar conexiones)
+     
     }
     return lotes;
 }
 
-    /**
-     * Devuelve una lista de lotes filtrada por producto y presentación.
-     * @param idProducto El ID del producto a buscar.
-     * @param idPresentacion El ID de la presentación a buscar.
-     * @return ArrayList con los datos de los lotes encontrados.
-     * @throws Exception Si ocurre un error de base de datos.
-     */
+  
   public ArrayList<clsLote> listarLotesPorPresentacion(int idProducto, int idPresentacion) throws Exception {
     ArrayList<clsLote> lotes = new ArrayList<>();
     Connection conn = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
 
-    // Se añade l.idProducto a la consulta
+    
     String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
                  "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, l.idProducto, pr.nombre AS nombreproducto, " + 
                  "CONCAT(tp.nombreTipoPresentacion, ' x ', p.cantidad, ' ', u.nombreUnidad) AS descripcionPresentacion " +
@@ -107,7 +97,7 @@ public class LoteDAO {
                 rs.getInt("stockActual"),
                 rs.getBoolean("estado"),
                 rs.getInt("idPresentacion"),
-                rs.getInt("idProducto"), // <-- CAMBIO: Se añade el idProducto
+                rs.getInt("idProducto"), 
                 rs.getString("nombreproducto"),
                 rs.getString("descripcionPresentacion")
             );
@@ -116,25 +106,17 @@ public class LoteDAO {
     } catch (Exception e) {
         throw new Exception("Error al listar lotes por presentación: " + e.getMessage());
     } finally {
-        // ... (código para cerrar conexiones)
+       
     }
     return lotes;
 }
 
-    /**
-     * Registra un nuevo lote en la base de datos.
-     * @param fechaFab Fecha de fabricación.
-     * @param fechaVen Fecha de vencimiento.
-     * @param cantRecibida Cantidad total del lote.
-     * @param idPresentacion ID de la presentación del producto.
-     * @param idProducto ID del producto.
-     * @throws Exception Si ocurre un error.
-     */
+    
    public void registrarLote(int idLote, String nroLote, Date fechaFab, Date fechaVen, int cantRecibida, int idPresentacion, int idProducto, boolean estado) throws Exception {
     Connection conn = null;
     PreparedStatement ps = null;
     
-    // --- SQL CORREGIDO: Se añade la columna 'estado' ---
+   
     String sql = "INSERT INTO LOTE (idLote, nroLote, fechaFabricacion, fechaVencimiento, cantidadRecibida, stockActual, idPresentacion, idProducto, estado) " +
                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
@@ -145,7 +127,7 @@ public class LoteDAO {
         ps.setInt(1, idLote);
         ps.setString(2, nroLote);
         
-        // Manejo seguro de fechas
+       
         if (fechaFab != null) {
             ps.setDate(3, new java.sql.Date(fechaFab.getTime()));
         } else {
@@ -154,11 +136,11 @@ public class LoteDAO {
         
         ps.setDate(4, new java.sql.Date(fechaVen.getTime()));
         ps.setInt(5, cantRecibida);
-        ps.setInt(6, cantRecibida); // Al registrar, stock actual = cantidad recibida
+        ps.setInt(6, cantRecibida); 
         ps.setInt(7, idPresentacion);
         ps.setInt(8, idProducto);
         
-        // --- PARÁMETRO NUEVO: Se añade el estado ---
+       
         ps.setBoolean(9, estado); 
         
         ps.executeUpdate();
@@ -169,10 +151,7 @@ public class LoteDAO {
         if (conn != null) objConectar.desconectar();
     }
 }
-    /**
-     * Modifica un lote existente.
-     * @throws Exception Si ocurre un error.
-     */
+    
     public void modificarLote(int idLote, Date fechaFab, Date fechaVen, int nuevaCantidadRecibida, boolean estado) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -180,27 +159,23 @@ public class LoteDAO {
         try {
             conn = objConectar.conectar();
             
-            // --- Lógica de Recálculo de Stock ---
-            // 1. Obtenemos el estado actual del lote desde la BD.
+           
             clsLote loteActual = this.buscarLote(idLote);
             if (loteActual == null) {
                 throw new Exception("El lote con ID " + idLote + " no existe.");
             }
 
-            // 2. Calculamos cuántas unidades se han movido (vendido, etc.).
+           
             int unidadesMovidas = loteActual.getCantidadRecibida() - loteActual.getStockActual();
 
-            // 3. Calculamos cuál debería ser el nuevo stock actual.
+         
             int nuevoStockActual = nuevaCantidadRecibida - unidadesMovidas;
 
-            // 4. Validación de seguridad para evitar stock negativo.
+            
             if (nuevoStockActual < 0) {
                 throw new Exception("La nueva cantidad es inconsistente con las unidades ya vendidas. El stock no puede ser negativo.");
             }
-            
-            // --- Fin de la Lógica de Recálculo ---
 
-            // SQL que ahora actualiza AMBOS campos de stock.
             String sql = "UPDATE LOTE SET fechaFabricacion = ?, fechaVencimiento = ?, cantidadRecibida = ?, stockActual = ?, estado = ? WHERE idLote = ?";
             ps = conn.prepareStatement(sql);
             
@@ -210,34 +185,29 @@ public class LoteDAO {
                 ps.setNull(1, java.sql.Types.DATE);
             }
             ps.setDate(2, new java.sql.Date(fechaVen.getTime()));
-            ps.setInt(3, nuevaCantidadRecibida); // Guardamos la nueva cantidad inicial
-            ps.setInt(4, nuevoStockActual);      // Guardamos el nuevo stock actual calculado
+            ps.setInt(3, nuevaCantidadRecibida); 
+            ps.setInt(4, nuevoStockActual);    
             ps.setBoolean(5, estado);
             ps.setInt(6, idLote);
             
             ps.executeUpdate();
             
         } catch (Exception e) {
-            // Re-lanzamos la excepción para que sea capturada por el formulario.
+           
             throw new Exception("Error al modificar lote: " + e.getMessage());
         } finally {
             if (ps != null) ps.close();
             if (conn != null) objConectar.desconectar();
         }
     }
-    /**
-     * Busca un lote por su ID.
-     * @param idLote El ID del lote a buscar.
-     * @return Un objeto LoteDAO si se encuentra, o null si no existe.
-     * @throws Exception Si ocurre un error.
-     */
+   
   public clsLote buscarLote(int idLote) throws Exception {
     clsLote loteEncontrado = null;
     Connection conn = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
     
-    // Se añade l.idProducto a la consulta
+  
     String sql = "SELECT l.idLote, l.nroLote, l.fechaFabricacion, l.fechaVencimiento, " +
                  "l.cantidadRecibida, l.stockActual, l.estado, l.idPresentacion, l.idProducto, " +
                  "pr.nombre AS nombreproducto, " +
@@ -265,7 +235,7 @@ public class LoteDAO {
                 rs.getInt("stockActual"),
                 rs.getBoolean("estado"),
                 rs.getInt("idPresentacion"),
-                rs.getInt("idProducto"), // <-- CAMBIO: Se añade el idProducto
+                rs.getInt("idProducto"), 
                 rs.getString("nombreproducto"),
                 rs.getString("descripcionPresentacion")
             );
@@ -273,15 +243,11 @@ public class LoteDAO {
     } catch (Exception e) {
         throw new Exception("Error al buscar lote: " + e.getMessage());
     } finally {
-        // ... (código para cerrar conexiones)
+     
     }
     return loteEncontrado;
 }
-    /**
-     * Genera un nuevo código para un lote.
-     * @return El siguiente código disponible.
-     * @throws Exception Si ocurre un error en la base de datos.
-     */
+   
     public Integer generarCodeLote() throws Exception {
         Integer codigo = 0;
         Connection conn = null;
@@ -306,13 +272,7 @@ public class LoteDAO {
         return codigo;
     }
     
-    /**
-     * Genera un número de lote informativo.
-     * @param idPresentacion El ID de la presentación para la que se crea el lote.
-     * @param cantidadRecibida La cantidad de unidades que llegan en este lote.
-     * @return El String con el número de lote generado.
-     * @throws Exception Si ocurre un error de base de datos.
-     */
+    
    public String generarNumeroLote(int idProducto, int idPresentacion, int cantidadRecibida) throws Exception { // ✅ CAMBIO 1: Añadido idProducto
     Connection conn = null;
     PreparedStatement ps = null;
@@ -338,14 +298,10 @@ public class LoteDAO {
     
     String correlativoFormateado = String.format("%02d", correlativo);
     
-    // ✅ CAMBIO 2: Usamos idProducto en lugar de idPresentacion para el prefijo "P"
+  
     return "P" + idProducto + "-" + correlativoFormateado + "-" + cantidadRecibida;
 }
-    /**
-     * Elimina un lote de la base de datos.
-     * @param idLote El ID del lote a eliminar.
-     * @throws Exception Si ocurre un error.
-     */
+   
     public void eliminarLote(int idLote) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -364,11 +320,7 @@ public class LoteDAO {
         }
     }
 
-    /**
-     * Cambia el estado de un lote a 'false' (inactivo).
-     * @param idLote El ID del lote a dar de baja.
-     * @throws Exception Si ocurre un error.
-     */
+    
     public void darBajaLote(int idLote) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;

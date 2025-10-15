@@ -7,26 +7,21 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 /**
- * Clase de Acceso a Datos (DAO) para la entidad Presentacion.
- * Gestiona todas las operaciones CRUD (Crear, Leer, Actualizar, Eliminar) en la base de datos.
- * @author USER
+
+ * @author Tiznado Leon
  */
 public class PresentacionDAO {
 
     private final clsJDBC objConectar = new clsJDBC();
 
-    /**
-     * Devuelve una lista de todas las presentaciones de la base de datos.
-     * @return Un ArrayList de objetos clsPresentacion.
-     * @throws Exception Si ocurre un error en la base de datos.
-     */
+    
     public ArrayList<clsPresentacion> listarPresentaciones() throws Exception {
         ArrayList<clsPresentacion> presentaciones = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        // Se incluye el campo 'p.estado' en la consulta
+       
         String sql = "SELECT p.idPresentacion, p.cantidad, u.nombreUnidad, tp.nombreTipoPresentacion, p.estado " +
                        "FROM PRESENTACION p " +
                        "INNER JOIN UNIDAD u ON p.idUnidad = u.idUnidad " +
@@ -42,9 +37,9 @@ public class PresentacionDAO {
                 clsPresentacion dto = new clsPresentacion(
                     rs.getInt("idPresentacion"),
                     rs.getString("nombreTipoPresentacion"),
-                    rs.getFloat("cantidad"), // Correcto: leer como float
+                    rs.getFloat("cantidad"), 
                     rs.getString("nombreUnidad"),
-                    rs.getBoolean("estado") // Se lee el estado
+                    rs.getBoolean("estado") 
                 );
                 presentaciones.add(dto);
             }
@@ -58,15 +53,7 @@ public class PresentacionDAO {
         return presentaciones;
     }
 
-    /**
-     * Registra una nueva presentación en la base de datos.
-     * @param id El ID de la nueva presentación.
-     * @param can La cantidad.
-     * @param codUni El código de la unidad.
-     * @param codPre El código del tipo de presentación.
-     * @param estado El estado (activo/inactivo).
-     * @throws Exception Si ocurre un error.
-     */
+    
     public void registrarPresentacion(int id, float can, int codUni, int codPre, boolean estado) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -79,7 +66,7 @@ public class PresentacionDAO {
             ps.setFloat(2, can);
             ps.setInt(3, codUni);
             ps.setInt(4, codPre);
-            ps.setBoolean(5, estado); // Se añade el estado
+            ps.setBoolean(5, estado);
             ps.executeUpdate();
         } catch (Exception e) {
             throw new Exception("Error al registrar la presentación: " + e.getMessage());
@@ -89,15 +76,7 @@ public class PresentacionDAO {
         }
     }
 
-    /**
-     * Modifica una presentación existente.
-     * @param cod El ID de la presentación a modificar.
-     * @param can La nueva cantidad.
-     * @param codUni El nuevo código de unidad.
-     * @param codPre El nuevo código de tipo de presentación.
-     * @param estado El nuevo estado.
-     * @throws Exception Si ocurre un error.
-     */
+    
     public void modificarPresentacion(int cod, float can, int codUni, int codPre, boolean estado) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -109,7 +88,7 @@ public class PresentacionDAO {
             ps.setFloat(1, can);
             ps.setInt(2, codUni);
             ps.setInt(3, codPre);
-            ps.setBoolean(4, estado); // Se actualiza el estado
+            ps.setBoolean(4, estado); 
             ps.setInt(5, cod);
             ps.executeUpdate();
         } catch (Exception e) {
@@ -120,12 +99,7 @@ public class PresentacionDAO {
         }
     }
 
-    /**
-     * Busca una presentación por su ID.
-     * @param id El ID a buscar.
-     * @return Un objeto clsPresentacion con los datos, o null si no se encuentra.
-     * @throws Exception Si ocurre un error.
-     */
+   
     public clsPresentacion buscarPresentacion(int id) throws Exception {
         clsPresentacion presentacionEncontrada = null;
         Connection conn = null;
@@ -148,9 +122,9 @@ public class PresentacionDAO {
                 presentacionEncontrada = new clsPresentacion(
                     rs.getInt("idPresentacion"),
                     rs.getString("nombreTipoPresentacion"),
-                    rs.getFloat("cantidad"), // Correcto: leer como float
+                    rs.getFloat("cantidad"), 
                     rs.getString("nombreUnidad"),
-                    rs.getBoolean("estado") // Se lee el estado
+                    rs.getBoolean("estado") 
                 );
             }
         } catch (Exception e) {
@@ -163,8 +137,7 @@ public class PresentacionDAO {
         return presentacionEncontrada;
     }
 
-    // ... (Aquí irían tus otros métodos: eliminarPresentacion, darBajaPresentacion, generarCodePresentacion, que no necesitan cambios)
-    
+   
     public void eliminarPresentacion(int cod) throws Exception {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -227,26 +200,25 @@ public class PresentacionDAO {
     
     
     public boolean verificarUsoTipoPresentacion(int idTipoPresentacion) throws Exception {
-    // CORREGIDO: Se llama a 'objConectar.conectar()'
+   
     java.sql.Connection cn = objConectar.conectar(); 
     
-    // CORREGIDO: El nombre de la columna es 'tipoPresentacion'
+    
     String sql = "SELECT 1 FROM Presentacion WHERE tipoPresentacion = ? LIMIT 1";
     
-    // El 'try-with-resources' para PreparedStatement y ResultSet ya es correcto
+   
     try (java.sql.PreparedStatement ps = cn.prepareStatement(sql)) {
         ps.setInt(1, idTipoPresentacion);
         try (java.sql.ResultSet rs = ps.executeQuery()) {
-            // rs.next() será 'true' si encuentra al menos un registro,
-            // y 'false' si no encuentra ninguno.
+           
             return rs.next(); 
         }
     } catch (Exception e) {
         throw new Exception("Error al verificar uso de TipoPresentacion: " + e.getMessage());
     } finally {
-        // Asegúrate de que la conexión no sea nula antes de desconectar
+       
         if (cn != null) {
-            // CORREGIDO: Se llama a 'objConectar.desconectar()'
+          
             objConectar.desconectar();
         }
     }
@@ -255,13 +227,13 @@ public class PresentacionDAO {
         public boolean verificarUsoUnidad(int idUnidad) throws Exception {
     java.sql.Connection cn = objConectar.conectar();
     
-    // Comprobamos la columna 'idUnidad' en la tabla Presentacion
+   
     String sql = "SELECT 1 FROM Presentacion WHERE idUnidad = ? LIMIT 1";
     
     try (java.sql.PreparedStatement ps = cn.prepareStatement(sql)) {
         ps.setInt(1, idUnidad);
         try (java.sql.ResultSet rs = ps.executeQuery()) {
-            // Retorna true si encuentra al menos un registro (está en uso)
+          
             return rs.next(); 
         }
     } catch (Exception e) {

@@ -6,7 +6,7 @@ package Capa_Presentacion;
 
 /**
  *
- * @author USER
+ * @author Tiznado Leon
  */
 
 
@@ -26,15 +26,13 @@ import javax.swing.table.DefaultTableModel;
 
 public class ManPresPro extends javax.swing.JDialog {
 
-    /**
-     * Creates new form ManPresPro
-     */
+   
     
-     // --- Objetos DAO ---
+ 
     PresentacionProductoDAO objPresProd = new PresentacionProductoDAO();
     PresentacionDAO objPresentacion = new PresentacionDAO();
     
-    // --- Datos del producto que se está gestionando ---
+    
     private final int productoID;
     private final String productoNombre;
 
@@ -44,7 +42,7 @@ public class ManPresPro extends javax.swing.JDialog {
         this.productoID = idProducto;
         this.productoNombre = nombreProducto;
         initComponents();
-        configurarComponentes(); // Centraliza la configuración inicial
+        configurarComponentes(); 
     }
    
     private void configurarComponentes() {
@@ -56,10 +54,10 @@ public class ManPresPro extends javax.swing.JDialog {
 
     configurarTabla();
     
-    // Configura el modelo de la lista aquí
+    
     lstPresentaciones.setModel(new DefaultListModel<clsPresentacion>());
 
-    actualizarAmbasListas(); // <--- LLAMA AL NUEVO MÉTODO AQUÍ
+    actualizarAmbasListas();
     
     gestionarEstadoControles("inicio");
 }
@@ -82,7 +80,7 @@ public class ManPresPro extends javax.swing.JDialog {
       private void limpiarControles() {
         txtPrecioVenta.setText("");
         txtStock.setText("0");
-        chkVigencia.setSelected(true); // Por defecto, es vigente
+        chkVigencia.setSelected(true);
         tblPresentacionProducto.clearSelection();
         lstPresentaciones.clearSelection();
     }
@@ -93,7 +91,7 @@ public class ManPresPro extends javax.swing.JDialog {
         txtPrecioVenta.setEnabled(camposEditables);
         
         chkVigencia.setEnabled(modo.equals("modificar"));
-        // El stock nunca es editable
+        
         txtStock.setEnabled(false);
 
         switch (modo) {
@@ -107,7 +105,7 @@ public class ManPresPro extends javax.swing.JDialog {
                 break;
             
             case "nuevo":
-                lstPresentaciones.setEnabled(true); // Aún puede cambiar la selección antes de guardar
+                lstPresentaciones.setEnabled(true); 
                 btnNuevo.setEnabled(true);
                 btnModificar.setEnabled(false);
                 btnDarDeBaja.setEnabled(false);
@@ -116,7 +114,7 @@ public class ManPresPro extends javax.swing.JDialog {
                 break;
 
             case "modificar":
-                lstPresentaciones.setEnabled(false); // No se puede cambiar la presentación base al modificar
+                lstPresentaciones.setEnabled(false);
                 btnNuevo.setEnabled(false);
                 btnModificar.setEnabled(true);
                 btnDarDeBaja.setEnabled(true);
@@ -134,13 +132,13 @@ public class ManPresPro extends javax.swing.JDialog {
     listModel.clear();
 
     try {
-        // 1. Obtener TODAS las presentaciones y llenar la lista de la izquierda.
+      
         List<clsPresentacion> catalogoGlobal = objPresentacion.listarPresentaciones();
         for (clsPresentacion p : catalogoGlobal) {
-            listModel.addElement(p); // <-- Ya no hay filtro, se agregan todas.
+            listModel.addElement(p); 
         }
 
-        // 2. Obtener solo las presentaciones YA ASIGNADAS para llenar la tabla.
+      
         List<Object[]> asignadosData = objPresProd.listarFormatosParaTabla(this.productoID);
         for (Object[] fila : asignadosData) {
             int idPresentacion = (int) fila[0];
@@ -502,42 +500,40 @@ public class ManPresPro extends javax.swing.JDialog {
                 JOptionPane.INFORMATION_MESSAGE);
 
     } else { 
-        // MODO "GUARDAR": El botón dice "Guardar". Validamos y guardamos.
+      
         try {
             clsPresentacion presSeleccionada = lstPresentaciones.getSelectedValue();
 
-            // 1. Validar que se seleccionó algo de la lista.
+           
             if (presSeleccionada == null) {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar una presentación de la lista.", "Validación", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 2. Validar que la presentación seleccionada esté activa.
+           
             if (!presSeleccionada.isActivo()) {
                 JOptionPane.showMessageDialog(this, "No se puede asignar una presentación inactiva.", "Acción no Válida", JOptionPane.WARNING_MESSAGE);
                 return; 
             }
             
-            // 3. VALIDACIÓN PARA EVITAR DUPLICADOS
+            
             int idSeleccionado = presSeleccionada.getId();
             DefaultTableModel modeloTabla = (DefaultTableModel) tblPresentacionProducto.getModel();
             for (int i = 0; i < modeloTabla.getRowCount(); i++) {
                 int idEnTabla = (int) modeloTabla.getValueAt(i, 0); 
                 if (idEnTabla == idSeleccionado) {
                     JOptionPane.showMessageDialog(this, "Esta presentación ya ha sido asignada al producto.", "Acción no Válida", JOptionPane.WARNING_MESSAGE);
-                    return; // Detiene el proceso si ya existe
+                    return; 
                 }
             }
-            // --- FIN DE LA VALIDACIÓN ---
-            
-            // 4. Validar y procesar los datos.
+          
             float precio = Float.parseFloat(txtPrecioVenta.getText());
             
             
             
-            // Pasamos esa variable al método registrar
+            
             objPresProd.registrar(productoID, presSeleccionada.getId(), precio, 0, true);
-            // --- FIN DE LA CORRECCIÓN ---
+            
             
             JOptionPane.showMessageDialog(this, "Presentación asignada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
@@ -573,13 +569,13 @@ public class ManPresPro extends javax.swing.JDialog {
         int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea cambiar la vigencia de este formato a 'No Vigente'?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // CÓDIGO NUEVO Y RECOMENDADO
+               
                 int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
                 objPresProd.darBaja(productoID, idPresentacion);
                 float precio = Float.parseFloat(txtPrecioVenta.getText());
                 int stockActual = Integer.parseInt(txtStock.getText());
 
-                // Dar de baja es modificar el estado a false
+               
                 objPresProd.modificar(productoID, idPresentacion, precio, stockActual, false);
                 
                 JOptionPane.showMessageDialog(this, "El formato ha sido dado de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -631,28 +627,28 @@ public class ManPresPro extends javax.swing.JDialog {
     }
 
     try {
-        // --- 1. Obtener datos de la interfaz y la tabla ---
+        
         int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
         float precio = Float.parseFloat(txtPrecioVenta.getText());
         boolean vigente = chkVigencia.isSelected();
-        // El stock no se modifica desde aquí, se pasa el valor actual que ya está en la tabla.
+        
         int stockActual = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 3);
 
-        // --- 2. Ejecutar la modificación en la base de datos ---
+        
         objPresProd.modificar(productoID, idPresentacion, precio, stockActual, vigente);
 
-        // --- 3. ✅ ACTUALIZAR SOLO LA FILA EN LA TABLA (SIN RECARGAR TODO) ✅ ---
+        
         DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
         
-        // Actualizamos la columna del precio (índice 2)
+        
         modelo.setValueAt(precio, filaSeleccionada, 2);
         
-        // Actualizamos la columna de la vigencia (índice 4)
+        
         modelo.setValueAt(vigente ? "Vigente" : "No Vigente", filaSeleccionada, 4);
         
-        // --- NO SE LLAMA a actualizarAmbasListas() ---
+        
 
-        // --- 4. Limpiar y resetear el formulario ---
+        
         limpiarControles();
         gestionarEstadoControles("inicio");
         JOptionPane.showMessageDialog(this, "Presentación modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -672,7 +668,7 @@ public class ManPresPro extends javax.swing.JDialog {
 
         ManPresentacion mant = new ManPresentacion(null, true);
         mant.setVisible(true);
-        // Al cerrar ManPresentacion, recargamos la lista por si se creó uno nuevo
+       
         actualizarAmbasListas();
 
     }//GEN-LAST:event_btnNuevaPresentacionActionPerformed
@@ -682,7 +678,7 @@ public class ManPresPro extends javax.swing.JDialog {
         if (fila == -1) return;
 
         try {
-            lstPresentaciones.clearSelection(); // Importante para diferenciar de "nuevo"
+            lstPresentaciones.clearSelection(); 
 
             Object idPresObj = tblPresentacionProducto.getValueAt(fila, 0);
             Object precioObj = tblPresentacionProducto.getValueAt(fila, 2);
@@ -701,35 +697,35 @@ public class ManPresPro extends javax.swing.JDialog {
     }//GEN-LAST:event_tblPresentacionProductoMouseClicked
 
     private void btnLotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLotesActionPerformed
-         // 1. Obtenemos la fila seleccionada de la tabla
+         
     int filaSeleccionada = tblPresentacionProducto.getSelectedRow();
 
     if (filaSeleccionada >= 0) {
         try {
             DefaultTableModel modelo = (DefaultTableModel) tblPresentacionProducto.getModel();
             
-            // 2. Obtenemos los datos clave de la fila
+           
             int idPres = (int) modelo.getValueAt(filaSeleccionada, 0);
             String presentacionDescripcion = modelo.getValueAt(filaSeleccionada, 1).toString();
-            String vigencia = modelo.getValueAt(filaSeleccionada, 4).toString(); // Columna de Vigencia
+            String vigencia = modelo.getValueAt(filaSeleccionada, 4).toString(); 
 
-            // 3. Verificamos el estado de la vigencia
+        
             if (vigencia.equals("Vigente")) {
-                // ✅ CASO VIGENTE: Todo es normal, abrimos la ventana de lotes.
+                
                 System.out.println("Presentación vigente. Abriendo gestión de lotes...");
                 ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion);
                 dialogoLote.setVisible(true);
                 
-                // Al cerrar, actualizamos por si cambió el stock
+                
                 actualizarAmbasListas();
 
             } else {
-                // ⚠️ CASO NO VIGENTE: Necesitamos revisar si hay stock existente.
+                
                 System.out.println("Presentación no vigente. Verificando stock de lotes...");
                 int stockActualDeLotes = objPresProd.obtenerStockTotalDeLotes(this.productoID, idPres);
 
                 if (stockActualDeLotes > 0) {
-                    // 📦 CASO A (No Vigente CON Stock): Aún hay inventario por gestionar.
+                   
                     System.out.println("Tiene stock restante. Abriendo gestión de lotes en modo consulta/gestión.");
                     JOptionPane.showMessageDialog(this, 
                         "Esta presentación no está vigente, pero tiene lotes con stock por gestionar.", 
@@ -739,11 +735,11 @@ public class ManPresPro extends javax.swing.JDialog {
                     ManLote dialogoLote = new ManLote(null, true, this.productoID, this.productoNombre, idPres, presentacionDescripcion);
                     dialogoLote.setVisible(true);
 
-                    // Al cerrar, actualizamos por si se vendió o ajustó el stock
+                   
                     actualizarAmbasListas();
 
                 } else {
-                    // ❌ CASO B (No Vigente SIN Stock): No hay nada que hacer aquí.
+                    
                     System.out.println("No tiene stock. Bloqueando acceso.");
                     JOptionPane.showMessageDialog(this, 
                         "Esta presentación no está vigente y no tiene lotes con stock.\nNo se pueden agregar nuevos lotes.", 
