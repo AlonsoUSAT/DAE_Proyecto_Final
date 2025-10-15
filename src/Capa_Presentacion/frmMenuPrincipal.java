@@ -760,6 +760,7 @@ private void mostrarHora() {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
         FrmLogin frm = new FrmLogin(this,true);
+        frm.setLocationRelativeTo(this);
         frm.setVisible(true);
     }//GEN-LAST:event_formWindowOpened
 

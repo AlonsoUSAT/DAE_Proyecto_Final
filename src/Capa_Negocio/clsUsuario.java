@@ -19,12 +19,12 @@ public class clsUsuario {
     ResultSet rs = null;
 
     public String[] login(String usu, String con) throws Exception {
-        strSQL = "select usuario,tipo_usuario from usuarios where usuario = '" + usu + "' and contraseña = '" + con + "'";
+        strSQL = "select usuario,tipo_usuario from usuarios where nomusuario = '" + usu + "' and clave = '" + con + "'";
         String[] valores = new String[2];
         try {
             rs = objConectar.consultarBD((strSQL));
             while (rs.next()) {
-                valores[0] = rs.getString("usuario");
+                valores[0] = rs.getString("nomusuario");
                 valores[1] = rs.getString("tipo_usuario");
                 return valores;
             }
@@ -34,6 +34,7 @@ public class clsUsuario {
         valores[0] = "";
         return valores;
     }
+   
 
     public boolean validarRespuesta(String usu, String respuesta) throws Exception {
         strSQL = "SELECT respuesta FROM usuario WHERE nomusuario = '" + usu + "'";
@@ -47,6 +48,7 @@ public class clsUsuario {
         }
         return false;
     }
+    /*
 
     public String obtenerPregunta(String usu) throws Exception {
         strSQL = "SELECT pregunta FROM usuario WHERE nomusuario = '" + usu + "'";
@@ -103,8 +105,7 @@ public class clsUsuario {
         } catch (Exception e) {
             throw new Exception("Error al validar existencia de usuario: " + e.getMessage());
         }
-    }
-
+    }*/
     public ResultSet listarUsuarios() throws Exception {
         // ADVERTENCIA: Se recomienda especificar columnas en lugar de usar '*'
         strSQL = "SELECT U.*, R.nombre as nombreRol FROM USUARIO U INNER JOIN ROL R ON U.idRol = R.idRol";
