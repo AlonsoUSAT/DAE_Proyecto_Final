@@ -132,6 +132,8 @@ private void mostrarHora() {
         mPresentacion = new javax.swing.JMenuItem();
         mTipoPre = new javax.swing.JMenuItem();
         mUnidad = new javax.swing.JMenuItem();
+        jMenuItem11 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
 
         jMenu1.setText("jMenu1");
 
@@ -207,6 +209,11 @@ private void mostrarHora() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SISTEMA FARMACIA");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -616,6 +623,22 @@ private void mostrarHora() {
         });
         jMenu5.add(mUnidad);
 
+        jMenuItem11.setText("Venta");
+        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem11ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem11);
+
+        jMenuItem12.setText("Usuario");
+        jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem12ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem12);
+
         jMenuBar1.add(jMenu5);
 
         setJMenuBar(jMenuBar1);
@@ -724,6 +747,22 @@ private void mostrarHora() {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnVentas2ActionPerformed
 
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
+         mantVenta manVe = new  mantVenta(this,true);
+       manVe.setVisible(true);
+    }//GEN-LAST:event_jMenuItem11ActionPerformed
+
+    private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
+        mantUsuario manUs = new  mantUsuario(this,true);
+       manUs.setVisible(true);
+    }//GEN-LAST:event_jMenuItem12ActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        // TODO add your handling code here:
+        FrmLogin frm = new FrmLogin(this,true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_formWindowOpened
+
 
     /**
      * @param args the command line arguments
@@ -764,6 +803,8 @@ private void mostrarHora() {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
