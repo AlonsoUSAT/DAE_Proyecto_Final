@@ -50,7 +50,7 @@ private MarcaDAO marcaDAO = new MarcaDAO();
     DefaultTableModel model = new DefaultTableModel(null, titulos);
     
     try {
-        List<clsMarca> lista = marcaDAO.listarMarcasActivas(); // Llama a un método que solo trae las activas
+        List<clsMarca> lista = marcaDAO.listarMarcas(); // Llama a un método que solo trae las activas
         for (clsMarca marca : lista) {
             Object[] row = {
                 marca.getIdMarca(),

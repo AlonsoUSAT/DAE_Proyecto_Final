@@ -40,7 +40,7 @@ public class mantCategoria extends javax.swing.JDialog {
 
         try {
             // MEJORA: Usamos el método que solo trae las categorías activas para una mejor UX.
-            List<clsCategoria> lista = categoriaDAO.listarCategoriasActivas();
+            List<clsCategoria> lista = categoriaDAO.listarCategorias();
             for (clsCategoria cat : lista) {
                 Object[] row = {
                     cat.getIdCategoria(), 
@@ -56,18 +56,36 @@ public class mantCategoria extends javax.swing.JDialog {
         }
     }
     private void limpiarCampos() {
-        txtID.setText("");
-        txtNombre.setText("");
-        chkVigencia.setSelected(true); // Por defecto, una nueva categoría está vigente.
-        
-        txtID.setEnabled(true);
-        btnNuevo.setEnabled(true);
-        btnModificar.setEnabled(false);
-        btnEliminar.setEnabled(false);
-        btnDardeBaja.setEnabled(false); // También se deshabilita
-        tblCategoria.clearSelection();
-    }
+    txtID.setText("");
+    txtNombre.setText("");
+    chkVigencia.setSelected(true);
     
+    habilitarControles(false); // Deshabilita campos
+    
+    btnNuevo.setText("Nuevo"); // Resetea textos
+    btnModificar.setText("Modificar");
+    
+    txtID.setEnabled(false); // El ID nunca es editable
+    btnNuevo.setEnabled(true);
+    btnModificar.setEnabled(false);
+    btnEliminar.setEnabled(false);
+    btnDardeBaja.setEnabled(false);
+    
+    tblCategoria.clearSelection();
+}
+    
+    private void habilitarControles(boolean habilitar) {
+    txtNombre.setEnabled(habilitar);
+    chkVigencia.setEnabled(habilitar);
+    
+    btnNuevo.setEnabled(!habilitar); // Si se habilita, el botón Nuevo se deshabilita
+    btnModificar.setEnabled(habilitar);
+    
+    // Los botones de acción solo se habilitan si hay una selección (no al crear uno nuevo)
+    boolean haySeleccion = tblCategoria.getSelectedRow() != -1;
+    btnEliminar.setEnabled(habilitar && haySeleccion);
+    btnDardeBaja.setEnabled(habilitar && haySeleccion);
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -372,53 +390,46 @@ public class mantCategoria extends javax.swing.JDialog {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-if (txtID.getText().isEmpty() || txtNombre.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El ID y el Nombre son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        try {
-            clsCategoria cat = new clsCategoria();
-            cat.setIdCategoria(Integer.parseInt(txtID.getText()));
-            cat.setNombreCategoria(txtNombre.getText());
-            // CORRECCIÓN: Se lee el estado del checkbox
-            cat.setEstado(chkVigencia.isSelected()); 
-            
-            categoriaDAO.registrarCategoria(cat);
-            
-            JOptionPane.showMessageDialog(this, "Categoría registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            actualizarTabla();
-            limpiarCampos();
-            
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
-        }
+limpiarCampos();
+    habilitarControles(true);
+    
+    btnModificar.setText("Guardar"); // Cambia el texto para indicar la acción
+    
+    txtID.setText("(Automático)"); // Indicador visual para el usuario
+    txtNombre.requestFocus();
+
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-if (txtID.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Seleccione una categoría de la tabla para modificar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
+ if (txtNombre.getText().trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    try {
+        clsCategoria cat = new clsCategoria();
+        // Usamos trim() para eliminar espacios en blanco al inicio o al final
+        cat.setNombreCategoria(txtNombre.getText().trim()); 
+        cat.setEstado(chkVigencia.isSelected());
+        
+        // Decide si insertar o modificar basándose en el texto del botón
+        if (btnModificar.getText().equals("Guardar")) {
+            // --- Lógica de INSERTAR (SIN ID) ---
+            categoriaDAO.registrarCategoria(cat); // Llama al DAO modificado que no pide ID
+            JOptionPane.showMessageDialog(this, "Categoría registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            // --- Lógica de MODIFICAR (CON ID) ---
+            cat.setIdCategoria(Integer.parseInt(txtID.getText()));
+            categoriaDAO.modificarCategoria(cat);
+            JOptionPane.showMessageDialog(this, "Categoría modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         }
         
-        try {
-            clsCategoria cat = new clsCategoria();
-            cat.setIdCategoria(Integer.parseInt(txtID.getText()));
-            cat.setNombreCategoria(txtNombre.getText());
-            // CORRECCIÓN: Se lee el estado del checkbox
-            cat.setEstado(chkVigencia.isSelected());
-            
-            categoriaDAO.modificarCategoria(cat);
-            
-            JOptionPane.showMessageDialog(this, "Categoría modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            actualizarTabla();
-            limpiarCampos();
-            
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Modificación", JOptionPane.ERROR_MESSAGE);
-        }
+        actualizarTabla();
+        limpiarCampos();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al procesar la categoría: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
@@ -462,31 +473,31 @@ this.dispose();        // TODO add your handling code here:
 
     private void tblCategoriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCategoriaMouseClicked
 int filaSeleccionada = tblCategoria.getSelectedRow();
-        
-        if (filaSeleccionada != -1) {
-            try {
-                int idCategoria = (int) tblCategoria.getValueAt(filaSeleccionada, 0);
-                
-                // MEJORA: Se busca el objeto completo para obtener todos los datos
-                clsCategoria catSeleccionada = categoriaDAO.buscarPorId(idCategoria);
+    
+    if (filaSeleccionada != -1) {
+        try {
+            int idCategoria = (int) tblCategoria.getValueAt(filaSeleccionada, 0);
+            clsCategoria catSeleccionada = categoriaDAO.buscarPorId(idCategoria);
 
-                if (catSeleccionada != null) {
-                    txtID.setText(String.valueOf(catSeleccionada.getIdCategoria()));
-                    txtNombre.setText(catSeleccionada.getNombreCategoria());
-                    // CORRECCIÓN: Se actualiza el estado del checkbox
-                    chkVigencia.setSelected(catSeleccionada.isEstado());
+            if (catSeleccionada != null) {
+                txtID.setText(String.valueOf(catSeleccionada.getIdCategoria()));
+                txtNombre.setText(catSeleccionada.getNombreCategoria());
+                chkVigencia.setSelected(catSeleccionada.isEstado());
 
-                    // Habilitamos/deshabilitamos botones
-                    txtID.setEnabled(false);
-                    btnNuevo.setEnabled(false);
-                    btnModificar.setEnabled(true);
-                    btnEliminar.setEnabled(true);
-                    btnDardeBaja.setEnabled(true);
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al seleccionar categoría: " + e.getMessage());
+                // Habilitamos y deshabilitamos controles para el modo edición
+                txtNombre.setEnabled(true);
+                chkVigencia.setEnabled(true);
+                txtID.setEnabled(false);
+                btnNuevo.setEnabled(false); // No se puede crear uno nuevo mientras se edita
+                btnModificar.setText("Modificar"); // Aseguramos el texto correcto
+                btnModificar.setEnabled(true);
+                btnEliminar.setEnabled(true);
+                btnDardeBaja.setEnabled(true);
             }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al seleccionar categoría: " + e.getMessage());
         }
+    }
     }//GEN-LAST:event_tblCategoriaMouseClicked
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed

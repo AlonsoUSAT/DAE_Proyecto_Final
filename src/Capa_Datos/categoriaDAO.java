@@ -60,48 +60,71 @@ public class categoriaDAO {
     }
 
     public void registrarCategoria(clsCategoria cat) throws Exception {
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
-        String sql = "INSERT INTO CATEGORIA (idCategoria, nombreCategoria, estado) VALUES (?, ?, ?)";
+    // 1. Se quita 'idCategoria' de la consulta INSERT
+    String sql = "INSERT INTO CATEGORIA (nombreCategoria, estado) VALUES (?, ?)";
+    
+    try (Connection con = objConexion.conectar();
+         PreparedStatement ps = con.prepareStatement(sql)) {
         
-        try (Connection con = objConexion.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setInt(1, cat.getIdCategoria());
-            ps.setString(2, cat.getNombreCategoria());
-            // 2. GUARDAMOS EL ESTADO
-            ps.setBoolean(3, cat.isEstado());
-            ps.executeUpdate();
-            
-        } catch (SQLException | ClassNotFoundException e) {
-            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
-                throw new Exception("Error: El ID o el Nombre de la categoría ya existe.");
-            } else {
-                throw new Exception("Error al registrar categoría: " + e.getMessage());
-            }
+        // 2. Ya no se envía el ID. Los parámetros se reordenan.
+        ps.setString(1, cat.getNombreCategoria());
+        ps.setBoolean(2, cat.isEstado());
+        ps.executeUpdate();
+        
+    } catch (SQLException | ClassNotFoundException e) {
+        if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) { 
+            throw new Exception("Error: El Nombre de la categoría ya existe.");
+        } else {
+            throw new Exception("Error al registrar categoría: " + e.getMessage());
         }
     }
+}
 
     public void modificarCategoria(clsCategoria cat) throws Exception {
-        // 1. AÑADIMOS 'estado' A LA CONSULTA
-        String sql = "UPDATE CATEGORIA SET nombreCategoria = ?, estado = ? WHERE idCategoria = ?";
+    String sql = "UPDATE CATEGORIA SET nombreCategoria = ?, estado = ? WHERE idCategoria = ?";
+    
+    try (Connection con = objConexion.conectar();
+         PreparedStatement ps = con.prepareStatement(sql)) {
         
-        try (Connection con = objConexion.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setString(1, cat.getNombreCategoria());
-            // 2. GUARDAMOS EL ESTADO
-            ps.setBoolean(2, cat.isEstado());
-            ps.setInt(3, cat.getIdCategoria());
-            ps.executeUpdate();
-            
-        } catch (SQLException | ClassNotFoundException e) {
-            if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) {
-                 throw new Exception("Error: El nombre de la categoría ya existe.");
-            } else {
-                throw new Exception("Error al modificar categoría: " + e.getMessage());
+        ps.setString(1, cat.getNombreCategoria());
+        ps.setBoolean(2, cat.isEstado());
+        ps.setInt(3, cat.getIdCategoria());
+        ps.executeUpdate();
+        
+    } catch (SQLException | ClassNotFoundException e) {
+        // --- AQUÍ ESTÁ LA LÓGICA MEJORADA ---
+        if (e instanceof SQLException && ((SQLException)e).getSQLState().equals("23505")) {
+            // El error de duplicado ocurrió. Ahora verificamos si el nombre ya existe EN OTRA FILA.
+            try {
+                // Buscamos si existe otra categoría con el mismo nombre pero diferente ID.
+                boolean existeEnOtro = false;
+                List<clsCategoria> todas = listarCategorias(); // Traemos todas
+                for (clsCategoria c : todas) {
+                    if (c.getNombreCategoria().equalsIgnoreCase(cat.getNombreCategoria()) && c.getIdCategoria() != cat.getIdCategoria()) {
+                        existeEnOtro = true;
+                        break;
+                    }
+                }
+                
+                if (existeEnOtro) {
+                    throw new Exception("Error: El nombre '" + cat.getNombreCategoria() + "' ya está en uso por otra categoría.");
+                } else {
+                    // Si no existe en OTRA categoría, el error de duplicado es un falso positivo.
+                    // Esto puede pasar en algunas configuraciones de BD si no se cambia el nombre.
+                    // Podemos ignorarlo o simplemente relanzar un error genérico.
+                    // Por simplicidad, aquí lo tratamos como un duplicado real.
+                    throw new Exception("Error: El nombre de la categoría ya existe.");
+                }
+            } catch (Exception checkEx) {
+                throw checkEx; // Relanzamos la excepción con el mensaje más específico.
             }
+
+        } else {
+            // Para cualquier otro tipo de error.
+            throw new Exception("Error al modificar categoría: " + e.getMessage());
         }
     }
+}
 
     public void darDeBaja(int idCategoria) throws Exception {
         String sql = "UPDATE CATEGORIA SET estado = false WHERE idCategoria = ?";
