@@ -134,6 +134,7 @@ private void mostrarHora() {
         mUnidad = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem12 = new javax.swing.JMenuItem();
+        mnuCliente = new javax.swing.JMenuItem();
 
         jMenu1.setText("jMenu1");
 
@@ -639,6 +640,14 @@ private void mostrarHora() {
         });
         jMenu5.add(jMenuItem12);
 
+        mnuCliente.setText("Cliente");
+        mnuCliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnuClienteActionPerformed(evt);
+            }
+        });
+        jMenu5.add(mnuCliente);
+
         jMenuBar1.add(jMenu5);
 
         setJMenuBar(jMenuBar1);
@@ -764,6 +773,12 @@ private void mostrarHora() {
         frm.setVisible(true);
     }//GEN-LAST:event_formWindowOpened
 
+    private void mnuClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuClienteActionPerformed
+        // TODO add your handling code here:
+        ManCliente frm = new ManCliente(this, true);
+        frm.setVisible(true);
+    }//GEN-LAST:event_mnuClienteActionPerformed
+
 
     /**
      * @param args the command line arguments
@@ -832,6 +847,7 @@ private void mostrarHora() {
     private javax.swing.JMenuItem mPresentacion;
     private javax.swing.JMenuItem mTipoPre;
     private javax.swing.JMenuItem mUnidad;
+    private javax.swing.JMenuItem mnuCliente;
     private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtHora;
     // End of variables declaration//GEN-END:variables
