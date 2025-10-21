@@ -135,6 +135,7 @@ private void mostrarHora() {
         jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem12 = new javax.swing.JMenuItem();
         mnuCliente = new javax.swing.JMenuItem();
+        jMenuItem13 = new javax.swing.JMenuItem();
 
         jMenu1.setText("jMenu1");
 
@@ -648,6 +649,14 @@ private void mostrarHora() {
         });
         jMenu5.add(mnuCliente);
 
+        jMenuItem13.setText("Comprobantes de Venta");
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem13ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem13);
+
         jMenuBar1.add(jMenu5);
 
         setJMenuBar(jMenuBar1);
@@ -779,6 +788,13 @@ private void mostrarHora() {
         frm.setVisible(true);
     }//GEN-LAST:event_mnuClienteActionPerformed
 
+    private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
+        // TODO add your handling code here:
+        mantComprobanteVenta frm = new mantComprobanteVenta(this, true);
+        frm.setVisible(true);
+        frm.setLocationRelativeTo(this);
+    }//GEN-LAST:event_jMenuItem13ActionPerformed
+
 
     /**
      * @param args the command line arguments
@@ -821,6 +837,7 @@ private void mostrarHora() {
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
+    private javax.swing.JMenuItem jMenuItem13;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
