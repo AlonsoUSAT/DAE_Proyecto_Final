@@ -102,4 +102,23 @@ public class clsVenta {
             throw new Exception("Error al eliminar venta: " + e.getMessage());
         }
     }
+    
+    public ResultSet consultarVentas() throws Exception{
+        strSQL = """
+                select 
+                    idventa,
+                    to_char(fecha, 'YYYY-MM-DD') as fecha,
+                    to_char(hora, 'HH24:MI:SS') as hora,
+                    case when estado = true then 'Activo' else 'Inactivo' end as estado,
+                    idusuario
+                from venta
+                order by idventa;
+                """;
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            return rs;
+        } catch (Exception e) {
+            throw new Exception("Error al listar ventas: " + e.getMessage());
+        }
+    }
 }
