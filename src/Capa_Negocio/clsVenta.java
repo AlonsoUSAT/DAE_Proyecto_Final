@@ -1,46 +1,44 @@
 package Capa_Negocio;
 
 import Capa_Datos.clsJDBC;
-import java.sql.ResultSet;
+import java.sql.*;
 
-/**
- 
- * @author Mechan Vidaurre ¿
- */
 public class clsVenta {
-    
+
     clsJDBC objConectar = new clsJDBC();
     String strSQL;
     ResultSet rs = null;
 
-    
-    
-    public ResultSet listarVentas() throws Exception {
-        // Hacemos un JOIN para obtener datos más completos para la tabla de visualización.
-        // Nota: Asegúrate que los nombres de las columnas (nombres, nomUsuario) sean correctos en tus tablas CLIENTE y USUARIO.
-        strSQL = "SELECT V.*, C.nombres as nombreCliente, U.nomUsuario " +
-                 "FROM VENTA V " +
-                 "INNER JOIN CLIENTE C ON V.idCliente = C.idcliente " +
-                 "INNER JOIN USUARIO U ON V.idUsuario = U.idUsuario";
-        try {
-            rs = objConectar.consultarBD(strSQL);
-            return rs;
-        } catch (Exception e) {
-            throw new Exception("Error al listar ventas: " + e.getMessage());
-        }
-    }
-
     public ResultSet buscarVenta(Integer idVenta) throws Exception {
-        strSQL = "SELECT V.*, C.nombres as nombreCliente, U.nomUsuario " +
-                 "FROM VENTA V " +
-                 "INNER JOIN CLIENTE C ON V.idCliente = C.idcliente " +
-                 "INNER JOIN USUARIO U ON V.idUsuario = U.idUsuario " +
-                 "WHERE V.idVenta = " + idVenta;
+        strSQL = "SELECT V.*, C.nroDoc, C.direccion, C.id_tipoDoc, TD.nom_tipoDoc "
+                + "FROM VENTA V "
+                + "INNER JOIN CLIENTE C ON V.idCliente = C.idCliente "
+                + "INNER JOIN TIPO_DOCUMENTO TD ON C.id_tipoDoc = TD.id_tipoDoc "
+                + "WHERE V.idVenta = " + idVenta; // Vulnerable a SQL Injection
         try {
             rs = objConectar.consultarBD(strSQL);
             return rs;
         } catch (Exception e) {
             throw new Exception("Error al buscar venta: " + e.getMessage());
+        }
+    }
+
+    public ResultSet listarDetalleVenta(Integer idVenta) throws Exception {
+        strSQL = "SELECT DV.*, P.nombre AS nombreProducto, "
+                + "CONCAT(TP.nombreTipoPresentacion, ' x ', PR.cantidad, ' ', U.nombreUnidad) AS presentacion, "
+                + "DV.precio AS precioUnitarioVenta " // El precio unitario de la venta
+                + "FROM DETALLE_VENTA DV "
+                + "INNER JOIN PRODUCTO P ON DV.idProducto = P.idProducto "
+                // JOINs para obtener la descripción de la presentación
+                + "INNER JOIN PRESENTACION PRES ON DV.idPresentacion = PRES.idPresentacion "
+                + "INNER JOIN TIPO_PRESENTACION TP ON PRES.tipoPresentacion = TP.idTipoPresentacion "
+                + "INNER JOIN UNIDAD U ON PRES.idUnidad = U.idUnidad "
+                + "WHERE DV.idVenta = " + idVenta; // Vulnerable a SQL Injection
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            return rs;
+        } catch (Exception e) {
+            throw new Exception("Error al listar detalle: " + e.getMessage());
         }
     }
 
@@ -57,68 +55,64 @@ public class clsVenta {
         return 0;
     }
 
-    public void registrar(Integer idVenta, String fecha, Integer idCliente, Integer idUsuario, float total, boolean estado) throws Exception {
-        // El formato de fecha debe ser 'YYYY-MM-DD' para la mayoría de bases de datos.
-        strSQL = "INSERT INTO VENTA (idVenta, fecha, idCliente, idUsuario, total, estado) " +
-                 "VALUES(" + idVenta + ", '" + fecha + "', " + idCliente + ", " + idUsuario + ", " + total + ", " + estado + ")";
+    public void registrar(String codVenta, String total, String subtotal, String igv,
+            boolean estado, String idCliente, javax.swing.JTable tblDetalle) throws Exception {
+
+        Connection con = null;
+        Statement sent = null;
+
         try {
-            objConectar.ejecutarBD(strSQL);
+           objConectar.conectar();
+            con = objConectar.getCon(); // O la forma en que obtengas la conexión java.sql.Connection de tu clase JDBC
+            con.setAutoCommit(false); // Desactivamos el guardado automático (Inicio de transacción)
+
+            sent = con.createStatement();
+
+            strSQL = "INSERT INTO VENTA (idVenta, fecha, hora, idCliente, estado) "
+                    + "VALUES (" + codVenta + ", CURRENT_DATE, CURRENT_TIME, " + idCliente + ", " + estado + ")";
+            sent.executeUpdate(strSQL);
+
+            for (int i = 0; i < tblDetalle.getRowCount(); i++) {
+
+                String idProd = String.valueOf(tblDetalle.getValueAt(i, 0));
+                String idPres = String.valueOf(tblDetalle.getValueAt(i, 1)); // Importante: ID Presentación
+                String precio = String.valueOf(tblDetalle.getValueAt(i, 3));
+                String cant = String.valueOf(tblDetalle.getValueAt(i, 4));
+
+               strSQL = "INSERT INTO DETALLE_VENTA (iddetalle, precio, cantidad, idventa, idproducto, idpresentacion) "
+                        + "VALUES ((SELECT COALESCE(MAX(iddetalle),0)+1 FROM detalle_venta), "
+                        + precio + ", " + cant + ", " + codVenta + ", " + idProd + ", " + idPres + ")";
+                sent.executeUpdate(strSQL);
+
+               strSQL = "UPDATE LOTE SET stockActual = stockActual - " + cant + " "
+                        + "WHERE idLote = (SELECT idLote FROM LOTE "
+                        + "WHERE idProducto=" + idProd + " AND idPresentacion=" + idPres
+                        + " AND stockActual >= " + cant + " LIMIT 1)";
+                sent.executeUpdate(strSQL);
+            }
+
+            con.commit();
+
         } catch (Exception e) {
-            throw new Exception("Error al registrar venta: " + e.getMessage());
+            if (con != null) {
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                }
+            }
+            throw new Exception("Error al guardar Venta: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                con.setAutoCommit(true); // Restaurar estado por defecto
+            }
+            objConectar.desconectar();
         }
     }
     
-    public void modificar(Integer idVenta, String fecha, Integer idCliente, Integer idUsuario, float total, boolean estado) throws Exception {
-        strSQL = "UPDATE VENTA SET fecha='" + fecha + "', idCliente=" + idCliente + ", idUsuario=" + idUsuario + 
-                 ", total=" + total + ", estado=" + estado + " WHERE idVenta=" + idVenta;
-        try {
-            objConectar.ejecutarBD(strSQL);
-        } catch (Exception e) {
-            throw new Exception("Error al modificar venta: " + e.getMessage());
-        }
-    }
-    
-
-    public void anularVenta(Integer idVenta) throws Exception {
-        strSQL = "UPDATE VENTA SET estado = false WHERE idVenta = " + idVenta;
-        try {
-            objConectar.ejecutarBD(strSQL);
-        } catch (Exception e) {
-            throw new Exception("Error al anular la venta: " + e.getMessage());
-        }
-    }
-
-
-    public void eliminarVenta(Integer idVenta) throws Exception {
-        String strSQLDetalles = "DELETE FROM DETALLE_VENTA WHERE idVenta = " + idVenta;
-        // Luego, se elimina la venta principal.
-        String strSQLVenta = "DELETE FROM VENTA WHERE idVenta = " + idVenta;
+    public ResultSet consultarVentas(){
         
-        try {
-            // Se recomienda manejar esto como una transacción, pero siguiendo el estilo actual, lo hacemos en dos pasos.
-            objConectar.ejecutarBD(strSQLDetalles);
-            objConectar.ejecutarBD(strSQLVenta);
-        } catch (Exception e) {
-            throw new Exception("Error al eliminar venta: " + e.getMessage());
-        }
+        return null;
+        
     }
-    
-    public ResultSet consultarVentas() throws Exception{
-        strSQL = """
-                select 
-                    idventa,
-                    to_char(fecha, 'YYYY-MM-DD') as fecha,
-                    to_char(hora, 'HH24:MI:SS') as hora,
-                    case when estado = true then 'Activo' else 'Inactivo' end as estado,
-                    idusuario
-                from venta
-                order by idventa;
-                """;
-        try {
-            rs = objConectar.consultarBD(strSQL);
-            return rs;
-        } catch (Exception e) {
-            throw new Exception("Error al listar ventas: " + e.getMessage());
-        }
-    }
+
 }

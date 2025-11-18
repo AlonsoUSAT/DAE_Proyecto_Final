@@ -3,9 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package Capa_Presentacion;
-import Capa_Datos.laboratorioDAO;
 import Capa_Negocio.clsLaboratorio;
-import java.util.List;
+import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
@@ -13,7 +12,7 @@ import javax.swing.table.DefaultTableModel;
  * @author Fernando Hernández
  */
 public class mantLaboratorio extends javax.swing.JDialog {
- private laboratorioDAO laboratorioDAO = new laboratorioDAO();
+    clsLaboratorio objLaboratorio = new clsLaboratorio();
     /**
      * Creates new form mantCategoria
      */
@@ -23,46 +22,44 @@ public class mantLaboratorio extends javax.swing.JDialog {
         actualizarTabla();
         limpiarCampos();
     }
-    
+    private void actualizarTabla() {
+        String[] titulos = {"ID", "Nombre", "Dirección", "Teléfono", "Vigencia"};
+        DefaultTableModel model = new DefaultTableModel(null, titulos) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-private void actualizarTabla() {
-    
-    String[] titulos = {"ID", "Nombre", "Dirección", "Teléfono", "Vigencia"};
-    DefaultTableModel model = new DefaultTableModel(null, titulos) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
+        ResultSet rs = null;
+        try {
+            if (chkVerInactivos.isSelected()) {
+                rs = objLaboratorio.listarLaboratorios();
+            } else {
+                rs = objLaboratorio.listarLaboratoriosActivos();
+            }
 
-    try {
-        List<clsLaboratorio> lista;
-        
-        
-        if (chkVerInactivos.isSelected()) {
+            while (rs.next()) {
+                boolean estado = rs.getBoolean("estado");
+                String vigencia = estado ? "Vigente" : "No Vigente";
+                
+                Object[] row = {
+                    rs.getInt("idLaboratorio"), 
+                    rs.getString("nombreLaboratorio"), 
+                    rs.getString("direccion"), 
+                    rs.getString("telefono"),
+                    vigencia
+                };
+                model.addRow(row);
+            }
+            tblLaboratorio.setModel(model);
             
-            lista = laboratorioDAO.listarLaboratorios();
-        } else {
-            
-            lista = laboratorioDAO.listarLaboratoriosActivos();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        
-        for (clsLaboratorio lab : lista) {
-            Object[] row = {
-                lab.getIdLaboratorio(), 
-                lab.getNombreLaboratorio(), 
-                lab.getDireccion(), 
-                lab.getTelefono(),
-                lab.isEstado() ? "Vigente" : "No Vigente" 
-            };
-            model.addRow(row);
-        }
-        tblLaboratorio.setModel(model);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al actualizar tabla: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+
+    
 
     private void limpiarCampos() {
     
@@ -418,188 +415,218 @@ private void actualizarTabla() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-if (txtID.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Seleccione un laboratorio de la tabla.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de eliminar este laboratorio?", "Confirmar", JOptionPane.YES_NO_OPTION);
-    
-    if (confirmacion == JOptionPane.YES_OPTION) {
-        try {
-            int id = Integer.parseInt(txtID.getText());
-            laboratorioDAO.eliminarLaboratorio(id);
-            
-            JOptionPane.showMessageDialog(this, "Laboratorio eliminado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            actualizarTabla();
-            limpiarCampos();
-            
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Eliminación", JOptionPane.ERROR_MESSAGE);
+        if (txtID.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione un laboratorio de la tabla.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    }        // TODO add your handling code here:
+
+        int filaSeleccionada = tblLaboratorio.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un laboratorio de la tabla.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de eliminar este laboratorio?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                int id = (int) tblLaboratorio.getValueAt(filaSeleccionada, 0);
+                
+                // CAMBIO AQUÍ
+                objLaboratorio.eliminarLaboratorio(id);
+                
+                JOptionPane.showMessageDialog(this, "Laboratorio eliminado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                actualizarTabla();
+                limpiarCampos();
+                
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Eliminación", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-limpiarCampos();
+        if (txtNombre.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    
-    txtNombre.setEnabled(true);
-    txtDireccion.setEnabled(true);
-    txtTelefono.setEnabled(true);
-    chkVigencia.setEnabled(true);
-    
-    
-    btnModificar.setText("Guardar");
-    btnModificar.setEnabled(true);
-    
-    btnNuevo.setEnabled(false);
-    
-    txtID.setText("(Automático)");
-    txtNombre.requestFocus();
+        try {
+            String nombre = txtNombre.getText().trim();
+            String direccion = txtDireccion.getText().trim();
+            String telefono = txtTelefono.getText().trim();
+            boolean estado = chkVigencia.isSelected();
+
+            if (btnModificar.getText().equals("Guardar")) {
+                objLaboratorio.registrar(nombre, direccion, telefono, estado);
+                JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Es una modificación
+                int id = Integer.parseInt(txtID.getText());
+                // Llamar al método de servicio (INSEGURO)
+                objLaboratorio.modificar(id, nombre, direccion, telefono, estado);
+                JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            actualizarTabla();
+            limpiarCampos();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al procesar el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-    if (txtNombre.getText().trim().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        clsLaboratorio lab = new clsLaboratorio();
-        
-        lab.setNombreLaboratorio(txtNombre.getText().trim()); 
-        lab.setDireccion(txtDireccion.getText().trim());
-        lab.setTelefono(txtTelefono.getText().trim());
-        lab.setEstado(chkVigencia.isSelected());
-        
-        if (btnModificar.getText().equals("Guardar")) {
-            laboratorioDAO.registrarLaboratorio(lab);
-            JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            lab.setIdLaboratorio(Integer.parseInt(txtID.getText()));
-            laboratorioDAO.modificarLaboratorio(lab);
-            JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        if (txtNombre.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        
-        actualizarTabla();
-        limpiarCampos();
-        
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al procesar el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
+
+        try {
+            String nombre = txtNombre.getText().trim();
+            String direccion = txtDireccion.getText().trim();
+            String telefono = txtTelefono.getText().trim();
+            boolean estado = chkVigencia.isSelected();
+
+            if (btnModificar.getText().equals("Guardar")) {
+                objLaboratorio.registrar(nombre, direccion, telefono, estado);
+                JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                int id = Integer.parseInt(txtID.getText());
+                objLaboratorio.modificar(id, nombre, direccion, telefono, estado);
+                JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+            actualizarTabla();
+            limpiarCampos();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al procesar el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-if (txtID.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Ingrese un ID para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        int id = Integer.parseInt(txtID.getText());
-        clsLaboratorio lab = laboratorioDAO.buscarPorId(id);
-        
-        if (lab != null) {
-            txtNombre.setText(lab.getNombreLaboratorio());
-            txtDireccion.setText(lab.getDireccion());
-            txtTelefono.setText(lab.getTelefono());
-            chkVigencia.setSelected(lab.isEstado());
-            txtID.setEnabled(false);
-            btnNuevo.setEnabled(false);
-            btnModificar.setEnabled(true);
-            btnEliminar.setEnabled(true);
-              btnDardeBaja.setEnabled(true);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró ningún laboratorio con ese ID.", "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
+        if (txtID.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un ID para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        
-    } catch (NumberFormatException nfe) {
-        JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }        // TODO add your handling code here:
-    }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-limpiarCampos();        
-    }//GEN-LAST:event_btnLimpiarActionPerformed
-
-    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
-this.dispose();        
-    }//GEN-LAST:event_btnCerrarActionPerformed
-
-    private void tblLaboratorioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblLaboratorioMouseClicked
-int fila = tblLaboratorio.getSelectedRow();
-    
-    if (fila != -1) {
+        ResultSet rs = null;
         try {
-            int idLaboratorio = (int) tblLaboratorio.getValueAt(fila, 0);
-            clsLaboratorio labSeleccionado = laboratorioDAO.buscarPorId(idLaboratorio);
-            
-            if (labSeleccionado != null) {
-                
-                txtID.setText(String.valueOf(labSeleccionado.getIdLaboratorio()));
-                txtNombre.setText(labSeleccionado.getNombreLaboratorio());
-                txtDireccion.setText(labSeleccionado.getDireccion());
-                txtTelefono.setText(labSeleccionado.getTelefono());
-                chkVigencia.setSelected(labSeleccionado.isEstado());
+            int id = Integer.parseInt(txtID.getText());
+            rs = objLaboratorio.buscarLaboratorio(id); // Llamar al servicio
 
+            if (rs != null && rs.next()) {
+                // Llenar desde el ResultSet
+                txtNombre.setText(rs.getString("nombreLaboratorio"));
+                txtDireccion.setText(rs.getString("direccion"));
+                txtTelefono.setText(rs.getString("telefono"));
+                chkVigencia.setSelected(rs.getBoolean("estado"));
                 
-                txtID.setEnabled(false); 
+                txtID.setEnabled(false);
                 txtNombre.setEnabled(true);
                 txtDireccion.setEnabled(true);
                 txtTelefono.setEnabled(true);
                 chkVigencia.setEnabled(true);
-
-                btnNuevo.setEnabled(false); 
-                btnModificar.setText("Modificar"); 
+                btnNuevo.setEnabled(false);
+                btnModificar.setText("Modificar");
                 btnModificar.setEnabled(true);
                 btnEliminar.setEnabled(true);
                 btnDardeBaja.setEnabled(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró ningún laboratorio con ese ID.", "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
+                limpiarCampos();
             }
+
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "El ID debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al seleccionar el laboratorio: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+        limpiarCampos();        
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
+        this.dispose();        
+    }//GEN-LAST:event_btnCerrarActionPerformed
+
+    private void tblLaboratorioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblLaboratorioMouseClicked
+        int fila = tblLaboratorio.getSelectedRow();
+
+        if (fila != -1) {
+            ResultSet rs = null; // Usar ResultSet
+            try {
+                int idLaboratorio = (int) tblLaboratorio.getValueAt(fila, 0);
+                rs = objLaboratorio.buscarLaboratorio(idLaboratorio); // Llamar al servicio
+
+                if (rs != null && rs.next()) {
+                    // Llenar desde el ResultSet
+                    txtID.setText(rs.getString("idLaboratorio"));
+                    txtNombre.setText(rs.getString("nombreLaboratorio"));
+                    txtDireccion.setText(rs.getString("direccion"));
+                    txtTelefono.setText(rs.getString("telefono"));
+                    chkVigencia.setSelected(rs.getBoolean("estado"));
+
+                    // Habilitar controles
+                    txtID.setEnabled(false); 
+                    txtNombre.setEnabled(true);
+                    txtDireccion.setEnabled(true);
+                    txtTelefono.setEnabled(true);
+                    chkVigencia.setEnabled(true);
+                    btnNuevo.setEnabled(false); 
+                    btnModificar.setText("Modificar"); 
+                    btnModificar.setEnabled(true);
+                    btnEliminar.setEnabled(true);
+                    btnDardeBaja.setEnabled(true);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al seleccionar el laboratorio: " + e.getMessage());
+            }
+        }       
     }//GEN-LAST:event_tblLaboratorioMouseClicked
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-         int filaSeleccionada = tblLaboratorio.getSelectedRow();
+        int filaSeleccionada = tblLaboratorio.getSelectedRow();
     
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Debe seleccionar un laboratorio de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    
-    int confirmacion = JOptionPane.showConfirmDialog(
-        this, 
-        "¿Está seguro de que desea dar de baja este laboratorio?\nEl laboratorio no se eliminará, pero no aparecerá para nuevos registros.", 
-        "Confirmar Acción", 
-        JOptionPane.YES_NO_OPTION, 
-        JOptionPane.QUESTION_MESSAGE
-    );
-    
-    if (confirmacion == JOptionPane.YES_OPTION) {
-        try {
-            int idLaboratorio = (int) tblLaboratorio.getValueAt(filaSeleccionada, 0);
-            
-            
-            laboratorioDAO.darDeBaja(idLaboratorio);
-            
-           
-            actualizarTabla();
-            
-            
-            limpiarCampos();
-            
-            JOptionPane.showMessageDialog(this, "Laboratorio dado de baja con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al dar de baja el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un laboratorio de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    }
+    
+        String estadoActual = (String) tblLaboratorio.getValueAt(filaSeleccionada, 4);
+        boolean estaActivo = estadoActual.equals("Vigente");
+        String accion = estaActivo ? "dar de baja" : "reactivar";
+
+        int confirmacion = JOptionPane.showConfirmDialog(
+            this, 
+            "¿Está seguro de que desea " + accion + " este laboratorio?", 
+            "Confirmar Acción", 
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.QUESTION_MESSAGE
+        );
+    
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                int idLaboratorio = (int) tblLaboratorio.getValueAt(filaSeleccionada, 0);
+
+                // CAMBIO AQUÍ
+                if (estaActivo) {
+                    objLaboratorio.darBaja(idLaboratorio);
+                    JOptionPane.showMessageDialog(this, "Laboratorio dado de baja con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    objLaboratorio.reactivar(idLaboratorio); // Usar el método de reactivar
+                    JOptionPane.showMessageDialog(this, "Laboratorio reactivado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+                actualizarTabla();
+                limpiarCampos();
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al " + accion + " el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     private void chkVerInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkVerInactivosActionPerformed

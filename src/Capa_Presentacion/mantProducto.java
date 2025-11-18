@@ -1,49 +1,32 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
- */
 package Capa_Presentacion;
+
 import Capa_Datos.*;
 import Capa_Negocio.*;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
+import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-/**
- *
- * @author Fernando Hernández
- */
+
 public class mantProducto extends javax.swing.JDialog {
-  
-   
-    private final ProductoDAO pDAO = new ProductoDAO();
-private final categoriaDAO cDAO = new categoriaDAO();
-private final MarcaDAO mDAO = new MarcaDAO();
-private final laboratorioDAO lDAO = new laboratorioDAO();
-private final PresentacionProductoDAO ppDAO = new PresentacionProductoDAO(); // DAO para los formatos
 
-private List<clsProducto> listaProductos;
-private boolean estadoOriginalDelProducto = true; // Variable para la lógica de reactivación
+    clsProducto objProducto = new clsProducto();
+    clsMarca objMarca = new clsMarca();
+    clsCategoria objCategoria = new clsCategoria();
+    clsLaboratorio objDistribuidores = new clsLaboratorio();
+    private final PresentacionProductoDAO ppDAO = new PresentacionProductoDAO();
 
-    /**
-     * Creates new form mantCategoria
-     */
+    private boolean estadoOriginalDelProducto = true;
+
     public mantProducto(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-         this.setTitle("Mantenimiento de Productos");
+        this.setTitle("Mantenimiento de Productos");
         this.setLocationRelativeTo(null);
         configurarTabla();
         cargarDatosIniciales();
         estadoInicialControles();
     }
-
-    
 
     private void configurarTabla() {
         DefaultTableModel modelo = new DefaultTableModel();
@@ -61,67 +44,56 @@ private boolean estadoOriginalDelProducto = true; // Variable para la lógica de
         listarProductos();
     }
 
-    private void listarProductos() {
-        DefaultTableModel modelo = (DefaultTableModel) tblProducto.getModel();
-        modelo.setRowCount(0);
+    private void cargarCombos() {
+        cargarComboCategorias();
+        cargarComboMarcas();
+        cargarComboDistribuidores();
+    }
 
+    private void cargarComboCategorias() {
+        ResultSet rsCar = null;
+        DefaultComboBoxModel modeloMar = new DefaultComboBoxModel();
+        cmbCategoria.setModel(modeloMar);
         try {
-            
-            this.listaProductos = pDAO.listar(); 
-            
-            
-            for (clsProducto producto : this.listaProductos) {
-                modelo.addRow(new Object[]{
-                    producto.getIdProducto(),
-                    producto.getNombre(),
-                    producto.getCategoria().getNombreCategoria(),
-                    producto.getMarca().getNombre(),
-                    producto.getDistribuidor().getNombreLaboratorio(),
-                    producto.isEstado() ? "Vigente" : "No Vigente"
-                });
+            rsCar = objCategoria.listarCategoriasActivas();
+            while (rsCar.next()) {
+                modeloMar.addElement(rsCar.getString("nommarca"));
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar productos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al listar marcas en el combobox");
         }
+
     }
 
-    private void cargarCombos() {
-    cargarComboCategorias();
-    cargarComboMarcas();
-    cargarComboDistribuidores();
-}
+    private void cargarComboMarcas() {
+        ResultSet rsMar = null;
+        DefaultComboBoxModel modeloMar = new DefaultComboBoxModel();
+        cmbMarca.setModel(modeloMar);
+        try {
+            rsMar = objMarca.listarMarcasActivas();
+            while (rsMar.next()) {
+                modeloMar.addElement(rsMar.getString("nommarca"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al listar marcas en el combobox");
+        }
 
-private void cargarComboCategorias() {
-    try {
-        DefaultComboBoxModel<clsCategoria> modelo = new DefaultComboBoxModel<>();
-        cDAO.listarCategoriasActivas().forEach(modelo::addElement); 
-        cmbCategoria.setModel(modelo);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar categorías: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
 
-private void cargarComboMarcas() {
-    try {
-        DefaultComboBoxModel<clsMarca> modelo = new DefaultComboBoxModel<>();
-        mDAO.listarMarcasActivas().forEach(modelo::addElement); 
-        cmbMarca.setModel(modelo);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar marcas: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    private void cargarComboDistribuidores() {
+        ResultSet rsDis = null;
+        DefaultComboBoxModel modeloMar = new DefaultComboBoxModel();
+        cmbMarca.setModel(modeloMar);
+        try {
+            rsDis = objDistribuidores.listarLaboratoriosActivos();
+            while (rsDis.next()) {
+                modeloMar.addElement(rsDis.getString("nommarca"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al listar marcas en el combobox");
+        }
+
     }
-}
-
-private void cargarComboDistribuidores() {
-    try {
-        DefaultComboBoxModel<clsLaboratorio> modelo = new DefaultComboBoxModel<>();
-        lDAO.listarLaboratoriosActivos().forEach(modelo::addElement); 
-        cmbDistribuidor.setModel(modelo);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar distribuidores: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-
-    
 
     private void limpiarControles() {
         txtID.setText("");
@@ -135,43 +107,39 @@ private void cargarComboDistribuidores() {
     }
 
     private void estadoInicialControles() {
-    
-    txtID.setText("");
-    txtNombre.setText("");
-    txtDescripcion.setText("");
-    chkVigencia.setSelected(true);
-    cmbCategoria.setSelectedIndex(-1); 
-    cmbMarca.setSelectedIndex(-1);
-    cmbDistribuidor.setSelectedIndex(-1);
 
-   
-    txtID.setEnabled(true);
-    
-    jButton1.setEnabled(true); 
+        txtID.setText("");
+        txtNombre.setText("");
+        txtDescripcion.setText("");
+        chkVigencia.setSelected(true);
+        cmbCategoria.setSelectedIndex(-1);
+        cmbMarca.setSelectedIndex(-1);
+        cmbDistribuidor.setSelectedIndex(-1);
 
-    
-    txtNombre.setEnabled(false);
-    txtDescripcion.setEnabled(false);
-    chkVigencia.setEnabled(false);
-    cmbCategoria.setEnabled(false);
-    cmbMarca.setEnabled(false);
-    cmbDistribuidor.setEnabled(false);
+        txtID.setEnabled(true);
 
-    
-    btnNuevo.setText("Nuevo");
-    btnNuevo.setEnabled(true);
-    
-    btnModificar.setText("Modificar");
-    btnModificar.setEnabled(false);
-    
-    btnEliminar.setEnabled(false);
-    btnDardeBaja.setEnabled(false);
-    
-    
-    tblProducto.clearSelection();
-    txtID.requestFocus(); 
-}
-    
+        jButton1.setEnabled(true);
+
+        txtNombre.setEnabled(false);
+        txtDescripcion.setEnabled(false);
+        chkVigencia.setEnabled(false);
+        cmbCategoria.setEnabled(false);
+        cmbMarca.setEnabled(false);
+        cmbDistribuidor.setEnabled(false);
+
+        btnNuevo.setText("Nuevo");
+        btnNuevo.setEnabled(true);
+
+        btnModificar.setText("Modificar");
+        btnModificar.setEnabled(false);
+
+        btnEliminar.setEnabled(false);
+        btnDardeBaja.setEnabled(false);
+
+        tblProducto.clearSelection();
+        txtID.requestFocus();
+    }
+
     private void habilitarControles(boolean esNuevo) {
         txtID.setEnabled(esNuevo);
         txtNombre.setEnabled(true);
@@ -180,14 +148,55 @@ private void cargarComboDistribuidores() {
         cmbCategoria.setEnabled(true);
         cmbMarca.setEnabled(true);
         cmbDistribuidor.setEnabled(true);
-        
-        btnNuevo.setEnabled(false); 
+
+        btnNuevo.setEnabled(false);
         btnModificar.setEnabled(true);
-        btnDardeBaja.setEnabled(!esNuevo); 
-        btnEliminar.setEnabled(!esNuevo);  
+        btnDardeBaja.setEnabled(!esNuevo);
+        btnEliminar.setEnabled(!esNuevo);
     }
-    
-  
+
+    private void listarProductos() {
+        ResultSet rsProd;
+        String vigencia;
+
+        DefaultTableModel modelo = new DefaultTableModel();
+
+        modelo.addColumn("ID");
+        modelo.addColumn("Nombre");
+        modelo.addColumn("Categoría");
+        modelo.addColumn("Marca");
+        modelo.addColumn("Distribuidor");
+        modelo.addColumn("Estado");
+
+        try {
+            rsProd = objProducto.listarProductos();
+
+            while (rsProd.next()) {
+
+                boolean estado = rsProd.getBoolean("estado");
+                if (estado) {
+                    vigencia = "Vigente";
+                } else {
+                    vigencia = "No Vigente";
+                }
+
+                modelo.addRow(new Object[]{
+                    rsProd.getInt("idProducto"),
+                    rsProd.getString("nombre"),
+                    rsProd.getString("nombreCategoria"), // El SQL ya trae estos nombres
+                    rsProd.getString("nombreMarca"),
+                    rsProd.getString("nombreLaboratorio"),
+                    vigencia
+                });
+            }
+
+            tblProducto.setModel(modelo);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al listar productos: " + e.getMessage());
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -588,14 +597,14 @@ private void cargarComboDistribuidores() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-         if (txtID.getText().isEmpty()) {
+        if (txtID.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un producto.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
         int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea eliminar este producto?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                pDAO.eliminar(Integer.parseInt(txtID.getText()));
+                objProducto.eliminarProducto(Integer.parseInt(txtID.getText()));
                 listarProductos();
                 estadoInicialControles();
                 limpiarControles();
@@ -606,118 +615,104 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        
-    limpiarControles();
-    habilitarControles(true); 
 
-    try {
-        Integer nuevoID = pDAO.generarCodigo();
-        txtID.setText(String.valueOf(nuevoID));
-        txtID.setEnabled(false); 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al generar el código: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        estadoInicialControles();
-        return;
-    }
+        limpiarControles();
+        habilitarControles(true);
 
-    
-    btnModificar.setText("Guardar"); 
-    
-    txtNombre.requestFocus();
+        try {
+            Integer nuevoID = objProducto.generarCodigoProducto();
+            txtID.setText(String.valueOf(nuevoID));
+            txtID.setEnabled(false);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al generar el código: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            estadoInicialControles();
+            return;
+        }
+
+        btnModificar.setText("Guardar");
+
+        txtNombre.requestFocus();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-     if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
-        JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    try {
-        int idProducto = Integer.parseInt(txtID.getText());
-        boolean nuevoEstado = chkVigencia.isSelected();
-
-        clsProducto producto = new clsProducto();
-        producto.setIdProducto(idProducto);
-        producto.setNombre(txtNombre.getText().trim());
-        producto.setDescripcion(txtDescripcion.getText());
-        producto.setEstado(nuevoEstado);
-        producto.setCategoria((clsCategoria) cmbCategoria.getSelectedItem());
-        producto.setMarca((clsMarca) cmbMarca.getSelectedItem());
-        producto.setDistribuidor((clsLaboratorio) cmbDistribuidor.getSelectedItem());
-
-        String mensajeExito = "";
-
-        if (btnModificar.getText().equals("Guardar")) {
-            pDAO.insertar(producto); // Asumiendo que tu DAO ya no usa ID autogenerado para Producto
-            mensajeExito = "Producto registrado correctamente.";
-        } else { // Lógica para modificar
-            pDAO.modificar(producto);
-            mensajeExito = "Producto modificado correctamente.";
-
-            // --- LÓGICA DE REACTIVACIÓN EN CASCADA ---
-            // Si el estado original era FALSO (No Vigente) Y el nuevo estado es VERDADERO (Vigente)
-            if (!this.estadoOriginalDelProducto && nuevoEstado) {
-                // Entonces, reactivamos todas sus presentaciones.
-                ppDAO.reactivarPorProducto(idProducto); // Necesitas este método en PresentacionProductoDAO
-                mensajeExito = "Producto y sus presentaciones han sido reactivados.";
-            }
+        if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
+            JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
-        JOptionPane.showMessageDialog(this, mensajeExito, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        try {
+            if (btnModificar.getText().equals("Guardar")) {
+                objProducto.registrarProducto(Integer.parseInt(txtID.getText()),
+                        txtNombre.getText().trim(),
+                        txtDescripcion.getText(),
+                        chkVigencia.isSelected(),
+                        objCategoria.obtenerCodigoCategoria(cmbCategoria.getSelectedItem().toString()),
+                        objMarca.obtenerCodigoMarca(cmbMarca.getSelectedItem().toString()),
+                        objDistribuidores.obtenerCodigoLaboratorio(cmbMarca.getSelectedItem().toString()));
+            } else { // Lógica para modificar
+                objProducto.modificarProducto(Integer.parseInt(txtID.getText()),
+                        txtNombre.getText().trim(),
+                        txtDescripcion.getText(),
+                        chkVigencia.isSelected(),
+                        objCategoria.obtenerCodigoCategoria(cmbCategoria.getSelectedItem().toString()),
+                        objMarca.obtenerCodigoMarca(cmbMarca.getSelectedItem().toString()),
+                        objDistribuidores.obtenerCodigoLaboratorio(cmbMarca.getSelectedItem().toString()));
 
-        listarProductos();
-        estadoInicialControles();
-        // Se quitó limpiarControles() para mantener consistencia con el flujo anterior
+            }
 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
+            JOptionPane.showMessageDialog(this, "Éxito");
+
+            listarProductos();
+            estadoInicialControles();
+            // Se quitó limpiarControles() para mantener consistencia con el flujo anterior
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-         
-    int filaSeleccionada = tblProducto.getSelectedRow();
-    
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Debe seleccionar un producto de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    int confirmacion = JOptionPane.showConfirmDialog(
-        this, 
-        "¿Está seguro de que desea dar de baja este producto?\nTODOS sus formatos de venta también se desactivarán.",
-        "Confirmar Acción", 
-        JOptionPane.YES_NO_OPTION, 
-        JOptionPane.QUESTION_MESSAGE
-    );
-    
-    if (confirmacion == JOptionPane.YES_OPTION) {
-        try {
-            int idProducto = (int) tblProducto.getValueAt(filaSeleccionada, 0);
 
-            // 1. Dar de baja el producto principal
-            pDAO.darDeBaja(idProducto);
+        int filaSeleccionada = tblProducto.getSelectedRow();
 
-            // 2. Llamar al nuevo método para dar de baja sus presentaciones en cascada.
-            ppDAO.darBajaPorProducto(idProducto); // Necesitas este método en PresentacionProductoDAO
-
-            // 3. Refrescar la interfaz de usuario
-            listarProductos();
-            estadoInicialControles();
-            
-            JOptionPane.showMessageDialog(this, "Producto y sus presentaciones han sido dados de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al dar de baja el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un producto de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    }
-    
+
+        int confirmacion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea dar de baja este producto?\nTODOS sus formatos de venta también se desactivarán.",
+                "Confirmar Acción",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                int idProducto = (int) tblProducto.getValueAt(filaSeleccionada, 0);
+
+                // 1. Dar de baja el producto principal
+                objProducto.darBajaProducto(idProducto);
+
+                // 2. Llamar al nuevo método para dar de baja sus presentaciones en cascada.
+                ppDAO.darBajaPorProducto(idProducto);
+                listarProductos();
+                estadoInicialControles();
+
+                JOptionPane.showMessageDialog(this, "Producto y sus presentaciones han sido dados de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al dar de baja el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
     }//GEN-LAST:event_btnDardeBajaActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        
+
         estadoInicialControles();
-        
+
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
@@ -725,159 +720,161 @@ private void cargarComboDistribuidores() {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void btnMostrarFormatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarFormatosActionPerformed
-     
-    int filaSeleccionada = tblProducto.getSelectedRow();
-    
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Por favor, seleccione un producto de la tabla para ver sus formatos.", "Selección Requerida", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
 
-    try {
-        DefaultTableModel modelo = (DefaultTableModel) tblProducto.getModel();
-        
-        
-        int idProducto = (int) modelo.getValueAt(filaSeleccionada, 0);
-        String nombreProducto = modelo.getValueAt(filaSeleccionada, 1).toString();
-        
-        String estadoProducto = modelo.getValueAt(filaSeleccionada, 5).toString(); 
-        boolean productoEsVigente = estadoProducto.equals("Vigente");
-        
-        
-        ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto, productoEsVigente);
-        
-        
-        dialogoFormatos.setVisible(true);
-        
-        
-        
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "El ID del producto en la tabla no es un número válido.", "Error de Datos", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al abrir la ventana de formatos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace(); 
-    }
+        int filaSeleccionada = tblProducto.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione un producto de la tabla para ver sus formatos.", "Selección Requerida", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            DefaultTableModel modelo = (DefaultTableModel) tblProducto.getModel();
+
+            int idProducto = (int) modelo.getValueAt(filaSeleccionada, 0);
+            String nombreProducto = modelo.getValueAt(filaSeleccionada, 1).toString();
+
+            String estadoProducto = modelo.getValueAt(filaSeleccionada, 5).toString();
+            boolean productoEsVigente = estadoProducto.equals("Vigente");
+
+            ManPresPro dialogoFormatos = new ManPresPro(null, true, idProducto, nombreProducto, productoEsVigente);
+
+            dialogoFormatos.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El ID del producto en la tabla no es un número válido.", "Error de Datos", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al abrir la ventana de formatos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnMostrarFormatosActionPerformed
 
     private void tblProductoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductoMouseClicked
-         int fila = tblProducto.getSelectedRow();
-    if (fila >= 0) {
-        try {
-            int idProducto = (int) tblProducto.getValueAt(fila, 0);
-            clsProducto productoSeleccionado = pDAO.buscarPorId(idProducto);
+        int fila = tblProducto.getSelectedRow();
+        if (fila >= 0) {
+            ResultSet rs = null; // Usar un ResultSet
+            try {
+                int idProducto = (int) tblProducto.getValueAt(fila, 0);
 
-            if (productoSeleccionado != null) {
-                // --- LÍNEA CLAVE ---
-                // Guardamos el estado original para saber si se intenta reactivar más tarde
-                this.estadoOriginalDelProducto = productoSeleccionado.isEstado();
-                
-                // Llenar los campos del formulario
-                txtID.setText(String.valueOf(productoSeleccionado.getIdProducto()));
-                txtNombre.setText(productoSeleccionado.getNombre());
-                txtDescripcion.setText(productoSeleccionado.getDescripcion());
-                chkVigencia.setSelected(productoSeleccionado.isEstado());
-                
-                cmbCategoria.setSelectedItem(productoSeleccionado.getCategoria());
-                cmbMarca.setSelectedItem(productoSeleccionado.getMarca());
-                cmbDistribuidor.setSelectedItem(productoSeleccionado.getDistribuidor());
+                // CORREGIDO: No se puede castear a clsProducto
+                rs = objProducto.buscarProducto(idProducto);
 
-                // Ajustar el estado de los botones para el modo edición
-                habilitarControles(false);
-                btnNuevo.setEnabled(true);
-                btnModificar.setText("Modificar");
+                if (rs != null && rs.next()) {
+                    // Guardamos el estado original para la lógica de "Reactivar"
+                    this.estadoOriginalDelProducto = rs.getBoolean("estado");
+
+                    // Llenar los campos desde el ResultSet
+                    txtID.setText(String.valueOf(rs.getInt("idProducto")));
+                    txtNombre.setText(rs.getString("nombre"));
+                    txtDescripcion.setText(rs.getString("descripcion"));
+                    chkVigencia.setSelected(rs.getBoolean("estado"));
+
+                    // Seleccionar los STRINGS en los ComboBox
+                    cmbCategoria.setSelectedItem(rs.getString("nombreCategoria"));
+                    cmbMarca.setSelectedItem(rs.getString("nombreMarca"));
+                    cmbDistribuidor.setSelectedItem(rs.getString("nombreLaboratorio"));
+
+                    // Ajustar el estado de los botones
+                    habilitarControles(false);
+                    btnNuevo.setText("Cancelar"); // Permitir cancelar
+                    btnNuevo.setEnabled(true);
+                    btnModificar.setText("Modificar");
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al seleccionar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al seleccionar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            // ADVERTENCIA: Fuga de recursos. rs no se cierra.
         }
-    }
     }//GEN-LAST:event_tblProductoMouseClicked
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String textoBusqueda = txtID.getText().trim();
-
-    if (textoBusqueda.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, ingrese un ID de producto para buscar.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    try {
-        int idProducto = Integer.parseInt(textoBusqueda);
-        
-        
-        clsProducto productoEncontrado = pDAO.buscarPorId(idProducto);
-
-        if (productoEncontrado != null) {
-            
-            txtNombre.setText(productoEncontrado.getNombre());
-            txtDescripcion.setText(productoEncontrado.getDescripcion());
-            chkVigencia.setSelected(productoEncontrado.isEstado());
-            
-            cmbCategoria.setSelectedItem(productoEncontrado.getCategoria());
-            cmbMarca.setSelectedItem(productoEncontrado.getMarca());
-            cmbDistribuidor.setSelectedItem(productoEncontrado.getDistribuidor());
-
-            
-            habilitarControles(false);
-            btnNuevo.setEnabled(true);
-            btnModificar.setText("Modificar");
-            
-            
-            seleccionarFilaEnTabla(idProducto);
-
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró ningún producto con el ID: " + idProducto, "No Encontrado", JOptionPane.INFORMATION_MESSAGE);
+        if (textoBusqueda.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un ID de producto para buscar.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "El ID del producto debe ser un número.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Ocurrió un error al buscar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
+        ResultSet rs = null; // Usar ResultSet
+        try {
+            int idProducto = Integer.parseInt(textoBusqueda);
 
+            // CORREGIDO: Llamar a objProducto, no a pDAO
+            rs = objProducto.buscarProducto(idProducto);
 
-private void seleccionarFilaEnTabla(int idProducto) {
-    for (int i = 0; i < tblProducto.getRowCount(); i++) {
-        if ((int) tblProducto.getValueAt(i, 0) == idProducto) {
-            tblProducto.setRowSelectionInterval(i, i);
-            tblProducto.scrollRectToVisible(tblProducto.getCellRect(i, 0, true));
-            break;
+            if (rs != null && rs.next()) {
+                // Llenar campos desde el ResultSet
+                txtNombre.setText(rs.getString("nombre"));
+                txtDescripcion.setText(rs.getString("descripcion"));
+                chkVigencia.setSelected(rs.getBoolean("estado"));
+
+                // Seleccionar los STRINGS en los ComboBox
+                cmbCategoria.setSelectedItem(rs.getString("nombreCategoria"));
+                cmbMarca.setSelectedItem(rs.getString("nombreMarca"));
+                cmbDistribuidor.setSelectedItem(rs.getString("nombreLaboratorio"));
+
+                // Habilitar controles
+                habilitarControles(false);
+                btnNuevo.setText("Cancelar");
+                btnNuevo.setEnabled(true);
+                btnModificar.setText("Modificar");
+
+                seleccionarFilaEnTabla(idProducto);
+
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró ningún producto con el ID: " + idProducto, "No Encontrado", JOptionPane.INFORMATION_MESSAGE);
+                limpiarControles();
+            }
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El ID del producto debe ser un número.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocurrió un error al buscar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }
+
+    private void seleccionarFilaEnTabla(int idProducto) {
+        for (int i = 0; i < tblProducto.getRowCount(); i++) {
+            if ((int) tblProducto.getValueAt(i, 0) == idProducto) {
+                tblProducto.setRowSelectionInterval(i, i);
+                tblProducto.scrollRectToVisible(tblProducto.getCellRect(i, 0, true));
+                break;
+            }
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btnNuevaCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaCategoriaActionPerformed
-     Object categoriaSeleccionada = cmbCategoria.getSelectedItem();
-    mantCategoria frm = new mantCategoria(null, true);
-    frm.setVisible(true);
-    cargarComboCategorias();
-    if (categoriaSeleccionada != null) {
-        cmbCategoria.setSelectedItem(categoriaSeleccionada);
-    }
+        Object categoriaSeleccionada = cmbCategoria.getSelectedItem();
+        mantCategoria frm = new mantCategoria(null, true);
+        frm.setVisible(true);
+        cargarComboCategorias();
+        if (categoriaSeleccionada != null) {
+            cmbCategoria.setSelectedItem(categoriaSeleccionada);
+        }
     }//GEN-LAST:event_btnNuevaCategoriaActionPerformed
 
     private void btnNuevaMarcaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaMarcaActionPerformed
-     Object marcaSeleccionada = cmbMarca.getSelectedItem();
-    mantMarca frm = new mantMarca(null, true);
-    frm.setVisible(true);
-    cargarComboMarcas();
-    if (marcaSeleccionada != null) {
-        cmbMarca.setSelectedItem(marcaSeleccionada);
-    }
+        Object marcaSeleccionada = cmbMarca.getSelectedItem();
+        mantMarca frm = new mantMarca(null, true);
+        frm.setVisible(true);
+        cargarComboMarcas();
+        if (marcaSeleccionada != null) {
+            cmbMarca.setSelectedItem(marcaSeleccionada);
+        }
     }//GEN-LAST:event_btnNuevaMarcaActionPerformed
 
     private void btnNuevoDistribuidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoDistribuidorActionPerformed
-    Object distribuidorSeleccionado = cmbDistribuidor.getSelectedItem();
-    mantLaboratorio frm = new mantLaboratorio(null, true);
-    frm.setVisible(true);
-    cargarComboDistribuidores();
-    if (distribuidorSeleccionado != null) {
-        cmbDistribuidor.setSelectedItem(distribuidorSeleccionado);
-    }
+        Object distribuidorSeleccionado = cmbDistribuidor.getSelectedItem();
+        mantLaboratorio frm = new mantLaboratorio(null, true);
+        frm.setVisible(true);
+        cargarComboDistribuidores();
+        if (distribuidorSeleccionado != null) {
+            cmbDistribuidor.setSelectedItem(distribuidorSeleccionado);
+        }
     }//GEN-LAST:event_btnNuevoDistribuidorActionPerformed
 
     private void cmbMarcaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbMarcaActionPerformed
-     
+
     }//GEN-LAST:event_cmbMarcaActionPerformed
 
     private void cmbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCategoriaActionPerformed
@@ -891,7 +888,6 @@ private void seleccionarFilaEnTabla(int idProducto) {
     /**
      * @param args the command line arguments
      */
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCerrar;

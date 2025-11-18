@@ -1,17 +1,10 @@
 package Capa_Presentacion;
 
-import Capa_Datos.laboratorioDAO;
-import Capa_Negocio.clsLaboratorio;
 import Capa_Negocio.clsUsuario;
 import java.sql.*;
-import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author Fernando Hernández
- */
 public class mantUsuario extends javax.swing.JDialog {
 
     clsUsuario objUsuario = new clsUsuario();
@@ -26,7 +19,6 @@ public class mantUsuario extends javax.swing.JDialog {
         limpiarCampos();
     }
 
-    //////
     private void cargarRoles() {
         try {
             ResultSet rs = objUsuario.listarRoles();

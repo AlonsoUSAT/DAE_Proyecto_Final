@@ -18,7 +18,7 @@ public class clsDetalleMantenimiento {
         // Nota: Asegúrate que la columna de nombre en tu tabla PRODUCTO se llame 'descripcion'.
         strSQL = "SELECT D.*, P.descripcion as nombreProducto " +
                  "FROM DETALLE_VENTA D " +
-                 "INNER JOIN PRODUCTO P ON D.idProducto = P.idProducto " +
+                 "INNER JOIN PRODUCTO P ON D.idproducto = P.idproducto " +
                  "WHERE D.idVenta = " + idVenta;
         try {
             rs = objConectar.consultarBD(strSQL);
@@ -31,7 +31,7 @@ public class clsDetalleMantenimiento {
     
     public void registrarDetalle(Integer idVenta, Integer idProducto, int cantidad, float precio, float subtotal) throws Exception {
         // ADVERTENCIA: Gravemente vulnerable a Inyección SQL.
-        strSQL = "INSERT INTO DETALLE_VENTA (idVenta, idProducto, cantidad, precio, subtotal) " +
+        strSQL = "INSERT INTO DETALLE_VENTA (idventa, idproducto, cantidad, precio, subtotal) " +
                  "VALUES (" + idVenta + ", " + idProducto + ", " + cantidad + ", " + precio + ", " + subtotal + ")";
         try {
             objConectar.ejecutarBD(strSQL);

@@ -5,8 +5,6 @@
 package Capa_Presentacion;
 
 import Capa_Negocio.clsLote;
-import Capa_Negocio.clsPresentacion;
-import Capa_Datos.ProductoDAO;
 import Capa_Datos.LoteDAO;
 import Capa_Negocio.clsProducto;
 import java.text.SimpleDateFormat;

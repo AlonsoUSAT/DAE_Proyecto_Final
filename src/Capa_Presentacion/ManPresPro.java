@@ -13,7 +13,6 @@ package Capa_Presentacion;
 import Capa_Datos.LoteDAO;
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsPresentacionProducto;
-import Capa_Datos.ProductoDAO;
 import Capa_Datos.PresentacionDAO;
 import Capa_Datos.PresentacionProductoDAO;
 import Capa_Negocio.clsProducto;

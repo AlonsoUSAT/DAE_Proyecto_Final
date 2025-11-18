@@ -766,8 +766,7 @@ private void mostrarHora() {
     }//GEN-LAST:event_btnVentas2ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-         mantVenta manVe = new  mantVenta(this,true);
-       manVe.setVisible(true);
+
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
