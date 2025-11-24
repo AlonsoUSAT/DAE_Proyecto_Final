@@ -2,19 +2,23 @@ package Capa_Negocio;
 
 import Capa_Datos.clsJDBC;
 import java.sql.*;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class clsVenta {
 
     clsJDBC objConectar = new clsJDBC();
     String strSQL;
     ResultSet rs = null;
+    Connection con = null;
+    Statement sent = null;
 
+    // Busca la venta para mostrarla luego (opcional)
     public ResultSet buscarVenta(Integer idVenta) throws Exception {
-        strSQL = "SELECT V.*, C.nroDoc, C.direccion, C.id_tipoDoc, TD.nom_tipoDoc "
-                + "FROM VENTA V "
-                + "INNER JOIN CLIENTE C ON V.idCliente = C.idCliente "
-                + "INNER JOIN TIPO_DOCUMENTO TD ON C.id_tipoDoc = TD.id_tipoDoc "
-                + "WHERE V.idVenta = " + idVenta; // Vulnerable a SQL Injection
+        strSQL = "SELECT V.*, C.nroDoc, C.direccion, C.id_tipodoc "
+                + "FROM venta V "
+                + "INNER JOIN cliente C ON V.idcliente = C.idcliente "
+                + "WHERE V.idventa = " + idVenta;
         try {
             rs = objConectar.consultarBD(strSQL);
             return rs;
@@ -24,16 +28,12 @@ public class clsVenta {
     }
 
     public ResultSet listarDetalleVenta(Integer idVenta) throws Exception {
+        // Corregido para usar los nombres reales de tu BD
         strSQL = "SELECT DV.*, P.nombre AS nombreProducto, "
-                + "CONCAT(TP.nombreTipoPresentacion, ' x ', PR.cantidad, ' ', U.nombreUnidad) AS presentacion, "
-                + "DV.precio AS precioUnitarioVenta " // El precio unitario de la venta
-                + "FROM DETALLE_VENTA DV "
-                + "INNER JOIN PRODUCTO P ON DV.idProducto = P.idProducto "
-                // JOINs para obtener la descripción de la presentación
-                + "INNER JOIN PRESENTACION PRES ON DV.idPresentacion = PRES.idPresentacion "
-                + "INNER JOIN TIPO_PRESENTACION TP ON PRES.tipoPresentacion = TP.idTipoPresentacion "
-                + "INNER JOIN UNIDAD U ON PRES.idUnidad = U.idUnidad "
-                + "WHERE DV.idVenta = " + idVenta; // Vulnerable a SQL Injection
+                + "DV.precio AS precioUnitarioVenta "
+                + "FROM detalle_venta DV "
+                + "INNER JOIN producto P ON DV.idproducto = P.idproducto "
+                + "WHERE DV.idventa = " + idVenta;
         try {
             rs = objConectar.consultarBD(strSQL);
             return rs;
@@ -42,57 +42,85 @@ public class clsVenta {
         }
     }
 
+    // Generadores de ID
     public Integer generarIdVenta() throws Exception {
-        strSQL = "SELECT COALESCE(MAX(idVenta), 0) + 1 AS codigo FROM VENTA";
+        strSQL = "SELECT COALESCE(MAX(idventa), 0) + 1 AS codigo FROM venta";
         try {
             rs = objConectar.consultarBD(strSQL);
             if (rs.next()) {
                 return rs.getInt("codigo");
             }
         } catch (Exception e) {
-            throw new Exception("Error al generar ID de venta: " + e.getMessage());
+            throw new Exception("Error ID Venta: " + e.getMessage());
         }
-        return 0;
+        return 1;
     }
 
-    public void registrar(String codVenta, String total, String subtotal, String igv,
-            boolean estado, String idCliente, javax.swing.JTable tblDetalle) throws Exception {
+    public Integer generarIdComprobante() throws Exception {
+        strSQL = "SELECT COALESCE(MAX(idcomprobante), 0) + 1 AS codigo FROM comprobante_venta";
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            if (rs.next()) {
+                return rs.getInt("codigo");
+            }
+        } catch (Exception e) {
+            throw new Exception("Error ID Comprobante");
+        }
+        return 1;
+    }
 
-        Connection con = null;
-        Statement sent = null;
+    public void registrar(int codVenta, String total, String subtotal, String igv,
+            boolean esBoleta, int idCliente, int idUsuario, JTable tblDetalle) throws Exception {
 
         try {
-           objConectar.conectar();
-            con = objConectar.getCon(); // O la forma en que obtengas la conexión java.sql.Connection de tu clase JDBC
-            con.setAutoCommit(false); // Desactivamos el guardado automático (Inicio de transacción)
-
+            objConectar.conectar();
+            con = objConectar.getCon();
+            con.setAutoCommit(false); // INICIO TRANSACCIÓN
             sent = con.createStatement();
 
-            strSQL = "INSERT INTO VENTA (idVenta, fecha, hora, idCliente, estado) "
-                    + "VALUES (" + codVenta + ", CURRENT_DATE, CURRENT_TIME, " + idCliente + ", " + estado + ")";
+            strSQL = "INSERT INTO venta (idventa, fecha, hora, idcliente, idusuario, estado) "
+                    + "VALUES (" + codVenta + ", CURRENT_DATE, CURRENT_TIME, " + idCliente + ", " + idUsuario + ", true)";
             sent.executeUpdate(strSQL);
 
-            for (int i = 0; i < tblDetalle.getRowCount(); i++) {
+            DefaultTableModel modelo = (DefaultTableModel) tblDetalle.getModel();
 
-                String idProd = String.valueOf(tblDetalle.getValueAt(i, 0));
-                String idPres = String.valueOf(tblDetalle.getValueAt(i, 1)); // Importante: ID Presentación
-                String precio = String.valueOf(tblDetalle.getValueAt(i, 3));
-                String cant = String.valueOf(tblDetalle.getValueAt(i, 4));
+            for (int i = 0; i < modelo.getRowCount(); i++) {
 
-               strSQL = "INSERT INTO DETALLE_VENTA (iddetalle, precio, cantidad, idventa, idproducto, idpresentacion) "
+                String idProd = String.valueOf(modelo.getValueAt(i, 0));
+                String idPres = String.valueOf(modelo.getValueAt(i, 1));
+                String cant = String.valueOf(modelo.getValueAt(i, 4));
+                String precioVenta = String.valueOf(modelo.getValueAt(i, 6)).replace(",", ".");
+                strSQL = "INSERT INTO detalle_venta (iddetalle, precio, cantidad, idventa, idproducto, idpresentacion) "
                         + "VALUES ((SELECT COALESCE(MAX(iddetalle),0)+1 FROM detalle_venta), "
-                        + precio + ", " + cant + ", " + codVenta + ", " + idProd + ", " + idPres + ")";
+                        + precioVenta + ", " + cant + ", " + codVenta + ", " + idProd + ", " + idPres + ")";
                 sent.executeUpdate(strSQL);
-
-               strSQL = "UPDATE LOTE SET stockActual = stockActual - " + cant + " "
-                        + "WHERE idLote = (SELECT idLote FROM LOTE "
-                        + "WHERE idProducto=" + idProd + " AND idPresentacion=" + idPres
-                        + " AND stockActual >= " + cant + " LIMIT 1)";
+                strSQL = "UPDATE presentacion_producto SET stock = stock - " + cant + " "
+                        + "WHERE idproducto=" + idProd + " AND idpresentacion=" + idPres;
                 sent.executeUpdate(strSQL);
             }
 
-            con.commit();
+            int idComprobante = generarIdComprobante();
+            int idTipoComp = esBoleta ? 1 : 2;
+            int idSerie = 1;
+            ResultSet rsSerie = sent.executeQuery("SELECT idserie FROM serie_comprobante WHERE id_tipocomprobante=" + idTipoComp + " LIMIT 1");
+            if (rsSerie.next()) {
+                idSerie = rsSerie.getInt("idserie");
+            }
+            int correlativo = 1;
+            ResultSet rsCorr = sent.executeQuery("SELECT ultimonumero + 1 as corre FROM serie_comprobante WHERE idserie=" + idSerie);
+            if (rsCorr.next()) {
+                correlativo = rsCorr.getInt("corre");
+            }
 
+            strSQL = "INSERT INTO comprobante_venta (idcomprobante, correlativo, fechhora, estado, subtotal, igv, total, idventa, idmediopago, idserie) "
+                    + "VALUES (" + idComprobante + ", " + correlativo + ", CURRENT_TIMESTAMP, true, "
+                    + subtotal.replace(",", ".") + ", " + igv.replace(",", ".") + ", " + total.replace(",", ".") + ", "
+                    + codVenta + ", 1, " + idSerie + ")"; // 1 = Efectivo
+            sent.executeUpdate(strSQL);
+
+            sent.executeUpdate("UPDATE serie_comprobante SET ultimonumero = " + correlativo + " WHERE idserie=" + idSerie);
+
+            con.commit();
         } catch (Exception e) {
             if (con != null) {
                 try {
@@ -103,16 +131,9 @@ public class clsVenta {
             throw new Exception("Error al guardar Venta: " + e.getMessage());
         } finally {
             if (con != null) {
-                con.setAutoCommit(true); // Restaurar estado por defecto
+                con.setAutoCommit(true);
+                objConectar.desconectar();
             }
-            objConectar.desconectar();
         }
     }
-    
-    public ResultSet consultarVentas(){
-        
-        return null;
-        
-    }
-
 }

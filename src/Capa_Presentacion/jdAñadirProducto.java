@@ -16,10 +16,8 @@ public class jdAñadirProducto extends javax.swing.JDialog {
     clsProducto objProducto = new clsProducto();
 
     private int cod = 0;
-    private int idPres = 0; // IMPORTANTE: Necesitamos saber qué presentación eligió
-    private int cant = 0;
+    private int idPres = 0;
     private double precio = 0.0;
-    private int desc = 0;
 
     public int getCod() {
         return cod;
@@ -29,16 +27,8 @@ public class jdAñadirProducto extends javax.swing.JDialog {
         return idPres;
     }
 
-    public int getCant() {
-        return cant;
-    }
-
     public double getPrecio() {
         return precio;
-    }
-
-    public int getDesc() {
-        return desc;
     }
 
     public jdAñadirProducto(java.awt.Frame parent, boolean modal) {
@@ -89,30 +79,20 @@ public class jdAñadirProducto extends javax.swing.JDialog {
         }
     }
 
-    private void pasarDatos(int pid, int prid, int cantidad, double pPrecio) {
-        try {
-            int stockReal = objProducto.getStockPresentacion(pid, prid);
+    private int stock = 0;
+    private String nombre = "";
 
-            if (cantidad <= stockReal) {
-                this.cod = pid;
-                this.idPres = prid;
-                this.cant = cantidad;
-                this.precio = pPrecio;
+    public int getStock() { return stock; }
+    public String getNombre() { return nombre; }
 
-                String strDesc = JOptionPane.showInputDialog(rootPane, "Descuento (%):", "0");
-                try {
-                    this.desc = Integer.parseInt(strDesc);
-                } catch (Exception e) {
-                    this.desc = 0;
-                }
-
-                this.dispose(); // Cerrar y volver a jdVenta
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "Stock insuficiente. Disponible: " + stockReal);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(rootPane, e.getMessage());
-        }
+    private void pasarDatos(int pid, int prid, double pPrecio, int pStock, String pNombre) {
+        this.cod = pid;
+        this.idPres = prid;
+        this.precio = pPrecio;
+        this.stock = pStock; 
+        this.nombre = pNombre;
+        
+        this.dispose(); // Cierra la ventana y devuelve el control a jdVenta1
     }
 
     @SuppressWarnings("unchecked")
@@ -135,7 +115,6 @@ public class jdAñadirProducto extends javax.swing.JDialog {
 
         jPanel1.setBackground(new java.awt.Color(153, 204, 255));
 
-        txtNombreProducto.setText("jTextField1");
         txtNombreProducto.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txtNombreProductoKeyReleased(evt);
@@ -217,43 +196,39 @@ public class jdAñadirProducto extends javax.swing.JDialog {
     }//GEN-LAST:event_txtNombreProductoKeyReleased
 
     private void tblProductoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductoMouseClicked
-        if (evt.getClickCount() == 2) { // Doble clic para seleccionar rápido
+        if (evt.getClickCount() == 2) { // Doble clic
             int fila = tblProducto.getSelectedRow();
             if (fila >= 0) {
-                try {
-                    int pid = Integer.parseInt(String.valueOf(tblProducto.getValueAt(fila, 0)));
-                    int prid = Integer.parseInt(String.valueOf(tblProducto.getValueAt(fila, 7))); // ID Presentación oculto
-                    double pPrecio = Double.parseDouble(String.valueOf(tblProducto.getValueAt(fila, 5)));
-
-                    String strCant = JOptionPane.showInputDialog(rootPane, "Ingrese Cantidad:");
-                    if (strCant != null && !strCant.isEmpty()) {
-                        pasarDatos(pid, prid, Integer.parseInt(strCant), pPrecio);
-                    }
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(rootPane, "Error seleccionando: " + e.getMessage());
-                }
+                int pid = Integer.parseInt(tblProducto.getValueAt(fila, 0).toString());
+                String pNombre = tblProducto.getValueAt(fila, 1).toString();
+                double pPrecio = Double.parseDouble(tblProducto.getValueAt(fila, 5).toString());
+                int pStock = Integer.parseInt(tblProducto.getValueAt(fila, 6).toString());
+                int prid = Integer.parseInt(tblProducto.getValueAt(fila, 7).toString()); // ID Pres oculto
+                pasarDatos(pid, prid, pPrecio, pStock, pNombre);
             }
         }
     }//GEN-LAST:event_tblProductoMouseClicked
 
     private void btnBusquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBusquedaActionPerformed
         jdBusqAvanzada objConsulta = new jdBusqAvanzada((Frame) SwingUtilities.getWindowAncestor(this), true);
+        objConsulta.setBuscando(true); 
         objConsulta.setVisible(true);
 
-        // 2. Recupera los 5 datos clave (ID, IDPres, Precio, Cant, Desc) al volver.
-        int idProducto = objConsulta.getCod();
+        int idProd = objConsulta.getCod();
 
-        if (idProducto > 0) {
-            int idPresentacion = objConsulta.getIdPresentacion();
-            double precio = objConsulta.getPrecio();
-            int cantidad = objConsulta.getCant();
-            int descuento = objConsulta.getDesc();
-
+        if (idProd > 0) {
+            int idPres = objConsulta.getIdPresentacion();
+            double prec = objConsulta.getPrecio();
+            
+            // Opcional: Buscar nombre y stock para mostrarlos mejor
+            String nombreProd = "";
+            int stockProd = 0;
             try {
-                pasarDatos(idProducto, idPresentacion, cantidad, precio);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al procesar producto seleccionado: " + e.getMessage());
-            }
+                ResultSet rs = objProducto.buscarProducto(idProd);
+                if(rs.next()) nombreProd = rs.getString("nombre");
+                stockProd = objProducto.getStockPresentacion(idProd, idPres);
+            } catch (Exception ex) {}
+            pasarDatos(idProd, idPres, prec, stockProd, nombreProd);
         }
     }//GEN-LAST:event_btnBusquedaActionPerformed
 

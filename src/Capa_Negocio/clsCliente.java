@@ -34,28 +34,39 @@ public class clsCliente {
         }
     }
 
-    public ResultSet buscarClienteDniRuc(String cod, Boolean tipo) throws Exception {
-
-        // NOTA: Mantenemos el estilo de concatenación que usas, pero es VULNERABLE a Inyección SQL.
-        if (tipo) { // Tipo = true: Asumimos DNI (Persona)
-            strSQL = "SELECT C.*, P.nombres, P.apellidoPaterno, TD.nom_tipoDoc "
-                    + "FROM CLIENTE C "
-                    + "INNER JOIN PERSONA P ON C.idCliente = P.idCliente "
-                    + "INNER JOIN TIPO_DOCUMENTO TD ON C.id_tipoDoc = TD.id_tipoDoc "
-                    + "WHERE C.nroDoc = '" + cod + "';";
-        } else { // Tipo = false: Asumimos RUC (Empresa)
-            strSQL = "SELECT C.*, E.razonSocial, TD.nom_tipoDoc "
-                    + "FROM CLIENTE C "
-                    + "INNER JOIN EMPRESA E ON C.idCliente = E.idCliente "
-                    + "INNER JOIN TIPO_DOCUMENTO TD ON C.id_tipoDoc = TD.id_tipoDoc "
-                    + "WHERE C.nroDoc = '" + cod + "';";
-        }
+    public ResultSet buscarClienteDniRuc(String nroDoc, Boolean esDni) throws Exception {
+        strSQL = "SELECT C.idcliente, C.nrodoc, C.direccion, C.telefono, C.correo, "
+               + "P.nombres, P.apellidopaterno, P.apellidomaterno, "
+               + "E.razonsocial, "
+               + "TD.nom_tipodoc "
+               + "FROM cliente C "
+               + "INNER JOIN tipo_documento TD ON C.id_tipodoc = TD.id_tipodoc "
+               + "LEFT JOIN persona P ON C.idcliente = P.idcliente "
+               + "LEFT JOIN empresa E ON C.idcliente = E.idcliente "
+               + "WHERE C.nrodoc = '" + nroDoc + "'";
 
         try {
             rs = objConectar.consultarBD(strSQL);
             return rs;
         } catch (Exception e) {
-            throw new Exception("Error al buscar cliente: " + e.getMessage());
+            throw new Exception("Error al buscar cliente por DNI/RUC: " + e.getMessage());
         }
     }
+    
+     
+    // Cambiamos 'int' por 'String' para soportar RUCs
+public int obtenerCodigoCliente(String nroDoc) throws Exception {
+    // Usamos TRIM() para limpiar espacios en blanco por si acaso
+    strSQL = "SELECT idcliente FROM cliente WHERE nrodoc = '" + nroDoc.trim() + "'";
+    
+    try {
+        rs = objConectar.consultarBD(strSQL);
+        if (rs.next()) {
+            return rs.getInt("idcliente");
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al buscar el cliente: " + e.getMessage());
+    }
+    return 0; // Retorna 0 si no encuentra al cliente
+}
 }

@@ -20,36 +20,57 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
     clsLaboratorio objLaboratorio = new clsLaboratorio();
     clsProducto objProducto = new clsProducto();
     boolean buscando = false;
-    
+
     private int idProductoSeleccionado = 0;
     private int idPresentacionSeleccionada = 0;
     private double precioUnitarioSeleccionado = 0.0;
     private int cantidadSeleccionada = 0;
     private int descuentoAplicado = 0;
-    
-    // El flag 'buscando' ya está declarado, lo mantienes.
-    
-    // --- GETTERS ACTUALIZADOS ---
-    public int getCod() { 
-        return idProductoSeleccionado; 
+    private int stockSeleccionado = 0;
+    private String nombreSeleccionado = "";
+
+    public int getCod() {
+        return idProductoSeleccionado;
     }
-    public int getIdPresentacion() { 
-        return idPresentacionSeleccionada; 
+
+    public int getIdPresentacion() {
+        return idPresentacionSeleccionada;
     }
-    public double getPrecio() { 
-        return precioUnitarioSeleccionado; 
+
+    public double getPrecio() {
+        return precioUnitarioSeleccionado;
     }
-    public int getCant() { 
-        // Nota: En la búsqueda avanzada, el usuario no ingresa la cantidad,
-        // por lo que este valor debe ser 1 (o preguntar, pero para simplificar, es 1 por defecto).
-        return cantidadSeleccionada; 
+
+    public int getCant() {
+        return cantidadSeleccionada;
+    } // Retornará 1 por defecto
+
+    public int getDesc() {
+        return descuentoAplicado;
     }
-    public int getDesc() { 
-        return descuentoAplicado; 
+
+    public int getStock() {
+        return stockSeleccionado;
     }
-    
-    public void setBuscando(boolean busc){
+
+    public String getNombre() {
+        return nombreSeleccionado;
+    }
+
+    public void setBuscando(boolean busc) {
         buscando = busc;
+    }
+
+    private void pasarDatos(int idProd, int idPres, double precio, int stock, String nombre) {
+        this.idProductoSeleccionado = idProd;
+        this.idPresentacionSeleccionada = idPres;
+        this.precioUnitarioSeleccionado = precio;
+        this.stockSeleccionado = stock;
+        this.nombreSeleccionado = nombre;
+        this.cantidadSeleccionada = 1; // Por defecto 1
+        this.descuentoAplicado = 0;    // Por defecto 0
+
+        this.dispose(); // Cierra la ventana
     }
 
     class TextAreaRenderer extends JTextArea implements TableCellRenderer {
@@ -71,28 +92,31 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
         }
     }
 
-    
-
     private void listarProductos() {
-        DefaultTableModel modelo = new DefaultTableModel();
-        modelo.addColumn("CÓDIGO");
-        modelo.addColumn("NOMBRE");
-        modelo.addColumn("LABORATORIO");
-        modelo.addColumn("PRESENTACIÓN");
-        modelo.addColumn("PRECIO");
-        modelo.addColumn("MARCA");
-        modelo.addColumn("CATEGORÍA");
-        modelo.addColumn("STOCK");
+        DefaultTableModel modelo = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Hacemos que no se pueda editar al dar click
+            }
+        };
+        modelo.addColumn("CÓDIGO");       // 0
+        modelo.addColumn("NOMBRE");       // 1
+        modelo.addColumn("LABORATORIO");  // 2
+        modelo.addColumn("PRESENTACIÓN"); // 3
+        modelo.addColumn("PRECIO");       // 4
+        modelo.addColumn("MARCA");        // 5
+        modelo.addColumn("CATEGORÍA");    // 6
+        modelo.addColumn("STOCK");        // 7
+        modelo.addColumn("ID_PRES");
 
         try {
             String nombre = txtNombre.getText();
             String marcaSeleccionada = cbxMarca.getSelectedItem().toString();
             String labSeleccionado = cbxLaboratorio.getSelectedItem().toString();
             String catSeleccionada = cbxCategoria.getSelectedItem().toString();
-
             double min = Double.parseDouble(spnMin.getValue().toString());
             double max = Double.parseDouble(spnMax.getValue().toString());
-
+            
             String filtroMarca = marcaSeleccionada.equals("--Ninguno--") ? "" : marcaSeleccionada;
             String filtroLaboratorio = labSeleccionado.equals("--Ninguno--") ? "" : labSeleccionado;
             String filtroCategoria = catSeleccionada.equals("--Ninguno--") ? "" : catSeleccionada;
@@ -100,6 +124,7 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
             ResultSet rs = objProducto.filtrarAvanzado(nombre, filtroMarca, filtroLaboratorio, filtroCategoria, min, max);
 
             while (rs.next()) {
+                // 2. AGREGAR LOS DATOS (Aquí también faltaba el último dato)
                 modelo.addRow(new Object[]{
                     rs.getInt("idproducto"),
                     rs.getString("nombre"),
@@ -108,27 +133,33 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
                     rs.getDouble("precio"),
                     rs.getString("nombreMarca"),
                     rs.getString("nombreCategoria"),
-                    rs.getInt("stock")
+                    rs.getInt("stock"),
+                    rs.getInt("idpresentacion") // <--- ESTO ES CRUCIAL
                 });
             }
 
-            jTable1.setModel(modelo);
+            tblProducto1.setModel(modelo);
 
-            jTable1.setDefaultRenderer(String.class, new TextAreaRenderer());
-            jTable1.getColumnModel().getColumn(3).setCellRenderer(new TextAreaRenderer());
+            tblProducto1.setDefaultRenderer(String.class, new TextAreaRenderer());
+            tblProducto1.getColumnModel().getColumn(3).setCellRenderer(new TextAreaRenderer());
 
-            for (int i = 0; i < jTable1.getRowCount(); i++) {
-                int rowHeight = jTable1.getRowHeight(i);
-                // Prepara el renderer en la columna de Presentación (índice 3)
-                Component comp = jTable1.prepareRenderer(jTable1.getCellRenderer(i, 3), i, 3);
+            // 3. OCULTAR LA COLUMNA 8 VISUALMENTE (Ancho 0)
+            tblProducto1.getColumnModel().getColumn(8).setMinWidth(0);
+            tblProducto1.getColumnModel().getColumn(8).setMaxWidth(0);
+            tblProducto1.getColumnModel().getColumn(8).setWidth(0);
+
+            // Ajuste de altura de filas
+            for (int i = 0; i < tblProducto1.getRowCount(); i++) {
+                int rowHeight = tblProducto1.getRowHeight(i);
+                Component comp = tblProducto1.prepareRenderer(tblProducto1.getCellRenderer(i, 3), i, 3);
                 rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
-                jTable1.setRowHeight(i, rowHeight);
+                tblProducto1.setRowHeight(i, rowHeight);
             }
 
             lblTotalProductos.setText(String.valueOf(modelo.getRowCount()));
 
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(null, "Error de formato de precio. Asegúrate de ingresar números válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+             // Ignorar errores de tipeo en los spinners
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error listando productos: " + e.getMessage());
         }
@@ -213,7 +244,7 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
         txtNombre = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblProducto1 = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         lblTotalProductos = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
@@ -349,7 +380,7 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblProducto1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -360,7 +391,17 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        tblProducto1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblProducto1MouseClicked(evt);
+            }
+        });
+        tblProducto1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tblProducto1KeyPressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblProducto1);
 
         jLabel3.setBackground(new java.awt.Color(255, 255, 255));
         jLabel3.setFont(new java.awt.Font("Verdana", 1, 12)); // NOI18N
@@ -477,6 +518,45 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_jScrollPane1MouseClicked
 
+    private void tblProducto1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblProducto1KeyPressed
+
+    }//GEN-LAST:event_tblProducto1KeyPressed
+
+    private void tblProducto1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProducto1MouseClicked
+        if (evt.getClickCount() == 2) { // Solo si es doble click
+            int fila = tblProducto1.getSelectedRow();
+
+            if (fila >= 0) {
+                try {
+                    // --- CORRECCIÓN IMPORTANTE ---
+                    // Agregamos .getModel() antes de .getValueAt()
+                    // Esto accede a los datos "crudos", ignorando si la columna está oculta o no.
+                    
+                    // Columna 0: ID PRODUCTO
+                    int idProd = Integer.parseInt(tblProducto1.getModel().getValueAt(fila, 0).toString());
+                    
+                    // Columna 1: NOMBRE
+                    String nom = tblProducto1.getModel().getValueAt(fila, 1).toString();
+                    
+                    // Columna 4: PRECIO
+                    double prec = Double.parseDouble(tblProducto1.getModel().getValueAt(fila, 4).toString());
+                    
+                    // Columna 7: STOCK
+                    int stk = Integer.parseInt(tblProducto1.getModel().getValueAt(fila, 7).toString());
+                    
+                    // Columna 8: ID PRESENTACION (La columna oculta que daba error)
+                    int idPres = Integer.parseInt(tblProducto1.getModel().getValueAt(fila, 8).toString());
+
+                    pasarDatos(idProd, idPres, prec, stk, nom);
+
+                } catch (Exception e) {
+                    System.out.println("Error al capturar datos: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }//GEN-LAST:event_tblProducto1MouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSalir;
@@ -493,10 +573,10 @@ public class jdBusqAvanzada extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblTotalProductos;
     private javax.swing.JSpinner spnMax;
     private javax.swing.JSpinner spnMin;
+    private javax.swing.JTable tblProducto1;
     private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
 }

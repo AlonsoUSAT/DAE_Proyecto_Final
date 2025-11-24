@@ -10,57 +10,46 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.Timer;
 
-/**
- *
- * @author Nicole
- */
 public class frmMenuPrincipal extends javax.swing.JFrame {
 
-    /**
-     * Creates new form frmMenuPrincipal
-     */
     public frmMenuPrincipal() {
-         initComponents();
+        initComponents();
 
-    // --- CÓDIGO PARA MOSTRAR FECHA Y HORA EN TIEMPO REAL ---
+        mostrarFecha();
 
-    // 1. Mostrar la fecha actual al iniciar (esta es fija y no cambia)
-    mostrarFecha();
+        // 2. Crear y configurar el Timer para que actualice la hora CADA SEGUNDO
+        Timer timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Cada segundo, se ejecutará este código, que llama al método para refrescar la hora
+                mostrarHora();
+            }
+        });
 
-    // 2. Crear y configurar el Timer para que actualice la hora CADA SEGUNDO
-    Timer timer = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Cada segundo, se ejecutará este código, que llama al método para refrescar la hora
-            mostrarHora();
-        }
-    });
+        // 3. Iniciar el Timer para que empiece a funcionar
+        timer.start();
 
-    // 3. Iniciar el Timer para que empiece a funcionar
-    timer.start();
-
-    // --- FIN DEL CÓDIGO DE FECHA Y HORA ---
-        
+        // --- FIN DEL CÓDIGO DE FECHA Y HORA ---
     }
-    
-    private void mostrarFecha() {
-    Date fechaActual = new Date();
-    // Formato EEEE da el nombre completo del día, ej: "miércoles, 15 de octubre de 2025"
-    SimpleDateFormat formatoFecha = new SimpleDateFormat("EEEE, dd 'de' MMMM 'de' yyyy");
-    txtFecha.setText(formatoFecha.format(fechaActual));
-}
 
-/**
- * Obtiene la hora actual del sistema y la muestra en txtHora.
- * Este método es llamado repetidamente por el Timer.
- */
-private void mostrarHora() {
-    Date horaActual = new Date();
-    // Formato hh:mm:ss a -> Hora (12h):Minutos:Segundos AM/PM
-    // Si prefieres formato de 24h, usa "HH:mm:ss"
-    SimpleDateFormat formatoHora = new SimpleDateFormat("hh:mm:ss a");
-    txtHora.setText(formatoHora.format(horaActual));
-}
+    private void mostrarFecha() {
+        Date fechaActual = new Date();
+        // Formato EEEE da el nombre completo del día, ej: "miércoles, 15 de octubre de 2025"
+        SimpleDateFormat formatoFecha = new SimpleDateFormat("EEEE, dd 'de' MMMM 'de' yyyy");
+        txtFecha.setText(formatoFecha.format(fechaActual));
+    }
+
+    /**
+     * Obtiene la hora actual del sistema y la muestra en txtHora. Este método
+     * es llamado repetidamente por el Timer.
+     */
+    private void mostrarHora() {
+        Date horaActual = new Date();
+        // Formato hh:mm:ss a -> Hora (12h):Minutos:Segundos AM/PM
+        // Si prefieres formato de 24h, usa "HH:mm:ss"
+        SimpleDateFormat formatoHora = new SimpleDateFormat("hh:mm:ss a");
+        txtHora.setText(formatoHora.format(horaActual));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -705,44 +694,43 @@ private void mostrarHora() {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFechaActionPerformed
 
-
-    private void btnVentasActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void btnVentasActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-    }                                         
+    }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-       mantMarca frm = new mantMarca(null, true);
-    frm.setVisible(true);
+        mantMarca frm = new mantMarca(null, true);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         mantLaboratorio frm = new mantLaboratorio(null, true);
-    frm.setVisible(true);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         mantCategoria frm = new mantCategoria(null, true);
-    frm.setVisible(true);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        mantProducto mPro = new mantProducto(this,true);
-       mPro.setVisible(true);
+        mantProducto mPro = new mantProducto(this, true);
+        mPro.setVisible(true);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void mPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mPresentacionActionPerformed
-        ManPresentacion mPre = new ManPresentacion(this,true);
+        ManPresentacion mPre = new ManPresentacion(this, true);
         mPre.setVisible(true);
     }//GEN-LAST:event_mPresentacionActionPerformed
 
     private void mTipoPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mTipoPreActionPerformed
-        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this,true);
+        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this, true);
         mTipoPre.setVisible(true);
     }//GEN-LAST:event_mTipoPreActionPerformed
 
     private void mUnidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mUnidadActionPerformed
-       ManUnidad mUni = new  ManUnidad(this,true);
-       mUni.setVisible(true);
+        ManUnidad mUni = new ManUnidad(this, true);
+        mUni.setVisible(true);
     }//GEN-LAST:event_mUnidadActionPerformed
 
     private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
@@ -766,17 +754,18 @@ private void mostrarHora() {
     }//GEN-LAST:event_btnVentas2ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-
+        jdVenta1 frm = new jdVenta1(this, true);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-        mantUsuario manUs = new  mantUsuario(this,true);
-       manUs.setVisible(true);
+        mantUsuario manUs = new mantUsuario(this, true);
+        manUs.setVisible(true);
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        FrmLogin frm = new FrmLogin(this,true);
+        FrmLogin frm = new FrmLogin(this, true);
         frm.setLocationRelativeTo(this);
         frm.setVisible(true);
     }//GEN-LAST:event_formWindowOpened
@@ -794,11 +783,9 @@ private void mostrarHora() {
         frm.setLocationRelativeTo(this);
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
-
     /**
      * @param args the command line arguments
      */
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClientes;
