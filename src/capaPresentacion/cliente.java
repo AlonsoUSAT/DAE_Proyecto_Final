@@ -4,8 +4,8 @@
  */
 package capaPresentacion;
 
-import capaNegocio.Cliente;
-import capaNegocio.TipoDocumento;
+import Capa_Negocio.Cliente;
+import Capa_Negocio.TipoDocumento;
 import java.awt.Color;
 import javax.swing.JOptionPane;
 import java.sql.ResultSet;
