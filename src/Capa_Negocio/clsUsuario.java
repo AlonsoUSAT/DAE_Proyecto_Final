@@ -7,7 +7,7 @@ package Capa_Negocio;
 import Capa_Datos.clsJDBC;
 import java.sql.Connection;
 import java.sql.ResultSet;
-
+import org.mindrot.jbcrypt.BCrypt;
 /**
  *
  * @author Mechan Vidaurre Mia
@@ -19,21 +19,30 @@ public class clsUsuario {
     ResultSet rs = null;
 
     public String[] login(String usu, String con) throws Exception {
-        strSQL = "select U.nomusuario, R.nombre_rol from "
-                + "usuario U inner join rol R on U.id_rol = R.id_rol where U.nomusuario = '" + usu + "' and U.clave = '" + con + "'";
+        // 1. Seleccionamos también la CLAVE (el hash) para poder compararla
+        strSQL = "select U.nomusuario, U.clave, R.nombre_rol from "
+                + "usuario U inner join rol R on U.id_rol = R.id_rol "
+                + "where U.nomusuario = '" + usu + "' and U.estado = true"; // Agregué filtro de estado activo por seguridad
         
         String[] valores = new String[2];
+        valores[0] = ""; // Inicializamos vacío por si falla
+        
         try {
-            rs = objConectar.consultarBD((strSQL));
-            while (rs.next()) {
-                valores[0] = rs.getString("nomusuario");
-                valores[1] = rs.getString("nombre_rol");
-                return valores;
+            rs = objConectar.consultarBD(strSQL);
+            if (rs.next()) {
+                // 2. Obtenemos el hash guardado en la BD
+                String hashGuardado = rs.getString("clave");
+                
+                // 3. Verificamos usando BCrypt
+                if (BCrypt.checkpw(con, hashGuardado)) {
+                    // ¡Contraseña correcta!
+                    valores[0] = rs.getString("nomusuario");
+                    valores[1] = rs.getString("nombre_rol");
+                }
             }
         } catch (Exception e) {
-            throw new Exception("Error al iniciar sesion -->" + e.getMessage());
+            throw new Exception("Error al iniciar sesión -->" + e.getMessage());
         }
-        valores[0] = "";
         return valores;
     }
    
@@ -169,7 +178,13 @@ public class clsUsuario {
     }
 
     public void registrar(Integer id, String nomUsuario, String clave, String nombre, String apePaterno, String apeMaterno, String correo, char sexo, Boolean estado, Integer idRol) throws Exception {
-        strSQL = "INSERT INTO USUARIO VALUES(" + id + ", '" + nomUsuario + "', '" + clave + "', " + estado + ", '" + nombre + "', '" + apePaterno + "', '" + apeMaterno + "', '" + correo + "', '" + sexo + "', " + idRol + ")";
+        
+        // 1. Encriptamos la contraseña
+        String claveEncriptada = BCrypt.hashpw(clave, BCrypt.gensalt());
+        
+        // 2. Usamos claveEncriptada en el SQL en lugar de 'clave'
+        strSQL = "INSERT INTO USUARIO VALUES(" + id + ", '" + nomUsuario + "', '" + claveEncriptada + "', " + estado + ", '" + nombre + "', '" + apePaterno + "', '" + apeMaterno + "', '" + correo + "', '" + sexo + "', " + idRol + ")";
+        
         try {
             objConectar.ejecutarBD(strSQL);
         } catch (Exception e) {
@@ -177,8 +192,16 @@ public class clsUsuario {
         }
     }
 
-    public void modificar(Integer id, String nomUsuario, String clave, String nombre, String apePaterno, String apeMaterno, String correo, char sexo, Boolean estado, Integer idRol) throws Exception {
-        strSQL = "UPDATE USUARIO SET nomUsuario='" + nomUsuario + "', clave='" + clave + "', estado=" + estado + ", nombre='" + nombre + "', apellidoPaterno='" + apePaterno + "', apellidoMaterno='" + apeMaterno + "', correo='" + correo + "', sexo='" + sexo + "', idRol=" + idRol + " WHERE idUsuario=" + id;
+   public void modificar(Integer id, String nomUsuario, String clave, String nombre, String apePaterno, String apeMaterno, String correo, char sexo, Boolean estado, Integer idRol) throws Exception {
+        
+        // 1. Encriptamos la nueva contraseña
+        // OJO: Asegúrate en tu formulario que si el campo clave está vacío, no lo mandes a modificar, 
+        // o maneja esa lógica aquí. Asumiremos que 'clave' es la nueva contraseña.
+        String claveEncriptada = BCrypt.hashpw(clave, BCrypt.gensalt());
+
+        // 2. Usamos claveEncriptada en el SQL
+        strSQL = "UPDATE USUARIO SET nomUsuario='" + nomUsuario + "', clave='" + claveEncriptada + "', estado=" + estado + ", nombre='" + nombre + "', apellidoPaterno='" + apePaterno + "', apellidoMaterno='" + apeMaterno + "', correo='" + correo + "', sexo='" + sexo + "', idRol=" + idRol + " WHERE idUsuario=" + id;
+        
         try {
             objConectar.ejecutarBD(strSQL);
         } catch (Exception e) {
