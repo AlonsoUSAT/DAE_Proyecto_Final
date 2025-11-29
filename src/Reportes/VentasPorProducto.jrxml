@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="VentasPorProducto" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="899578e4-cc48-4f18-a928-007df2f9572b">
+	<property name="ireport.zoom" value="1.0000000000000016"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="48"/>
+	<parameter name="fechaInicio" class="java.util.Date"/>
+	<parameter name="fechaFin" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[SELECT
+    p.nombre AS "Producto",
+    tp.nombretipopresentacion AS "Tipo Presentacion",
+    pres.cantidad AS "Cant. x Envase",
+    u.nombreunidad AS "Unidad Medida",
+    SUM(dv.cantidad) AS "Unidades Vendidas",
+    SUM(dv.cantidad * dv.precio) AS "Total Ingresos"
+FROM
+    public.detalle_venta dv
+INNER JOIN public.venta v ON dv.idventa = v.idventa
+INNER JOIN public.producto p ON dv.idproducto = p.idproducto
+INNER JOIN public.presentacion pres ON dv.idpresentacion = pres.idpresentacion
+INNER JOIN public.tipo_presentacion tp ON pres.tipopresentacion = tp.idtipopresentacion
+INNER JOIN public.unidad u ON pres.idunidad = u.idunidad
+WHERE
+    v.estado = true
+    -- OJO AQUÍ: Sintaxis de iReport
+    AND v.fecha >= $P{fechaInicio}
+    AND v.fecha <= $P{fechaFin}
+GROUP BY
+    p.idproducto, p.nombre, tp.nombretipopresentacion, pres.cantidad, u.nombreunidad
+ORDER BY
+    "Total Ingresos" DESC;]]>
+	</queryString>
+	<field name="Producto" class="java.lang.String"/>
+	<field name="Tipo Presentacion" class="java.lang.String"/>
+	<field name="Cant. x Envase" class="java.lang.Double"/>
+	<field name="Unidad Medida" class="java.lang.String"/>
+	<field name="Unidades Vendidas" class="java.lang.Long"/>
+	<field name="Total Ingresos" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="11" y="-7" width="534" height="86" backcolor="#00A2B9" uuid="9a438322-fa55-4720-9ac6-262c138766ae"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE VENTAS POR PRODUCTO]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<textField>
+				<reportElement x="11" y="7" width="555" height="20" uuid="cb73ff26-6b40-48c5-8029-868d17e2d48f"/>
+				<textElement textAlignment="Justified">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaInicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaFin})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="10" y="23" width="79" height="27" uuid="6ce54dc1-6d0f-494c-9215-7bcd1c6164ac"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Producto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="104" y="23" width="101" height="27" uuid="d6596057-5d47-4d48-bb82-7816a430808d"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Presentación]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="23" width="67" height="27" uuid="2a82dd3b-3e69-4b0c-8d5b-87fed482c7ad"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cantidad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="325" y="23" width="106" height="27" uuid="7aaba90c-75ae-44d5-93c4-e7172a4d2a66"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unidad Medida]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="460" y="23" width="106" height="27" uuid="f3e07c65-db5f-476a-8657-af6760c4a713"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unidad Vendida]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="0" width="89" height="35" uuid="2197bb41-72cc-48b1-9c5b-917525d9ed35"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="104" y="0" width="127" height="20" uuid="3e591922-2775-4a99-a959-8624c8e791cf"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Tipo Presentacion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="231" y="0" width="92" height="20" uuid="d9a8772e-a6d1-45e8-a74d-7a1e7d0633bd"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Cant. x Envase}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="338" y="0" width="105" height="20" uuid="8efa4706-5bea-45a0-83d0-77d22ff1f72d"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Unidad Medida}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="460" y="0" width="125" height="20" uuid="c6b28b33-1be2-4ded-99f3-bc5c9251560c"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Unidades Vendidas}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="87" width="54" height="27" uuid="0e3ec390-9f08-40e4-bbc2-6a8a60012ad5"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="75" y="87" width="130" height="20" uuid="a0155244-7d00-49b9-9a5e-9d129c05a2f3"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Total Ingresos}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="114" width="555" height="1" uuid="6ae9e66f-160a-46ce-a200-d535be172405"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="511" y="34" width="40" height="20" uuid="a04ed309-59ae-42c1-951c-0da52085f41d"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="431" y="34" width="80" height="20" uuid="a1ce2b04-2610-4bdb-bfb3-cf85f3bd6959"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

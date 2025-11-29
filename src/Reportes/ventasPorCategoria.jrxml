@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ventasPorCategoria" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5aca3f85-d97f-490c-8ed3-d80cfa0263f5">
+	<property name="ireport.zoom" value="1.0000000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="88"/>
+	<parameter name="fechaInicio" class="java.util.Date"/>
+	<parameter name="fechaFin" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[SELECT
+    c.nombrecategoria AS "Categoria",  -- <--- CAMBIO AQUÍ (Sin tilde)
+    COUNT(DISTINCT v.idventa) AS "Nro. Transacciones",
+    SUM(dv.cantidad) AS "Items Vendidos",
+    SUM(dv.cantidad * dv.precio) AS "Total Ingresos"
+FROM
+    public.detalle_venta dv
+INNER JOIN public.venta v ON dv.idventa = v.idventa
+INNER JOIN public.producto p ON dv.idproducto = p.idproducto
+INNER JOIN public.categoria c ON p.idcategoria = c.idcategoria
+WHERE
+    v.estado = true
+    AND v.fecha >= $P{fechaInicio}
+    AND v.fecha <= $P{fechaFin}
+GROUP BY
+    c.idcategoria, c.nombrecategoria
+ORDER BY
+    "Total Ingresos" DESC;]]>
+	</queryString>
+	<field name="Categoria" class="java.lang.String"/>
+	<field name="Nro. Transacciones" class="java.lang.Long"/>
+	<field name="Items Vendidos" class="java.lang.Long"/>
+	<field name="Total Ingresos" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="79" backcolor="#00A2B9" uuid="65fb1e9d-aaf0-4697-8a27-1fe182ab2b1f"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE VENTAS POR CATEGORIA]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="15" width="555" height="20" uuid="8ccb190d-ae9b-4e29-b828-8314d4372c01"/>
+				<textElement textAlignment="Justified">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaInicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaFin})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="44" y="34" width="106" height="27" uuid="784fab21-6986-4628-a04b-0009708b0e5a"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Categoría]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="205" y="34" width="72" height="27" uuid="b83761ee-721f-41d2-9351-d32b8df5d164"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Items Vendidos]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="332" y="34" width="186" height="27" uuid="e44ca34f-f20b-40bb-8be9-d6be899a1b36"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nro. Transacciones]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<staticText>
+				<reportElement x="16" y="92" width="128" height="27" uuid="4d3e72f7-bdc9-4644-a7ec-803058f3edaf"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Ingresos]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="118" width="555" height="1" uuid="444f603b-7c2c-40f0-96a3-0b86750e6b8f"/>
+			</line>
+			<textField>
+				<reportElement x="44" y="10" width="100" height="20" uuid="f6cb2c8b-3e0d-4287-b4e1-785b04e3b083"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Categoria}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="150" y="98" width="146" height="20" uuid="73bd4264-6328-464a-8296-4bb5c0d600d9"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Total Ingresos} ]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="338" y="10" width="180" height="20" uuid="5fc5b514-11ce-4350-a5ac-b56898e4f42e"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Nro. Transacciones}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="205" y="10" width="126" height="20" uuid="be771e6b-f818-405f-93c4-88f732956e36"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Items Vendidos}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="518" y="34" width="40" height="20" uuid="23e7cea4-78d1-4317-80cb-06e6582cfba5"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="438" y="34" width="80" height="20" uuid="7ed84eda-5029-4652-b9b8-9d769e400e96"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
