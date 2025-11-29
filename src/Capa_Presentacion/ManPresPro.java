@@ -10,12 +10,19 @@ package Capa_Presentacion;
  */
 
 
-import Capa_Datos.LoteDAO;
+
+// Importaciones necesarias de la Capa de Negocio
+import Capa_Negocio.clsLote; 
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsPresentacionProducto;
-import Capa_Datos.PresentacionDAO;
-import Capa_Datos.PresentacionProductoDAO;
-import Capa_Negocio.clsProducto;
+// Las importaciones de DAO deben ser eliminadas o comentadas si la lógica se migró:
+// import Capa_Datos.LoteDAO;
+// import Capa_Datos.PresentacionDAO;
+// import Capa_Datos.PresentacionProductoDAO;
+
+import Capa_Negocio.clsProducto; // Mantener si se usa clsProducto
+
+import java.math.BigDecimal; // Necesario para manejar BigDecimal del ResultSet si es necesario (Revisar en listarFormatosParaTabla)
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
@@ -27,15 +34,19 @@ import javax.swing.table.DefaultTableModel;
 public class ManPresPro extends javax.swing.JDialog {
 
  
-    PresentacionProductoDAO objPresProd = new PresentacionProductoDAO();
-    PresentacionDAO objPresentacion = new PresentacionDAO();
-    LoteDAO objLoteDAO = new LoteDAO();
+    // Instancia de la clase actual (Presentacion-Producto)
+    private final clsPresentacionProducto objPresProd = new clsPresentacionProducto(0, 0, 0, 0, false); 
     
+    // Instancia de la clase Presentacion (asumiendo que contiene sus métodos DAO)
+    private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
+    
+    // Instancia de la clase Lote (asumiendo que contiene sus métodos DAO)
+    private final clsLote objLote = new clsLote(0, null, null, null, 0, 0, false, 0, 0, null, null);
+
     
     private final int productoID;
     private final String productoNombre;
     private final boolean productoEstaVigente;
-
     
    public ManPresPro(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, boolean productoEsVigente) {
        super(parent, modal);
@@ -606,7 +617,7 @@ public class ManPresPro extends javax.swing.JDialog {
         int idPresentacion = (int) tblPresentacionProducto.getValueAt(filaSeleccionada, 0);
 
        
-        if (objLoteDAO.existenLotesParaPresentacion(this.productoID, idPresentacion)) {
+        if (objLote.existenLotesParaPresentacion(this.productoID, idPresentacion)) {
             JOptionPane.showMessageDialog(this,
                 "No se puede eliminar esta presentación porque tiene lotes registrados.\n\n",
                 "Acción no Permitida",

@@ -7,10 +7,14 @@ package Capa_Presentacion;
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsTipoPresentacion;
 import Capa_Negocio.clsUnidad;
-import Capa_Datos.PresentacionDAO;
-import Capa_Datos.PresentacionProductoDAO;
-import Capa_Datos.TipoPresentacionDAO1;
-import Capa_Datos.UnidadDAO;
+// Importamos la clase de negocio que contiene la lógica para verificar si una presentación está en uso
+import Capa_Negocio.clsPresentacionProducto; 
+
+// ELIMINAMOS O COMENTAMOS LAS REFERENCIAS A CLASES DAO EXTERNAS:
+// import Capa_Datos.PresentacionProductoDAO;
+// import Capa_Datos.TipoPresentacionDAO1;
+// import Capa_Datos.UnidadDAO;
+
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -21,18 +25,25 @@ import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
-
 /**
  *
  * @author USER
  */
 public class ManPresentacion extends javax.swing.JDialog {
 
-    private final PresentacionDAO objPresentacion = new PresentacionDAO();
-    private final TipoPresentacionDAO1 objTipoPresentacion = new TipoPresentacionDAO1();
-    private final UnidadDAO objUnidad = new UnidadDAO();
     
-    private final PresentacionProductoDAO objPresProdDAO = new PresentacionProductoDAO(); 
+   // 1. Instancia para las operaciones de Presentación (CRUD)
+    private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
+    
+    // 2. Instancia para listar los Tipos de Presentación
+    private final clsTipoPresentacion objTipoPresentacion = new clsTipoPresentacion();
+    
+    // 3. Instancia para listar las Unidades
+    private final clsUnidad objUnidad = new clsUnidad();
+    
+    // 4. Instancia para verificar si la Presentación está en uso (Lógica de Presentacion_Producto)
+    private final clsPresentacionProducto objPresProd = new clsPresentacionProducto(0, 0, 0, 0, false); 
+    
     private List<clsPresentacion> listaDePresentaciones;
 
     public ManPresentacion(java.awt.Frame parent, boolean modal) {
@@ -572,7 +583,7 @@ public class ManPresentacion extends javax.swing.JDialog {
         try {
             int id = Integer.parseInt(txtID.getText());
             
-            if (objPresProdDAO.presentacionEstaEnUso(id)) {
+            if (objPresProd.presentacionEstaEnUso(id)) {
                 JOptionPane.showMessageDialog(this,
                     "Esta presentación no se puede dar de baja porque está asignada a uno o más productos.",
                     "Acción Denegada",
@@ -608,7 +619,7 @@ public class ManPresentacion extends javax.swing.JDialog {
         try {
             int id = Integer.parseInt(txtID.getText());
 
-            if (objPresProdDAO.presentacionEstaEnUso(id)) {
+            if (objPresProd.presentacionEstaEnUso(id)) {
                 JOptionPane.showMessageDialog(this,
                     "Esta presentación no se puede ELIMINAR porque está asignada a uno o más productos.",
                     "Acción Denegada",
@@ -652,7 +663,7 @@ public class ManPresentacion extends javax.swing.JDialog {
             boolean nuevoEstado = chkActivo.isSelected();
 
             if (!nuevoEstado) {
-                if (objPresProdDAO.presentacionEstaEnUso(id)) {
+                if (objPresProd.presentacionEstaEnUso(id)) {
                     JOptionPane.showMessageDialog(this,
                         "No se puede desactivar esta presentación porque está asignada a uno o más productos.",
                         "Acción Denegada",

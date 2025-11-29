@@ -14,7 +14,7 @@ public class mantProducto extends javax.swing.JDialog {
     clsMarca objMarca = new clsMarca();
     clsCategoria objCategoria = new clsCategoria();
     clsLaboratorio objDistribuidores = new clsLaboratorio();
-    private final PresentacionProductoDAO ppDAO = new PresentacionProductoDAO();
+    private final clsPresentacionProducto ppDAO = new clsPresentacionProducto();
 
     private boolean estadoOriginalDelProducto = true;
 

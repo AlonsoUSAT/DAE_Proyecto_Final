@@ -4,9 +4,14 @@
  */
 package Capa_Presentacion;
 
-import Capa_Datos.PresentacionDAO; 
-import Capa_Datos.TipoPresentacionDAO1;
+// Importaciones adaptadas a la nueva estructura:
+// import Capa_Datos.PresentacionDAO;      // <-- Eliminado
+// import Capa_Datos.TipoPresentacionDAO1; // <-- Eliminado
 import Capa_Negocio.clsTipoPresentacion;
+
+// Asumo que tienes una clase clsPresentacion con la lógica de verificar el uso:
+import Capa_Negocio.clsPresentacion; 
+
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -19,10 +24,17 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
 
    
     
-     private final TipoPresentacionDAO1 objDAO = new TipoPresentacionDAO1();
-    private final PresentacionDAO objPresentacionDAO = new PresentacionDAO(); 
+  // 💡 CAMBIOS CLAVE: Instancias de la Capa de Negocio
+    // 1. La clase de negocio clsTipoPresentacion ahora hace el trabajo de TipoPresentacionDAO1
+    // Inicializamos una instancia para llamar a sus métodos no estáticos.
+    private final clsTipoPresentacion objTipoPresentacion = new clsTipoPresentacion();
+    
+    // 2. Necesitamos una instancia de clsPresentacion para llamar a verificarUsoTipoPresentacion
+    // (Asumiendo que el constructor largo no tiene impacto en la instancia de utility)
+    private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
+    
     private List<clsTipoPresentacion> listaTipos;
-    private clsTipoPresentacion tipoSeleccionadoActual; 
+    private clsTipoPresentacion tipoSeleccionadoActual;
     
     public ManTipoPresentacion(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -56,7 +68,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         DefaultTableModel modelo = (DefaultTableModel) tblTipoPresentacion.getModel();
         modelo.setRowCount(0);
         try {
-            listaTipos = objDAO.listarTodos();
+            listaTipos = objTipoPresentacion.listarTodos();
             for (clsTipoPresentacion tipo : listaTipos) {
                 modelo.addRow(new Object[]{
                     tipo.getId(),
@@ -400,7 +412,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
             gestionarEstadoControles("nuevo");
             limpiarCampos();
             try {
-                txtID.setText(String.valueOf(objDAO.generarNuevoId()));
+                txtID.setText(String.valueOf(objTipoPresentacion.generarNuevoId()));
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error al generar ID: " + e.getMessage());
             }
@@ -415,7 +427,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
                 tipo.setId(Integer.parseInt(txtID.getText()));
                 tipo.setNombre(txtNombre.getText());
                 tipo.setEstado(chkEstado.isSelected());
-                objDAO.registrar(tipo);
+                objTipoPresentacion.registrar(tipo);
                 JOptionPane.showMessageDialog(this, "Registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 actualizarTabla();
                 gestionarEstadoControles("inicio");
@@ -436,7 +448,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         int idTipoPresentacion = Integer.parseInt(txtID.getText());
 
       
-        boolean enUso = objPresentacionDAO.verificarUsoTipoPresentacion(idTipoPresentacion);
+        boolean enUso = objPresentacion.verificarUsoTipoPresentacion(idTipoPresentacion);
 
         if (enUso) {
             JOptionPane.showMessageDialog(this,
@@ -450,7 +462,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
 
         int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible. ¿Desea eliminar el registro?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
-            objDAO.eliminar(idTipoPresentacion);
+            objTipoPresentacion.eliminar(idTipoPresentacion);
             JOptionPane.showMessageDialog(this, "Eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             actualizarTabla();
             gestionarEstadoControles("inicio");
@@ -487,7 +499,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
     if (viejoEstado == true && nuevoEstado == false) {
         try {
            
-            boolean enUso = objPresentacionDAO.verificarUsoTipoPresentacion(idTipoPresentacion);
+            boolean enUso = objPresentacion.verificarUsoTipoPresentacion(idTipoPresentacion);
             
             if (enUso) {
                 JOptionPane.showMessageDialog(this,
@@ -510,7 +522,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         tipo.setNombre(txtNombre.getText());
         tipo.setEstado(nuevoEstado); 
 
-        objDAO.modificar(tipo);
+        objTipoPresentacion.modificar(tipo);
 
         JOptionPane.showMessageDialog(this, "Modificado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         actualizarTabla();
@@ -527,7 +539,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         int idTipoPresentacion = Integer.parseInt(txtID.getText());
 
        
-        boolean enUso = objPresentacionDAO.verificarUsoTipoPresentacion(idTipoPresentacion);
+        boolean enUso = objPresentacion.verificarUsoTipoPresentacion(idTipoPresentacion);
 
         if (enUso) {
             JOptionPane.showMessageDialog(this,
@@ -540,7 +552,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         
         int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea dar de baja este registro?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            objDAO.darDeBaja(idTipoPresentacion);
+            objTipoPresentacion.darDeBaja(idTipoPresentacion);
             JOptionPane.showMessageDialog(this, "Registro dado de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             actualizarTabla();
             gestionarEstadoControles("inicio");
@@ -557,7 +569,7 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
         }
         try {
             int id = Integer.parseInt(txtID.getText());
-            clsTipoPresentacion tipo = objDAO.buscarPorId(id);
+            clsTipoPresentacion tipo = objTipoPresentacion.buscarPorId(id);
             if (tipo != null) {
                 tipoSeleccionadoActual = tipo; 
                 cargarDatos(tipo);
