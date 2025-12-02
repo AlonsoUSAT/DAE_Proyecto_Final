@@ -15,26 +15,34 @@ public class clsUsuario {
     ResultSet rs = null;
 
     public String[] login(String usu, String con) throws Exception {
-        strSQL = "SELECT nombres, codusuario FROM usuario "
-                + "WHERE nomusuario='" + usu + "' AND clave ='" + con + "' AND estado=true";
+        // 1. Buscamos SOLO por usuario (y que esté activo)
+        // NO ponemos la contraseña en el WHERE
+        strSQL = "SELECT nombres, codusuario, clave, id_rol FROM usuario "
+               + "WHERE nomusuario='" + usu + "' AND estado=true";
 
         String[] datos = new String[2];
 
         try {
             rs = objConectar.consultarBD(strSQL);
             if (rs.next()) {
-                String hahGuardado = rs.getString("clave");
-                if (BCrypt.checkpw(con, hahGuardado)) {
+                // 2. Obtenemos el Hash encriptado de la BD
+                String hashGuardado = rs.getString("clave");
+                
+                // 3. Comparamos la contraseña escrita ('con') con el Hash ('hashGuardado')
+                if (BCrypt.checkpw(con, hashGuardado)) {
+                    // ¡Coinciden! Login exitoso
                     datos[0] = rs.getString("nombres");
-                    datos[1] = rs.getString("codusuario"); // Recuperamos el ID
+                    datos[1] = rs.getString("codusuario"); 
+                    
+                    // Opcional: También puedes devolver el nombre del rol si haces el JOIN en la consulta
+                    
                     return datos;
                 }
-
             }
         } catch (Exception e) {
-            throw new Exception("Error al iniciar sesión completo: " + e.getMessage());
+            throw new Exception("Error al iniciar sesión: " + e.getMessage());
         }
-        return null; // Retorna null si no encuentra usuario
+        return null; // Usuario no existe o contraseña incorrecta
     }
 
     public Boolean validarVigencia(String usu) throws Exception {

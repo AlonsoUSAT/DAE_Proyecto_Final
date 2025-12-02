@@ -76,7 +76,6 @@ public class FrmLogin extends javax.swing.JDialog {
         txtContraseña = new javax.swing.JPasswordField();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        btnCambiarContraseña = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -130,14 +129,6 @@ public class FrmLogin extends javax.swing.JDialog {
 
         jLabel6.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
 
-        btnCambiarContraseña.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        btnCambiarContraseña.setText("Cambiar contraseña");
-        btnCambiarContraseña.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCambiarContraseñaActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -148,7 +139,6 @@ public class FrmLogin extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnCambiarContraseña, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(btnCancelar)
                         .addGap(30, 30, 30)
@@ -189,9 +179,7 @@ public class FrmLogin extends javax.swing.JDialog {
                     .addComponent(btnCambiarCaptcha))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtRespuesta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnCambiarContraseña)
-                .addGap(8, 8, 8)
+                .addGap(45, 45, 45)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -291,14 +279,9 @@ public class FrmLogin extends javax.swing.JDialog {
         System.exit(0);
     }//GEN-LAST:event_formWindowClosing
 
-    private void btnCambiarContraseñaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCambiarContraseñaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnCambiarContraseñaActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCambiarCaptcha;
-    private javax.swing.JButton btnCambiarContraseña;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnLogin;
     private javax.swing.JLabel jLabel2;

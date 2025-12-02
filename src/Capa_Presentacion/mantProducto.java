@@ -57,10 +57,10 @@ public class mantProducto extends javax.swing.JDialog {
         try {
             rsCar = objCategoria.listarCategoriasActivas();
             while (rsCar.next()) {
-                modeloMar.addElement(rsCar.getString("nommarca"));
+                modeloMar.addElement(rsCar.getString("nombrecategoria"));
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al listar marcas en el combobox");
+            JOptionPane.showMessageDialog(this, "Error al listar categorías en el combobox");
         }
 
     }
@@ -72,7 +72,7 @@ public class mantProducto extends javax.swing.JDialog {
         try {
             rsMar = objMarca.listarMarcasActivas();
             while (rsMar.next()) {
-                modeloMar.addElement(rsMar.getString("nommarca"));
+                modeloMar.addElement(rsMar.getString("nombre"));
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al listar marcas en el combobox");
@@ -83,14 +83,14 @@ public class mantProducto extends javax.swing.JDialog {
     private void cargarComboDistribuidores() {
         ResultSet rsDis = null;
         DefaultComboBoxModel modeloMar = new DefaultComboBoxModel();
-        cmbMarca.setModel(modeloMar);
+        cmbDistribuidor.setModel(modeloMar);
         try {
             rsDis = objDistribuidores.listarLaboratoriosActivos();
             while (rsDis.next()) {
-                modeloMar.addElement(rsDis.getString("nommarca"));
+                modeloMar.addElement(rsDis.getString("nombrelaboratorio"));
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al listar marcas en el combobox");
+            JOptionPane.showMessageDialog(this, "Error al listar distribuidores en el combobox");
         }
 
     }
@@ -635,40 +635,62 @@ public class mantProducto extends javax.swing.JDialog {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
-            JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
-            return;
+    // 1. Validación
+    if (txtNombre.getText().trim().isEmpty() || cmbCategoria.getSelectedIndex() == -1 
+            || cmbMarca.getSelectedIndex() == -1 || cmbDistribuidor.getSelectedIndex() == -1) {
+        JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    try {
+        // 2. OBTENER LOS IDs CORRECTAMENTE
+        // Usamos .trim() para evitar errores por espacios
+        String nombreCategoria = cmbCategoria.getSelectedItem().toString().trim();
+        String nombreMarca = cmbMarca.getSelectedItem().toString().trim();
+        String nombreDistribuidor = cmbDistribuidor.getSelectedItem().toString().trim();
+
+        // --- CORRECCIÓN CLAVE: Usamos los nombres de métodos que SÍ existen en tus clases ---
+        // Verifica en tus clases clsCategoria, clsMarca y clsLaboratorio. 
+        // Si el método se llama 'getCodigo', úsalo aquí.
+        int idCategoria = objCategoria.getCodigo(nombreCategoria); 
+        int idMarca = objMarca.getCodigo(nombreMarca); 
+        int idDistribuidor = objDistribuidores.getCodigo(nombreDistribuidor); 
+
+        // Validación extra de seguridad
+        if (idCategoria == 0 || idMarca == 0 || idDistribuidor == 0) {
+            throw new Exception("Error al obtener los códigos de Categoria, Marca o Distribuidor. Verifique que existan.");
         }
 
-        try {
-            if (btnModificar.getText().equals("Guardar")) {
-                objProducto.registrarProducto(Integer.parseInt(txtID.getText()),
-                        txtNombre.getText().trim(),
-                        txtDescripcion.getText(),
-                        chkVigencia.isSelected(),
-                        objCategoria.obtenerCodigoCategoria(cmbCategoria.getSelectedItem().toString()),
-                        objMarca.obtenerCodigoMarca(cmbMarca.getSelectedItem().toString()),
-                        objDistribuidores.obtenerCodigoLaboratorio(cmbMarca.getSelectedItem().toString()));
-            } else { // Lógica para modificar
-                objProducto.modificarProducto(Integer.parseInt(txtID.getText()),
-                        txtNombre.getText().trim(),
-                        txtDescripcion.getText(),
-                        chkVigencia.isSelected(),
-                        objCategoria.obtenerCodigoCategoria(cmbCategoria.getSelectedItem().toString()),
-                        objMarca.obtenerCodigoMarca(cmbMarca.getSelectedItem().toString()),
-                        objDistribuidores.obtenerCodigoLaboratorio(cmbMarca.getSelectedItem().toString()));
-
-            }
-
-            JOptionPane.showMessageDialog(this, "Éxito");
-
-            listarProductos();
-            estadoInicialControles();
-            // Se quitó limpiarControles() para mantener consistencia con el flujo anterior
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        // 3. Preparar los datos
+        // Nota: txtID puede estar en "(Automático)", así que para registrar usamos 0 o lo ignoramos
+        int idProducto = 0;
+        if (!txtID.getText().equals("(Automático)") && !txtID.getText().isEmpty()) {
+             idProducto = Integer.parseInt(txtID.getText());
         }
+        
+        String nombre = txtNombre.getText().trim();
+        String descripcion = txtDescripcion.getText();
+        boolean estado = chkVigencia.isSelected();
+
+        // 4. Guardar o Modificar
+        if (btnModificar.getText().equals("Guardar")) {
+            // REGISTRAR (Pasamos 0 como ID porque es automático, o lo que espere tu método)
+            objProducto.registrarProducto(0, nombre, descripcion, estado, idCategoria, idMarca, idDistribuidor);
+            JOptionPane.showMessageDialog(this, "Producto registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            // MODIFICAR
+            objProducto.modificarProducto(idProducto, nombre, descripcion, estado, idCategoria, idMarca, idDistribuidor);
+            JOptionPane.showMessageDialog(this, "Producto modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        // 5. Limpiar
+        listarProductos();
+        estadoInicialControles(); // Usamos este que ya limpia y resetea
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al procesar el producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace(); // Esto imprimirá el error exacto en la consola de NetBeans para ayudarte más
+    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed

@@ -47,7 +47,7 @@ public class clsMarca {
         strSQL = "select * from marca where nommarca= '" +nom + "'";
         try {
             rs = objConectar.consultarBD(strSQL);
-            if (rs.next()) return rs.getInt("codmarca");
+            if (rs.next()) return rs.getInt("idmarca");
 
         } catch (Exception e) {
             throw new Exception("Error al buscar la marca por nombre");
@@ -69,18 +69,20 @@ public class clsMarca {
         return 1;
     }
 
-    public void registrarMarca(Integer id, String nom, String desc, Integer idLab, Boolean estado) throws Exception {
-        String nomSeguro = (nom != null) ? nom.replace("'", "''") : "";
-        String descSeguro = (desc != null) ? desc.replace("'", "''") : "";
-        
-        strSQL = "INSERT INTO MARCA(idMarca, nombre, descripcion, idLaboratorio, estado) VALUES(" +
-                 id + ", '" + nomSeguro + "', '" + descSeguro + "', " + idLab + ", " + estado + ")";
-        try {
-            objConectar.ejecutarBD(strSQL);
-        } catch (Exception e) {
-            throw new Exception("Error al registrar la marca: " + e.getMessage());
-        }
+    public void registrarMarca(String nom, String desc, Integer idLab, Boolean estado) throws Exception {
+    String nomSeguro = (nom != null) ? nom.replace("'", "''") : "";
+    String descSeguro = (desc != null) ? desc.replace("'", "''") : "";
+    
+    // 2. Modificamos el INSERT para NO incluir la columna idMarca
+    strSQL = "INSERT INTO MARCA(nombre, descripcion, idLaboratorio, estado) VALUES('" +
+             nomSeguro + "', '" + descSeguro + "', " + idLab + ", " + estado + ")";
+             
+    try {
+        objConectar.ejecutarBD(strSQL);
+    } catch (Exception e) {
+        throw new Exception("Error al registrar la marca: " + e.getMessage());
     }
+}
 
     public ResultSet buscarMarca(Integer cod) throws Exception {
         strSQL = "SELECT m.idMarca, m.nombre, m.descripcion, m.estado, m.idLaboratorio, l.nombreLaboratorio " +

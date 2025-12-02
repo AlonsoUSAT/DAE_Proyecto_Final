@@ -131,6 +131,11 @@ public class clsProducto {
     public void registrarProducto(Integer idProducto, String nombre, String descripcion,
             Boolean estado, int idMarca, int idCategoria, int idDistribuidor) throws Exception {
 
+        // --- CORRECCIÓN CLAVE: SI EL ID ES 0, GENERAMOS UNO NUEVO ---
+        if (idProducto == 0) {
+            idProducto = generarCodigoProducto(); // Calculamos el ID real aquí mismo
+        }
+
         String nombreSeguro = nombre.replace("'", "''");
         String descSegura = (descripcion != null) ? descripcion.replace("'", "''") : "";
 

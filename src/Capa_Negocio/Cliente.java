@@ -1,10 +1,11 @@
-
 package Capa_Negocio;
 
 import Capa_Datos.clsJDBC;
 import java.sql.ResultSet;
 import java.util.Date;
 import java.sql.Connection;
+import java.sql.PreparedStatement; // Necesario importar
+import java.sql.SQLException;      // Necesario importar
 
 /**
  *
@@ -36,7 +37,7 @@ public class Cliente {
     public Cliente() {
     }
 
-    // GETTERS Y SETTERS (Ya los tenías, los mantengo completos)
+    // GETTERS Y SETTERS
     public int getIdCliente() { return idCliente; }
     public void setIdCliente(int idCliente) { this.idCliente = idCliente; }
 
@@ -73,10 +74,12 @@ public class Cliente {
     public Date getFechaNacimiento() { return fechaNacimiento; }
     public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    // MÉTODO PARA LISTAR TIPOS DE DOCUMENTOS (YA LO TENÍAS, CORREGIDO)
+    // MÉTODO PARA LISTAR TIPOS DE DOCUMENTOS
     public ResultSet listarTiposClientes() throws Exception {
         this.strSQL = "SELECT id_tipodoc, nom_tipodoc FROM tipo_documento ORDER BY id_tipodoc";
         try {
+            // ✅ CORRECCIÓN: Asegurar conexión
+            objConectar.conectar(); 
             this.rs = objConectar.consultarBD(strSQL);
             return this.rs;
         } catch (Exception e) {
@@ -94,16 +97,19 @@ public class Cliente {
             strSQL = "SELECT id_tipodoc, nom_tipodoc FROM tipo_documento WHERE 1=0";
         }
         try {
+            // ✅ CORRECCIÓN: Asegurar conexión
+            objConectar.conectar();
             return objConectar.consultarBD(strSQL);
         } catch (Exception e) {
             throw new Exception("Error al listar tipos de documento filtrado: " + e.getMessage());
         }
     }
 
-    // ✅ MÉTODO PARA INSERTAR UN CLIENTE (PERSONA O EMPRESA)
+    // ✅ MÉTODO PARA INSERTAR UN CLIENTE
     public boolean insertarCliente(boolean esPersona) throws Exception {
         Connection localCon = null;
         try {
+            // ✅ CORRECCIÓN: Abrir conexión explícitamente
             objConectar.conectar();
             localCon = objConectar.getCon();
             localCon.setAutoCommit(false); // Iniciar transacción
@@ -131,11 +137,11 @@ public class Cliente {
                 strSQL = "INSERT INTO persona (idpersona, nombres, apellidopaterno, apellidomaterno, sexo, fecha_nacimiento, idcliente) "
                         + "VALUES (?, ?, ?, ?, ?, ?, ?)";
                 ps = localCon.prepareStatement(strSQL);
-                ps.setInt(1, idGenerado); // idpersona = idcliente (clave primaria compuesta)
+                ps.setInt(1, idGenerado); // idpersona = idcliente
                 ps.setString(2, this.nombres);
                 ps.setString(3, this.apellidoPaterno);
                 ps.setString(4, this.apellidoMaterno != null ? this.apellidoMaterno : "");
-                ps.setString(5, this.sexo != null ? this.sexo.substring(0, 1) : "M"); // 'M' o 'F'
+                ps.setString(5, this.sexo != null ? this.sexo.substring(0, 1) : "M");
                 if (this.fechaNacimiento != null) {
                     ps.setDate(6, new java.sql.Date(this.fechaNacimiento.getTime()));
                 } else {
@@ -148,9 +154,9 @@ public class Cliente {
                 strSQL = "INSERT INTO empresa (idempresa, razonsocial, idcliente) "
                         + "VALUES (?, ?, ?)";
                 ps = localCon.prepareStatement(strSQL);
-                ps.setInt(1, idGenerado); // idempresa = idcliente
+                ps.setInt(1, idGenerado); 
                 ps.setString(2, this.razonSocial);
-                ps.setInt(3, idGenerado); // idcliente
+                ps.setInt(3, idGenerado);
                 ps.executeUpdate();
             }
 
@@ -165,7 +171,8 @@ public class Cliente {
         } finally {
             if (localCon != null) {
                 localCon.setAutoCommit(true); // Restaurar auto-commit
-                objConectar.desconectar(); // Cerrar conexión
+                // ✅ CORRECCIÓN: NO cerramos la conexión aquí para permitir que la interfaz siga usándola
+                // objConectar.desconectar(); 
             }
         }
     }
@@ -174,6 +181,7 @@ public class Cliente {
     public boolean actualizarCliente(boolean esPersona) throws Exception {
         Connection localCon = null;
         try {
+            // ✅ CORRECCIÓN: Abrir conexión
             objConectar.conectar();
             localCon = objConectar.getCon();
             localCon.setAutoCommit(false);
@@ -224,15 +232,17 @@ public class Cliente {
         } finally {
             if (localCon != null) {
                 localCon.setAutoCommit(true);
-                objConectar.desconectar();
+                // ✅ CORRECCIÓN: No desconectar
+                // objConectar.desconectar();
             }
         }
     }
 
-    // ✅ MÉTODO PARA ELIMINAR UN CLIENTE (y su registro en persona/empresa)
+    // ✅ MÉTODO PARA ELIMINAR UN CLIENTE
     public boolean eliminarCliente() throws Exception {
         Connection localCon = null;
         try {
+            // ✅ CORRECCIÓN: Abrir conexión
             objConectar.conectar();
             localCon = objConectar.getCon();
             localCon.setAutoCommit(false);
@@ -243,7 +253,7 @@ public class Cliente {
                 throw new Exception("Cliente no encontrado.");
             }
 
-            // Eliminar de la tabla secundaria (persona o empresa)
+            // Eliminar de la tabla secundaria
             if ("PERSONA".equals(tipo)) {
                 strSQL = "DELETE FROM persona WHERE idcliente = ?";
             } else {
@@ -270,17 +280,22 @@ public class Cliente {
         } finally {
             if (localCon != null) {
                 localCon.setAutoCommit(true);
-                objConectar.desconectar();
+                // ✅ CORRECCIÓN: No desconectar
+                // objConectar.desconectar();
             }
         }
     }
 
-    // ✅ MÉTODO AUXILIAR: Obtener tipo de cliente (PERSONA o EMPRESA)
+    // ✅ MÉTODO AUXILIAR: Obtener tipo de cliente
     private String obtenerTipoCliente(int idCliente) throws Exception {
         strSQL = "SELECT CASE WHEN p.idcliente IS NOT NULL THEN 'PERSONA' ELSE 'EMPRESA' END AS tipo "
                 + "FROM cliente c LEFT JOIN persona p ON c.idcliente = p.idcliente "
                 + "LEFT JOIN empresa e ON c.idcliente = e.idcliente WHERE c.idcliente = ?";
         try {
+            // Asegurar conexión (puede llamarse internamente)
+            if(objConectar.getCon() == null || objConectar.getCon().isClosed()) {
+                objConectar.conectar();
+            }
             java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
             ps.setInt(1, idCliente);
             ResultSet rs = ps.executeQuery();
@@ -302,6 +317,8 @@ public class Cliente {
                 + "LEFT JOIN empresa e ON c.idcliente = e.idcliente "
                 + "WHERE c.nrodoc = ?";
         try {
+            // ✅ CORRECCIÓN: Asegurar conexión
+            objConectar.conectar();
             java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
             ps.setString(1, nroDoc);
             return ps.executeQuery();
@@ -310,7 +327,7 @@ public class Cliente {
         }
     }
 
-    // ✅ MÉTODO PARA CARGAR TODOS LOS CLIENTES (para llenar JTable)
+    // ✅ MÉTODO PARA CARGAR TODOS LOS CLIENTES
     public ResultSet listarTodosClientes() throws Exception {
         strSQL = "SELECT c.idcliente, c.nrodoc, c.direccion, c.telefono, c.correo, td.nom_tipodoc, "
                 + "CASE WHEN p.idcliente IS NOT NULL THEN 'PERSONA' ELSE 'EMPRESA' END AS tipo_cliente, "
@@ -321,13 +338,15 @@ public class Cliente {
                 + "LEFT JOIN empresa e ON c.idcliente = e.idcliente "
                 + "ORDER BY c.idcliente DESC";
         try {
+            // ✅ CORRECCIÓN: Asegurar conexión
+            objConectar.conectar();
             return objConectar.consultarBD(strSQL);
         } catch (Exception e) {
             throw new Exception("Error al listar clientes: " + e.getMessage());
         }
     }
 
-    // ✅ MÉTODO PARA BUSCAR CLIENTE POR ID (para cargar en formulario)
+    // ✅ MÉTODO PARA BUSCAR CLIENTE POR ID
     public ResultSet buscarClientePorId(int idCliente) throws Exception {
         strSQL = "SELECT c.*, p.nombres, p.apellidopaterno, p.apellidomaterno, p.sexo, p.fecha_nacimiento, "
                 + "e.razonsocial "
@@ -336,6 +355,8 @@ public class Cliente {
                 + "LEFT JOIN empresa e ON c.idcliente = e.idcliente "
                 + "WHERE c.idcliente = ?";
         try {
+            // ✅ CORRECCIÓN: Asegurar conexión
+            objConectar.conectar();
             java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
             ps.setInt(1, idCliente);
             return ps.executeQuery();
@@ -344,13 +365,17 @@ public class Cliente {
         }
     }
 
-    // ✅ MÉTODO PARA VERIFICAR SI EL NÚMERO DE DOCUMENTO YA EXISTE (ANTES DE INSERTAR)
+    // ✅ MÉTODO PARA VERIFICAR SI EL NÚMERO DE DOCUMENTO YA EXISTE
+    // --- AQUÍ ESTABA EL ERROR ORIGINAL ---
     public boolean existeNroDoc(String nroDoc, int idClienteActual) throws Exception {
         strSQL = "SELECT COUNT(*) FROM cliente WHERE nrodoc = ? AND idcliente != ?";
         try {
+            // ✅ CORRECCIÓN: ¡Abrir la conexión explícitamente!
+            objConectar.conectar(); 
+            
             java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
             ps.setString(1, nroDoc);
-            ps.setInt(2, idClienteActual); // Para excluir el cliente actual en caso de modificación
+            ps.setInt(2, idClienteActual);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1) > 0;
@@ -361,10 +386,12 @@ public class Cliente {
         }
     }
 
-    // ✅ MÉTODO PARA HABILITAR/DeshabilitAR CLIENTE (cambiar estado)
+    // ✅ MÉTODO PARA HABILITAR/DeshabilitAR CLIENTE
     public boolean cambiarEstadoCliente(int idCliente, boolean nuevoEstado) throws Exception {
         strSQL = "UPDATE cliente SET estado = ? WHERE idcliente = ?";
         try {
+            // ✅ CORRECCIÓN: Asegurar conexión
+            objConectar.conectar();
             java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
             ps.setBoolean(1, nuevoEstado);
             ps.setInt(2, idCliente);
@@ -374,5 +401,4 @@ public class Cliente {
             throw new Exception("Error al cambiar estado del cliente: " + e.getMessage());
         }
     }
-
 }

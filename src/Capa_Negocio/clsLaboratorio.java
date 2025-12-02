@@ -10,7 +10,7 @@ import java.sql.Statement;
 
 /**
  *
- * @author Fernando Hernández (adaptado por Gemini)
+ * @author Fernando Hernández 
  */
 public class clsLaboratorio {
     

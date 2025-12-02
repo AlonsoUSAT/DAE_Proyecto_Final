@@ -37,10 +37,10 @@ public class clsCategoria {
     }
     
     public Integer obtenerCodigoCategoria(String nom)throws Exception{
-        strSQL = "select codcategoria from categoria where nomcategoria= '" +nom + "'";
+        strSQL = "select * from categoria where nomcategoria= '" +nom + "'";
         try {
             rs = objConectar.consultarBD(strSQL);
-            if (rs.next()) return rs.getInt("codcategoria");
+            if (rs.next()) return rs.getInt("idcategoria");
 
         } catch (Exception e) {
             throw new Exception("Error al buscar la categoria");

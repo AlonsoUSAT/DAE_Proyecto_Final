@@ -126,7 +126,6 @@ private void mostrarHora() {
         jMenuItem12 = new javax.swing.JMenuItem();
         mnuCliente = new javax.swing.JMenuItem();
         jMenuItem13 = new javax.swing.JMenuItem();
-        jMenu7 = new javax.swing.JMenu();
         jMenu6 = new javax.swing.JMenu();
         jMenuItem14 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
@@ -278,7 +277,6 @@ private void mostrarHora() {
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/reportes.png"))); // NOI18N
         jButton5.setText("Reportes");
-        jButton5.setFocusable(false);
         jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -643,9 +641,6 @@ private void mostrarHora() {
 
         jMenuBar1.add(jMenu5);
 
-        jMenu7.setText("Ventas");
-        jMenuBar1.add(jMenu7);
-
         jMenu6.setText("Reportes");
 
         jMenuItem14.setText("Ventas Por Producto");
@@ -761,10 +756,6 @@ private void mostrarHora() {
          mantLaboratorio frm = new mantLaboratorio(null, true);
         frm.setVisible(true);
     }//GEN-LAST:event_btnProveedoresActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
 
     private void btnIniciar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciar1ActionPerformed
         // TODO add your handling code here:
@@ -954,6 +945,10 @@ private void mostrarHora() {
         jdStockMin3.setVisible(true);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
+
 
     /**
      * @param args the command line arguments
@@ -990,7 +985,6 @@ private void mostrarHora() {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu6;
-    private javax.swing.JMenu jMenu7;
     private javax.swing.JMenu jMenu9;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;

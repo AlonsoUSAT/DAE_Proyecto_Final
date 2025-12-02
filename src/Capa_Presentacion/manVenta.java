@@ -53,7 +53,7 @@ public class manVenta extends javax.swing.JDialog {
 
         jLabel3.setText("Cliente / Nro Doc:");
 
-        btnBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/DAE_Proyecto_Final/src/Recursos/buscar1.png"))); // NOI18N
+        btnBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/buscar1.png"))); // NOI18N
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -93,7 +93,7 @@ public class manVenta extends javax.swing.JDialog {
                 .addGap(10, 10, 10))
         );
 
-        btnAnular.setIcon(new javax.swing.ImageIcon(getClass().getResource("/DAE_Proyecto_Final/src/Recursos/darBajaMarca.png"))); // NOI18N
+        btnAnular.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/darBajaMarca.png"))); // NOI18N
         btnAnular.setText("Anular Venta");
         btnAnular.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -101,7 +101,7 @@ public class manVenta extends javax.swing.JDialog {
             }
         });
 
-        btnVerDetalle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/DAE_Proyecto_Final/src/Recursos/guardar.png"))); // NOI18N
+        btnVerDetalle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/punto-de-venta.png"))); // NOI18N
         btnVerDetalle.setText("Ver Detalle");
         btnVerDetalle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

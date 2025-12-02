@@ -62,36 +62,36 @@ public class mantLaboratorio extends javax.swing.JDialog {
     
 
     private void limpiarCampos() {
-    
+    // 1. Limpiar textos
     txtID.setText("");
     txtNombre.setText("");
     txtDireccion.setText("");
     txtTelefono.setText("");
-    chkVigencia.setSelected(true); 
+    chkVigencia.setSelected(true); // Valor por defecto
 
-    
+    // 2. HABILITAR BÚSQUEDA (¡Esto soluciona que no puedas buscar al inicio!)
     txtID.setEnabled(true);
     btnBuscar.setEnabled(true);
 
-    
+    // 3. BLOQUEAR EDICIÓN DE DATOS (Hasta que des clic en Nuevo o Modificar)
     txtNombre.setEnabled(false);
     txtDireccion.setEnabled(false);
     txtTelefono.setEnabled(false);
     chkVigencia.setEnabled(false);
 
-    
+    // 4. RESETEAR BOTONES DE ACCIÓN
     btnNuevo.setText("Nuevo");
     btnNuevo.setEnabled(true);
-    
+
     btnModificar.setText("Modificar");
     btnModificar.setEnabled(false);
-    
+
     btnEliminar.setEnabled(false);
     btnDardeBaja.setEnabled(false);
-    
-    
+
+    // 5. LIMPIEZA FINAL
     tblLaboratorio.clearSelection();
-    txtID.requestFocus(); 
+    txtID.requestFocus(); // Pone el cursor listo para buscar
 }
 
 
@@ -446,34 +446,26 @@ public class mantLaboratorio extends javax.swing.JDialog {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        if (txtNombre.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El campo Nombre es obligatorio.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+    // 1. Primero reseteamos el formulario
+    limpiarCampos();
 
-        try {
-            String nombre = txtNombre.getText().trim();
-            String direccion = txtDireccion.getText().trim();
-            String telefono = txtTelefono.getText().trim();
-            boolean estado = chkVigencia.isSelected();
-
-            if (btnModificar.getText().equals("Guardar")) {
-                objLaboratorio.registrar(nombre, direccion, telefono, estado);
-                JOptionPane.showMessageDialog(this, "Laboratorio registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                // Es una modificación
-                int id = Integer.parseInt(txtID.getText());
-                // Llamar al método de servicio (INSEGURO)
-                objLaboratorio.modificar(id, nombre, direccion, telefono, estado);
-                JOptionPane.showMessageDialog(this, "Laboratorio modificado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            }
-
-            actualizarTabla();
-            limpiarCampos();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al procesar el laboratorio: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    // 2. HABILITAMOS los campos para escribir el nuevo registro
+    txtNombre.setEnabled(true);
+    txtDireccion.setEnabled(true);
+    txtTelefono.setEnabled(true);
+    chkVigencia.setEnabled(true);
+    
+    // 3. PREPARAMOS EL ID AUTOMÁTICO
+    txtID.setText("(Automático)");
+    txtID.setEnabled(false); // El ID no se toca en un registro nuevo
+    
+    // 4. CONFIGURAMOS LOS BOTONES PARA GUARDAR
+    btnNuevo.setEnabled(false);       // Apagamos "Nuevo" para no duplicar acción
+    btnModificar.setText("Guardar");  // El botón de acción ahora es "Guardar"
+    btnModificar.setEnabled(true);    // Y lo habilitamos
+    
+    // 5. Poner el foco en el nombre para empezar a escribir
+    txtNombre.requestFocus();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed

@@ -64,40 +64,38 @@ public class mantMarca extends javax.swing.JDialog {
     }
 
     private void limpiarCampos() {
-
-        txtID.setText("");
-        txtNombre.setText("");
-        txtDescripcion.setText("");
-        if (cmbLaboratorio.getItemCount() > 0) {
-
-            cmbLaboratorio.setSelectedIndex(0); 
-        }
-        chkVigencia.setSelected(true);
-
-
-        txtID.setEnabled(true);
-        btnBuscar.setEnabled(true);
-
-
-        txtNombre.setEnabled(false);
-        txtDescripcion.setEnabled(false);
-        cmbLaboratorio.setEnabled(false);
-        chkVigencia.setEnabled(false);
-
-
-        btnNuevo.setText("Nuevo");
-        btnNuevo.setEnabled(true);
-
-        btnModificar.setText("Modificar");
-        btnModificar.setEnabled(false);
-
-        btnEliminar.setEnabled(false);
-        btnDardeBaja.setEnabled(false);
-
-
-        tblMarca.clearSelection();
-        txtID.requestFocus(); 
+    // 1. Limpiar textos
+    txtID.setText("");
+    txtNombre.setText("");
+    txtDescripcion.setText("");
+    if (cmbLaboratorio.getItemCount() > 0) {
+        cmbLaboratorio.setSelectedIndex(0);
     }
+    chkVigencia.setSelected(true);
+    
+    // 2. HABILITAR BÚSQUEDA (Importante para que puedas buscar al inicio)
+    txtID.setEnabled(true);
+    btnBuscar.setEnabled(true);
+    
+    // 3. BLOQUEAR EDICIÓN (Se habilitan solo al dar Nuevo o Editar)
+    txtNombre.setEnabled(false);
+    txtDescripcion.setEnabled(false);
+    cmbLaboratorio.setEnabled(false);
+    chkVigencia.setEnabled(false);
+    
+    // 4. RESTAURAR BOTONES
+    btnNuevo.setText("Nuevo");
+    btnNuevo.setEnabled(true);
+    
+    btnModificar.setText("Modificar");
+    btnModificar.setEnabled(false);
+    
+    btnEliminar.setEnabled(false);
+    btnDardeBaja.setEnabled(false);
+    
+    tblMarca.clearSelection();
+    txtID.requestFocus();
+}
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -431,33 +429,26 @@ public class mantMarca extends javax.swing.JDialog {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-      
-    
-        try {
-            if (btnNuevo.getText().equals("Nuevo")) {
-                btnNuevo.setText("Guardar");
-                limpiarCampos();
-            }else{
-                if (txtNombre.getText().trim().isEmpty() || cmbLaboratorio.getSelectedIndex() == -1) {
-                  JOptionPane.showMessageDialog(this, "El Nombre y el Laboratorio son obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
-                  return;
-                }else{
-                        objMarca.registrarMarca(Integer.valueOf(txtID.getText()), 
-                                        txtNombre.getText().trim(), 
-                                        txtDescripcion.getText(), 
-                                        objLaboratorio.obtenerCodigoLaboratorio(cmbLaboratorio.getSelectedItem().toString()),
-                                        chkVigencia.isSelected());
-                
-                    JOptionPane.showMessageDialog(this, "Marca registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);      
-                }
-                actualizarTabla();
-                limpiarCampos();
-                
-            }
+            // 1. Primero limpiamos y dejamos todo en estado inicial (bloqueado)
+    // 1. Limpiamos primero
+    limpiarCampos();
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al procesar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    // 2. HABILITAMOS los campos para escribir
+    txtNombre.setEnabled(true);
+    txtDescripcion.setEnabled(true);
+    cmbLaboratorio.setEnabled(true);
+    chkVigencia.setEnabled(true);
+    
+    // 3. Configuramos la interfaz para "Guardar"
+    txtID.setText("(Automático)");
+    txtID.setEnabled(false); // El ID no se toca en nuevo
+    
+    btnNuevo.setEnabled(false);       // Apagamos Nuevo
+    btnModificar.setText("Guardar");  // Cambiamos Modificar a Guardar
+    btnModificar.setEnabled(true);    // Encendemos el botón de acción
+    
+    // 4. Foco
+    txtNombre.requestFocus();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnNuevoLaboratorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoLaboratorioActionPerformed
@@ -468,35 +459,38 @@ public class mantMarca extends javax.swing.JDialog {
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
         if (txtNombre.getText().trim().isEmpty() || cmbLaboratorio.getSelectedIndex() == -1) {
-            JOptionPane.showMessageDialog(this, "El Nombre y el Laboratorio son obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        JOptionPane.showMessageDialog(this, "El Nombre y el Laboratorio son obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
     
-        try {
-            if (btnModificar.getText().equals("Guardar")) {
-                objMarca.registrarMarca(Integer.valueOf(txtID.getText()), 
-                                        txtNombre.getText().trim(), 
-                                        txtDescripcion.getText(), 
-                                        objLaboratorio.obtenerCodigoLaboratorio(cmbLaboratorio.getSelectedItem().toString()),
-                                        chkVigencia.isSelected());
-                
-                JOptionPane.showMessageDialog(this, "Marca registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+    try {
+        // Recopilar datos
+        String nombre = txtNombre.getText().trim();
+        String descripcion = txtDescripcion.getText();
+        boolean estado = chkVigencia.isSelected();
+        // Obtener el código del laboratorio usando tu método auxiliar
+        int idLab = objLaboratorio.obtenerCodigoLaboratorio(cmbLaboratorio.getSelectedItem().toString());
 
-            } else {
-                objMarca.modificarMarca(Integer.valueOf(txtID.getText()), 
-                                        txtNombre.getText().trim(), 
-                                        txtDescripcion.getText(), 
-                                        objLaboratorio.obtenerCodigoLaboratorio(cmbLaboratorio.getSelectedItem().toString()),
-                                        chkVigencia.isSelected());
-                JOptionPane.showMessageDialog(this, "Marca modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            }
-
-            actualizarTabla();
-            limpiarCampos();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al procesar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (btnModificar.getText().equals("Guardar")) {
+            // --- Lógica de INSERTAR (SIN ID) ---
+            // Llamamos al método que modificamos en el Paso 1 (ya no pasamos txtID)
+            objMarca.registrarMarca(nombre, descripcion, idLab, estado);
+            
+            JOptionPane.showMessageDialog(this, "Marca registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            // --- Lógica de MODIFICAR (CON ID) ---
+            int idMarca = Integer.parseInt(txtID.getText());
+            objMarca.modificarMarca(idMarca, nombre, descripcion, idLab, estado);
+            
+            JOptionPane.showMessageDialog(this, "Marca modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         }
+        
+        actualizarTabla();
+        limpiarCampos();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al procesar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void tblMarcaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMarcaMouseClicked

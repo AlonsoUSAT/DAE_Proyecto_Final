@@ -135,7 +135,7 @@
         <Component class="javax.swing.JButton" name="btnBuscar">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/DAE_Proyecto_Final/src/Recursos/buscar1.png"/>
+              <Image iconType="3" name="/Recursos/buscar1.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Buscar"/>
           </Properties>
@@ -194,7 +194,7 @@
         <Component class="javax.swing.JButton" name="btnAnular">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/DAE_Proyecto_Final/src/Recursos/darBajaMarca.png"/>
+              <Image iconType="3" name="/Recursos/darBajaMarca.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Anular Venta"/>
           </Properties>
@@ -205,7 +205,7 @@
         <Component class="javax.swing.JButton" name="btnVerDetalle">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/DAE_Proyecto_Final/src/Recursos/guardar.png"/>
+              <Image iconType="3" name="/Recursos/punto-de-venta.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Ver Detalle"/>
           </Properties>
