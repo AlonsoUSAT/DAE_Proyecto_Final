@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de productos más vendidos" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0cea6243-5374-469b-914f-9c525cdcdcbf">
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fecha_inicio" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_fin" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    p.nombre AS nombre_producto,
+    m.nombre AS marca,
+    cat.nombreCategoria,
+    SUM(d.cantidad) AS total_unidades,
+    SUM(d.cantidad * d.precio) AS ingreso_generado
+FROM DETALLE_VENTA d
+JOIN VENTA v ON d.idVenta = v.idVenta
+JOIN PRODUCTO p ON d.idProducto = p.idProducto
+JOIN MARCA m ON p.idMarca = m.idMarca
+JOIN CATEGORIA cat ON p.idCategoria = cat.idCategoria
+WHERE v.fecha BETWEEN $P{fecha_inicio} AND $P{fecha_fin}
+AND v.estado = true
+GROUP BY p.idProducto, p.nombre, m.nombre, cat.nombreCategoria
+ORDER BY total_unidades DESC
+LIMIT 10;]]>
+	</queryString>
+	<field name="nombre_producto" class="java.lang.String"/>
+	<field name="marca" class="java.lang.String"/>
+	<field name="nombrecategoria" class="java.lang.String"/>
+	<field name="total_unidades" class="java.lang.Long"/>
+	<field name="ingreso_generado" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="105" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="86" backcolor="#00A2B9" uuid="150d1fce-e675-4919-a271-6214aa2666a3"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE PRODUCTOS MÁS VENDIDOS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="09cd527e-7aec-4a5e-9f75-1ba90130514b"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_inicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_fin})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="19" width="555" height="1" uuid="73792203-7f7c-4fa8-b114-a2423a6c91b1"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="7" width="100" height="20" uuid="2a3c26be-5742-404f-8128-ed6c4cf015c3"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Producto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="115" y="7" width="100" height="20" uuid="c8fb9c4a-3f53-4157-811c-65f34a9ac679"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Marca]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="226" y="7" width="100" height="20" uuid="2f0a698a-8f12-43f3-8c69-9d8b980c7e0f"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Categoría]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="342" y="7" width="100" height="20" uuid="403f920c-cc10-4dfb-ae8c-950eb83a5350"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Unidades]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="455" y="7" width="100" height="20" uuid="e4bc4150-9ec7-4649-ac79-a5fb09f53245"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Ingreso]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="32" width="555" height="1" uuid="c22d9a0a-f319-4631-9a1b-9f642b6c7dbf"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="48" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="13" width="100" height="20" uuid="e88c0bdd-5372-4431-91a9-c581b571608e"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre_producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="115" y="13" width="100" height="20" uuid="f8bfc19e-e4e9-48cb-a65b-aed132aa3c18"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{marca}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="226" y="13" width="100" height="20" uuid="653aa5e1-bc9d-4a15-bf69-be87d91990ad"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombrecategoria}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="342" y="13" width="100" height="20" uuid="f7949fd4-0e3a-4f55-85d5-d40c7b8e0490"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_unidades}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="13" width="100" height="20" uuid="5d5f6a40-49b8-4dc7-9d92-3e42b266c0d1"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ingreso_generado}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="34" width="40" height="20" uuid="b0f7b478-340f-45fa-b0f5-bcfad36a0259"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="34" width="80" height="20" uuid="d4d710a1-4fb4-4138-8986-2700a95795e4"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

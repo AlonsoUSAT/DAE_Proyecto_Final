@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Ventas por usuario" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="2918e8a8-d029-43fb-81b1-ab86e82f1299">
+	<property name="ireport.zoom" value="1.7715610000000017"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fecha_inicio" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_fin" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    u.nomusuario,
+    u.nombres || ' ' || u.apellidoPaterno AS nombre_completo,
+    r.nombre_rol,
+    COUNT(c.idComprobante) AS numero_transacciones,
+    SUM(c.total) AS total_recaudado
+FROM VENTA v
+JOIN USUARIO u ON v.idUsuario = u.codUsuario
+JOIN ROL r ON u.id_rol = r.id_rol
+JOIN COMPROBANTE_VENTA c ON v.idVenta = c.idVenta
+WHERE v.fecha BETWEEN $P{fecha_inicio} AND $P{fecha_fin}
+AND c.estado = true
+GROUP BY u.codUsuario, u.nomusuario, u.nombres, u.apellidoPaterno, r.nombre_rol
+ORDER BY total_recaudado DESC;]]>
+	</queryString>
+	<field name="nomusuario" class="java.lang.String"/>
+	<field name="nombre_completo" class="java.lang.String"/>
+	<field name="nombre_rol" class="java.lang.String"/>
+	<field name="numero_transacciones" class="java.lang.Long"/>
+	<field name="total_recaudado" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="106" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="86" backcolor="#00A2B9" uuid="838d92a7-2116-4a07-812d-a0213a22cc11"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE VENTAS POR USUARIO]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="26" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="819eb1ed-757d-453b-aa8a-8501dbda5260"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_inicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_fin})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="19" width="555" height="1" uuid="bc2ede14-9b71-483c-91e9-a7879f48ac2f"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="115" height="20" uuid="d59544cf-0848-4470-8e27-1b142c20a910"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Usuario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="115" y="0" width="120" height="20" uuid="d34f07e9-9073-48b9-9420-d7e269d68c16"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombres]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="235" y="0" width="100" height="20" uuid="4e3b4e7d-3877-463f-b0fe-4fb75cfeab4b"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Rol que Ocupa]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="0" width="100" height="20" uuid="435f5300-f171-465d-b6b9-415d0f6bf862"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ventas Hechas]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="455" y="0" width="100" height="20" uuid="052cdb92-eb0a-4179-8963-cdcfa7267cc7"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Recaudado]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="26" width="555" height="1" uuid="0d43dedc-0700-493f-8ece-b4a908e61070"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="42" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="9" width="115" height="20" uuid="2ab9e656-605a-4d22-9f11-3df40a4c7f36"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomusuario}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="115" y="9" width="120" height="20" uuid="adacbf4b-9266-49e5-83b4-ee9ee721ecba"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre_completo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="235" y="9" width="100" height="20" uuid="985e65e1-0268-4790-bc1f-647c11390f78"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre_rol}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="355" y="9" width="100" height="20" uuid="faec5f62-c032-42ec-b04b-99edc7976c24"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero_transacciones}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="9" width="100" height="20" uuid="8546c690-22f8-43a3-aee2-a5754869a577"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_recaudado}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="34" width="40" height="20" uuid="beee571c-9352-4616-90be-614b2da9feef"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="34" width="80" height="20" uuid="89f2be8a-7d6f-41d2-84d4-48722ac87cf2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

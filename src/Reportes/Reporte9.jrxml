@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte mensual de ventas" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d890505b-1b4b-441b-a626-bea50a2e3f9c">
+	<property name="ireport.zoom" value="1.610510000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="anio" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_inicio" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_fin" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    TO_CHAR(v.fecha, 'MM') AS numero_mes,
+    TO_CHAR(v.fecha, 'TMMonth') AS nombre_mes,
+    COUNT(c.idComprobante) AS cantidad_ventas,
+    SUM(c.total) AS total_mensual
+FROM COMPROBANTE_VENTA c
+JOIN VENTA v ON c.idVenta = v.idVenta
+WHERE EXTRACT(YEAR FROM v.fecha) = $P{anio}
+AND c.estado = true
+GROUP BY TO_CHAR(v.fecha, 'MM'), TO_CHAR(v.fecha, 'TMMonth')
+ORDER BY numero_mes ASC;]]>
+	</queryString>
+	<field name="numero_mes" class="java.lang.String"/>
+	<field name="nombre_mes" class="java.lang.String"/>
+	<field name="cantidad_ventas" class="java.lang.Long"/>
+	<field name="total_mensual" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="109" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="86" backcolor="#00A2B9" uuid="e1e34972-cae7-4e85-8a7b-af1b638965d2"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE MENSUAL DE VENTAS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="d8c94dfe-9e42-44c1-b56b-440222406b9e"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_inicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_fin})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="19" width="555" height="1" uuid="81762483-b31a-41dd-b902-d02bba783155"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="42" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="8" width="100" height="24" uuid="0e77d04c-03e0-4798-bca5-bac9a5794df3"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Número mes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="8" width="130" height="24" uuid="04f8e994-a7e9-419f-8946-072ea9df33e9"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre del mes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="261" y="8" width="162" height="24" uuid="8f8ce22a-f2de-4665-921e-9e075aaeb06c"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cantidad de Ventas]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="435" y="8" width="120" height="24" uuid="ddbc5c18-57f6-437f-b430-69136860aa87"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Mensual]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="39" width="555" height="1" uuid="b5c9b64f-8f20-4e84-948a-2a9db9d3bbb5"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="60" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="16" width="100" height="25" uuid="82628350-ce5c-46d1-bbf4-d2d4d8c21492"/>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero_mes}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="116" y="16" width="130" height="25" uuid="1514284d-24d9-4659-b6db-c848e4169c51"/>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre_mes}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="261" y="16" width="162" height="25" uuid="b8baa96d-24bc-4079-b516-ac0d0fe58417"/>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad_ventas}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="16" width="120" height="25" uuid="c6a23a90-14ba-4cce-a56d-2dfcfc92e219"/>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_mensual}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="34" width="40" height="20" uuid="9262b150-0537-49d5-9f70-169c6588e557"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="34" width="80" height="20" uuid="c76ed45c-76c8-4228-aac2-b98a90dd493c"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

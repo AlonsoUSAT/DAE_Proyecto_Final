@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Ventas anuladas" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c05fe50f-fc15-45c6-9de2-ba09261d53a1">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fecha_inicio" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_fin" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    v.idVenta,
+    v.fecha,
+    v.hora,
+    u.nomusuario AS vendedor_responsable,
+    COALESCE(c.total, 0) AS monto_anulado,
+    CASE
+        WHEN v.estado = false THEN 'ANULADO'
+        ELSE 'ACTIVO'
+    END AS estado_venta
+FROM VENTA v
+JOIN USUARIO u ON v.idUsuario = u.codUsuario
+LEFT JOIN COMPROBANTE_VENTA c ON v.idVenta = c.idVenta
+WHERE v.fecha BETWEEN $P{fecha_inicio} AND $P{fecha_fin}
+AND v.estado = false
+ORDER BY v.fecha DESC, v.hora DESC;]]>
+	</queryString>
+	<field name="idventa" class="java.lang.Integer"/>
+	<field name="fecha" class="java.sql.Date"/>
+	<field name="hora" class="java.sql.Time"/>
+	<field name="vendedor_responsable" class="java.lang.String"/>
+	<field name="monto_anulado" class="java.math.BigDecimal"/>
+	<field name="estado_venta" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="103" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="86" backcolor="#00A2B9" uuid="09eedff1-b491-4bba-a1c6-c2a58f263a9b"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE VENTAS ANULADAS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="e5eaabe7-b627-46c2-b770-4e6b631964fc"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_inicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_fin})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="19" width="555" height="1" uuid="2f6c6fb6-ab7e-4856-a6ee-5eae198b22ce"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="26" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="4" width="40" height="20" uuid="d24af4c2-1ac0-4919-a82d-32562c26f84d"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IdVenta]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="40" y="4" width="100" height="20" uuid="02ecd1fa-e0dd-4dd4-9900-aaab6014545a"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha de anulación]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="140" y="4" width="79" height="20" uuid="a600b95c-cbce-4136-b186-62b708fc760d"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Hora]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="219" y="4" width="162" height="20" uuid="b94a084a-1034-410c-97ca-24393144ba19"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Usuario Responsable]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="381" y="4" width="74" height="20" uuid="fc611c27-d835-4a6b-b527-f832859bfa56"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Monto anulado]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="455" y="4" width="100" height="20" uuid="1df72c21-5328-4729-8e6a-5b485b302696"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Estado actual]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="24" width="555" height="1" uuid="f2657166-ebb4-47c2-acdb-2a07446329bf"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="42" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="11" width="40" height="20" uuid="d9a9499c-1110-4881-80d7-09701126d267"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{idventa}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="11" width="100" height="20" uuid="cbdc5416-2463-42b4-bfe5-4503a42b4bce"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{fecha})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="140" y="11" width="79" height="20" uuid="2d3d887a-b332-4b1f-9e6e-f0b961a276cd"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("HH:mm:ss").format($F{hora})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="219" y="11" width="162" height="20" uuid="6cd9e424-fc4e-4d5b-86f5-a69c259f542a"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendedor_responsable}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="381" y="11" width="74" height="20" uuid="e03dbe56-846a-4e0d-8af1-8c6057906a64"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{monto_anulado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="11" width="100" height="20" uuid="4440e26d-5c4e-4d84-aece-bea5ae4c87ab"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{estado_venta}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="50"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="34" width="40" height="20" uuid="2182dbb8-eb05-48ef-8a31-939209b4fdce"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="34" width="80" height="20" uuid="6929c070-cb52-4a02-86b8-4da87b6ffc47"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

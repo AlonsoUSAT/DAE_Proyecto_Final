@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Ventas diarias" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52c51f02-6b77-4e0a-949e-0f596940f4e4">
+	<property name="ireport.zoom" value="1.4641000000000008"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fecha_inicio" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_fin" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    v.fecha,
+    COUNT(c.idComprobante) AS cantidad_ventas,
+    SUM(c.subtotal) AS subtotal_dia,
+    SUM(c.igv) AS impuestos_dia,
+    SUM(c.total) AS total_vendido_dia
+FROM COMPROBANTE_VENTA c
+JOIN VENTA v ON c.idVenta = v.idVenta
+WHERE v.fecha BETWEEN $P{fecha_inicio} AND $P{fecha_fin}
+AND c.estado = true
+GROUP BY v.fecha
+ORDER BY v.fecha ASC;]]>
+	</queryString>
+	<field name="fecha" class="java.sql.Date"/>
+	<field name="cantidad_ventas" class="java.lang.Long"/>
+	<field name="subtotal_dia" class="java.math.BigDecimal"/>
+	<field name="impuestos_dia" class="java.math.BigDecimal"/>
+	<field name="total_vendido_dia" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="104" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="86" backcolor="#00A2B9" uuid="6bb91483-7c79-404d-b320-0374b9b7abdf"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE VENTAS DIARIAS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="a522355b-a589-44ff-b187-193ab6b7b2ca"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_inicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fecha_fin})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="19" width="555" height="1" uuid="7ec33d79-8613-442e-8fb0-a2748f022085"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="41" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="7" width="100" height="20" uuid="e407bc1f-33e6-4ff0-8a4b-737c0f601674"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="7" width="100" height="20" uuid="ea4c2299-01f0-40e5-ae93-3bcdc50a0aa1"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ventas hechas]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="220" y="7" width="100" height="20" uuid="19592441-ef42-41c2-aab7-566482af4b84"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Subtotal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="335" y="7" width="100" height="20" uuid="8b35066b-0eec-4e4c-932e-1d094e803e7d"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Impuestos]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="445" y="7" width="100" height="20" uuid="8be8bbb8-3ff9-4b6a-9960-bf10e79ee8c5"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total vendido]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="34" width="555" height="1" uuid="76259148-221f-4519-8940-cb8cd25e63cb"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="47" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="13" width="100" height="20" uuid="7fb008df-b929-4f28-bf95-15757c5dfb1a"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{fecha})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="13" width="100" height="20" uuid="680e1286-67ae-45dc-a655-b1432563e0ee"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad_ventas}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="220" y="13" width="100" height="20" uuid="c6e55852-c9d9-4d9d-9929-3a7ddfa5864b"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{subtotal_dia}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="335" y="13" width="100" height="20" uuid="6a8cbc2b-ce31-48ee-b00e-e064da8428e4"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{impuestos_dia}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="445" y="13" width="100" height="20" uuid="45c657ea-ed08-4302-8a3e-0b238d6b8915"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_vendido_dia}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="34" width="40" height="20" uuid="cff2faeb-02b8-4cb9-94f2-772cd1ba9063"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="34" width="80" height="20" uuid="2e1ac3bb-8d78-4296-8316-e13037947b0d"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
