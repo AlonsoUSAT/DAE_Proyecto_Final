@@ -41,7 +41,6 @@ public class manVenta extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblVentas = new javax.swing.JTable();
         btnAnular = new javax.swing.JButton();
-        btnImprimirCopia = new javax.swing.JButton();
         btnVerDetalle = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -54,9 +53,8 @@ public class manVenta extends javax.swing.JDialog {
 
         jLabel3.setText("Cliente / Nro Doc:");
 
-        txtBuscar.setText("jTextField1");
-
-        btnBuscar.setText("jButton1");
+        btnBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/DAE_Proyecto_Final/src/Recursos/buscar1.png"))); // NOI18N
+        btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBuscarActionPerformed(evt);
@@ -95,11 +93,21 @@ public class manVenta extends javax.swing.JDialog {
                 .addGap(10, 10, 10))
         );
 
-        btnAnular.setText("jButton2");
+        btnAnular.setIcon(new javax.swing.ImageIcon(getClass().getResource("/DAE_Proyecto_Final/src/Recursos/darBajaMarca.png"))); // NOI18N
+        btnAnular.setText("Anular Venta");
+        btnAnular.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnularActionPerformed(evt);
+            }
+        });
 
-        btnImprimirCopia.setText("jButton2");
-
-        btnVerDetalle.setText("jButton2");
+        btnVerDetalle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/DAE_Proyecto_Final/src/Recursos/guardar.png"))); // NOI18N
+        btnVerDetalle.setText("Ver Detalle");
+        btnVerDetalle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVerDetalleActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -129,15 +137,10 @@ public class manVenta extends javax.swing.JDialog {
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnAnular))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnImprimirCopia)
-                            .addComponent(btnVerDetalle))))
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnVerDetalle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnAnular, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(48, 48, 48))
         );
         jPanel1Layout.setVerticalGroup(
@@ -159,11 +162,9 @@ public class manVenta extends javax.swing.JDialog {
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnVerDetalle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnImprimirCopia)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAnular)
-                .addContainerGap(72, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -230,11 +231,68 @@ public class manVenta extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
+    private void btnVerDetalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerDetalleActionPerformed
+        int fila = tblVentas.getSelectedRow();
+        if (fila < 0) {
+            JOptionPane.showMessageDialog(this, "Seleccione una venta.");
+            return;
+        }
+
+        try {
+            // 1. Obtener ID
+            String idVenta = tblVentas.getValueAt(fila, 0).toString();
+            
+            // 2. Abrir jdVenta
+            jdVenta ventanaDetalle = new jdVenta(null, true);
+            
+            // 3. USAR EL NUEVO MÉTODO (Ya no da error porque el método es public)
+            ventanaDetalle.buscarVentaExterna(idVenta); 
+            
+            ventanaDetalle.setVisible(true);
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnVerDetalleActionPerformed
+
+    private void btnAnularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnularActionPerformed
+        int fila = tblVentas.getSelectedRow();
+        if (fila < 0) {
+            JOptionPane.showMessageDialog(this, "Seleccione una venta para anular.");
+            return;
+        }
+
+        // 1. Validar estado actual
+        String estado = tblVentas.getValueAt(fila, 5).toString(); // Columna 5 es 'Estado'
+        if (estado.equals("ANULADO")) {
+            JOptionPane.showMessageDialog(this, "Esta venta ya se encuentra anulada.");
+            return;
+        }
+
+        // 2. Confirmación
+        int idVenta = Integer.parseInt(tblVentas.getValueAt(fila, 0).toString());
+        int rpta = JOptionPane.showConfirmDialog(this, 
+                "¿Seguro que desea ANULAR la venta N° " + idVenta + "?\nEl stock será devuelto.", 
+                "Anular Venta", JOptionPane.YES_NO_OPTION);
+
+        if (rpta == JOptionPane.YES_OPTION) {
+            try {
+                clsVenta objVenta = new clsVenta();
+                objVenta.anularVenta(idVenta); // Método en clsVenta que vimos antes
+                
+                JOptionPane.showMessageDialog(this, "Venta anulada correctamente.");
+                btnBuscar.doClick(); // Refrescar la tabla automáticamente
+                
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnAnularActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAnular;
     private javax.swing.JButton btnBuscar;
-    private javax.swing.JButton btnImprimirCopia;
     private javax.swing.JButton btnVerDetalle;
     private com.toedter.calendar.JDateChooser dcFin;
     private com.toedter.calendar.JDateChooser dcInicio;

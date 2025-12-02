@@ -28,6 +28,11 @@ public class jdVenta extends javax.swing.JDialog {
         mostrarNumVenta();
     }
 
+    public void buscarVentaExterna(String idVenta) {
+        this.txtNumero.setText(idVenta); // Escribe el número
+        this.btnBuscarVenta1.doClick();  // Presiona el botón automáticamente
+    }
+
     clsVenta objVenta = new clsVenta();
     clsProducto objProducto = new clsProducto();
     clsCliente objCliente = new clsCliente();
@@ -67,7 +72,7 @@ public class jdVenta extends javax.swing.JDialog {
         jComboBox1.setSelectedIndex(0);
         limpiarProductoSeleccionado();
         mostrarNumVenta();
-        ventaBloqueada = false;  
+        ventaBloqueada = false;
         btnGuardar.setEnabled(true);
         btnAgregarProducto.setEnabled(true);
         btnQuitar1.setEnabled(true);
@@ -544,7 +549,7 @@ public class jdVenta extends javax.swing.JDialog {
         jLabel3.setText("TOTAL : ");
 
         btnGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/guardar.png"))); // NOI18N
-        btnGuardar.setText("Guardar");
+        btnGuardar.setText("Comprobante");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
@@ -599,7 +604,7 @@ public class jdVenta extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(btnGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnAnular, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSalir, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnSalir, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(30, 30, 30))
         );
         jPanel1Layout.setVerticalGroup(
@@ -680,17 +685,17 @@ public class jdVenta extends javax.swing.JDialog {
 
             if (rsVenta.next()) {
                 // Si encontramos la venta, limpiamos la tabla actual primero
-                llenarTablaInicial(); 
+                llenarTablaInicial();
                 DefaultTableModel modelo = (DefaultTableModel) tblDetalle.getModel();
-                
+
                 // Cargar datos del cliente
                 txtDniRuc.setText(rsVenta.getString("nroDoc"));
                 // Disparamos la búsqueda del cliente para llenar nombre y dirección
-                btnBuscarActionPerformed(evt); 
+                btnBuscarActionPerformed(evt);
 
                 // Poner la fecha real de esa venta
                 jDateChooser1.setDate(rsVenta.getDate("fecha"));
-                
+
                 // 2. Buscar y Llenar el Detalle
                 rsDetalle = objVenta.listarDetalleVenta(nroVenta);
 
@@ -699,13 +704,13 @@ public class jdVenta extends javax.swing.JDialog {
                     int idProducto = rsDetalle.getInt("idProducto");
                     // OJO: Si no guardaste idPresentacion en detalle_venta, esto podría fallar.
                     // Asumiremos que en tu BD 'detalle_venta' tiene esa columna o usas 1 por defecto.
-                    int idPresentacion = rsDetalle.getInt("idPresentacion"); 
-                    
+                    int idPresentacion = rsDetalle.getInt("idPresentacion");
+
                     double precioBase = rsDetalle.getDouble("precioUnitarioVenta");
                     int cantidad = rsDetalle.getInt("cantidad");
-                    
+
                     // Cálculos para visualizar
-                    double precioFinalUnitario = precioBase; 
+                    double precioFinalUnitario = precioBase;
                     double subtotal = precioFinalUnitario * cantidad;
 
                     modelo.addRow(new Object[]{
@@ -719,7 +724,7 @@ public class jdVenta extends javax.swing.JDialog {
                         String.format("%.2f", subtotal).replace(",", ".")
                     });
                 }
-                
+
                 tblDetalle.setModel(modelo);
 
                 // --- SOLUCIÓN 1: Cargar los Totales ---
@@ -730,7 +735,7 @@ public class jdVenta extends javax.swing.JDialog {
                 btnGuardar.setEnabled(false); // Desactivar botón guardar
                 btnAgregarProducto.setEnabled(false); // No modificar venta vieja
                 btnQuitar1.setEnabled(false);
-                
+
                 JOptionPane.showMessageDialog(this, "Venta N° " + nroVenta + " cargada (Solo Lectura).");
 
             } else {
@@ -943,8 +948,8 @@ public class jdVenta extends javax.swing.JDialog {
         if (ventaBloqueada) {
             JOptionPane.showMessageDialog(this, "Esta venta ya existe y no se puede modificar/guardar de nuevo.", "Acción Bloqueada", JOptionPane.WARNING_MESSAGE);
             return;
-        } 
-        
+        }
+
         if (tblDetalle.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "La lista de venta está vacía. Agregue productos.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
@@ -976,7 +981,7 @@ public class jdVenta extends javax.swing.JDialog {
                     modeloActual // Pasamos los productos
             );
 
-            ventanaCobro.setVisible(true); 
+            ventanaCobro.setVisible(true);
             if (ventanaCobro.ventaExitosa) {
                 limpiarVentaCompleta();
             }

@@ -116,12 +116,12 @@
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="txtFecha" min="-2" pref="132" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="lblSerie" min="-2" pref="54" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lblCorrelativo" min="-2" pref="54" max="-2" attributes="0"/>
+                              <Component id="lblCorrelativo" min="-2" pref="112" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="txtFecha" alignment="1" min="-2" pref="172" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>

@@ -194,4 +194,84 @@ public class clsVenta {
             throw new Exception("Error al listar historial de ventas: " + e.getMessage());
         }
     }
+
+    // =========================================================================
+    //                        MÉTODO PARA ANULAR VENTA
+    // =========================================================================
+    public void anularVenta(int idVenta) throws Exception {
+        try {
+            objConectar.conectar();
+            con = objConectar.getCon();
+            con.setAutoCommit(false); // INICIO DE TRANSACCIÓN (Bloqueo de seguridad)
+            sent = con.createStatement();
+
+            // 1. VERIFICAR ESTADO ACTUAL
+            // Consultamos si la venta existe y si está activa (true)
+            ResultSet rsEstado = sent.executeQuery("SELECT estado FROM venta WHERE idventa = " + idVenta);
+            if (rsEstado.next()) {
+                if (!rsEstado.getBoolean("estado")) {
+                    throw new Exception("La venta ya se encuentra ANULADA.");
+                }
+            } else {
+                throw new Exception("La venta no existe.");
+            }
+
+            // 2. RECUPERAR PRODUCTOS PARA DEVOLVER AL STOCK
+            // Usamos un Statement diferente o una lista en memoria para no romper el cursor del ResultSet
+            String sqlDetalle = "SELECT idproducto, idpresentacion, cantidad FROM detalle_venta WHERE idventa = " + idVenta;
+            
+            // Creamos un Statement auxiliar solo para recorrer el detalle (lectura)
+            Statement sentLectura = con.createStatement();
+            ResultSet rsDetalle = sentLectura.executeQuery(sqlDetalle);
+
+            // Statement auxiliar para ejecutar los updates (escritura)
+            Statement sentUpdate = con.createStatement();
+
+            while (rsDetalle.next()) {
+                int idProd = rsDetalle.getInt("idproducto");
+                int idPres = rsDetalle.getInt("idpresentacion");
+                int cant = rsDetalle.getInt("cantidad");
+
+                // LÓGICA DE DEVOLUCIÓN: Stock = Stock + Cantidad
+                String sqlStock = "UPDATE presentacion_producto SET stock = stock + " + cant + " "
+                                + "WHERE idproducto=" + idProd + " AND idpresentacion=" + idPres;
+                sentUpdate.executeUpdate(sqlStock);
+            }
+            
+            // Cerrar recursos auxiliares
+            rsDetalle.close();
+            sentLectura.close();
+            sentUpdate.close();
+
+            // 3. CAMBIAR ESTADO A FALSE (ANULADO)
+            // Anulamos la cabecera de la venta
+            sent.executeUpdate("UPDATE venta SET estado = false WHERE idventa = " + idVenta);
+            
+            // Anulamos también el comprobante asociado para que no salga en reportes contables
+            sent.executeUpdate("UPDATE comprobante_venta SET estado = false WHERE idventa = " + idVenta);
+
+            con.commit(); // CONFIRMAR TRANSACCIÓN (Todo salió bien)
+
+        } catch (Exception e) {
+            if (con != null) {
+                try {
+                    con.rollback(); // ERROR: Deshacer todos los cambios (evita stock corrupto)
+                } catch (SQLException ex) {
+                    System.out.println("Error en rollback: " + ex.getMessage());
+                }
+            }
+            throw new Exception("Error al anular la venta: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    objConectar.desconectar();
+                } catch (SQLException ex) {
+                    // Ignorar error de cierre
+                }
+            }
+        }
+    }
+    
+    
 }
