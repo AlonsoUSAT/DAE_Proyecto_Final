@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ventaPorLaboratorio(Fabricante)" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="370492aa-1706-4db5-9176-b4e51bf2b4c2">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fechaInicio" class="java.util.Date"/>
+	<parameter name="fechaFin" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[SELECT
+    l.nombrelaboratorio AS "Laboratorio",
+    COUNT(DISTINCT p.idproducto) AS "Productos Diferentes",
+    SUM(dv.cantidad) AS "Unidades Vendidas",
+    SUM(dv.cantidad * dv.precio) AS "Total Ingresos"
+FROM
+    public.detalle_venta dv
+INNER JOIN public.venta v ON dv.idventa = v.idventa
+INNER JOIN public.producto p ON dv.idproducto = p.idproducto
+INNER JOIN public.marca m ON p.idmarca = m.idmarca
+INNER JOIN public.laboratorio l ON m.idlaboratorio = l.idlaboratorio
+WHERE
+    v.estado = true
+    AND v.fecha BETWEEN $P{fechaInicio} AND $P{fechaFin}
+GROUP BY
+    l.idlaboratorio, l.nombrelaboratorio
+ORDER BY
+    "Total Ingresos" DESC;]]>
+	</queryString>
+	<field name="Laboratorio" class="java.lang.String"/>
+	<field name="Productos Diferentes" class="java.lang.Long"/>
+	<field name="Unidades Vendidas" class="java.lang.Long"/>
+	<field name="Total Ingresos" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="-7" width="555" height="86" backcolor="#00A2B9" uuid="3ee10516-719b-4213-8682-faa64d518a68"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE VENTAS POR LABORATORIO (Fabricante)]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="15" width="555" height="20" uuid="155a8239-bec3-4a9f-a692-e24928392a2a"/>
+				<textElement textAlignment="Justified">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaInicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaFin})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="21" y="34" width="106" height="27" uuid="2501f151-d2b0-4155-8940-f1fc8d5ea74b"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Laboratorio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="157" y="34" width="202" height="27" uuid="4b86ed84-a74a-4622-9e9c-9f01cd022332"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Productos Diferentes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="363" y="34" width="192" height="27" uuid="306df09a-df47-4bed-8138-8b4caebf0e65"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unidades Vendidas]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<staticText>
+				<reportElement x="10" y="98" width="131" height="27" uuid="d69be75d-fbd5-444f-9390-1e7b53e8340a"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Ingresos]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="21" y="11" width="100" height="20" uuid="df71244d-3f8b-4177-89c2-f3229a16a41e"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Laboratorio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="200" y="11" width="100" height="20" uuid="64a24e66-2960-417f-a943-fbeb196ec364"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Productos Diferentes}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="384" y="11" width="100" height="20" uuid="e5ca48bf-db91-47c8-a38b-a8321812ff01"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Unidades Vendidas}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="157" y="105" width="100" height="20" uuid="217da12e-3beb-4880-a692-371407e42a91"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Total Ingresos}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField>
+				<reportElement x="418" y="34" width="80" height="20" uuid="d89af235-2a3e-46df-bede-3d2fa998aa1d"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="498" y="34" width="40" height="20" uuid="44e17fed-e98f-4fbd-9748-71cbc80d3a18"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

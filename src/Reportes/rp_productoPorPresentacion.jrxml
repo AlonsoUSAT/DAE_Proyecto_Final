@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rp_productoPorPresentacion" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a6b565e7-6cd8-4a3a-a60f-b169dc9f4e72">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="p_id_producto" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     prod.nombre AS "Producto",
+     -- Concatenación completa: Ej. "Caja x 10 tabletas"
+     CONCAT(tp.nombretipopresentacion, ' x ', pres.cantidad, ' ', uni.nombreunidad) AS "Presentacion Completa",
+     pp.precio AS "Precio",
+     pp.stock AS "Stock",
+     mar.nombre AS "Marca"
+FROM
+     public.presentacion_producto pp
+     INNER JOIN public.producto prod ON pp.idproducto = prod.idproducto
+     INNER JOIN public.marca mar ON prod.idmarca = mar.idmarca
+     INNER JOIN public.presentacion pres ON pp.idpresentacion = pres.idpresentacion
+     INNER JOIN public.tipo_presentacion tp ON pres.tipopresentacion = tp.idtipopresentacion
+     INNER JOIN public.unidad uni ON pres.idunidad = uni.idunidad
+WHERE
+     prod.idproducto = $P{p_id_producto}]]>
+	</queryString>
+	<field name="Producto" class="java.lang.String"/>
+	<field name="Presentacion Completa" class="java.lang.String"/>
+	<field name="Precio" class="java.lang.Double"/>
+	<field name="Stock" class="java.lang.Integer"/>
+	<field name="Marca" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="89" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="3" width="555" height="86" backcolor="#00A2B9" uuid="1efa8ff3-9453-4aff-99f9-1be3b27b2f37"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE PRODUCTOS POR PRESENTACIÓN]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="54" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="100" height="20" uuid="3f0578b0-c334-42ce-9c23-f64627683c18"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Producto}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="34" width="174" height="20" uuid="9fd20e95-4f4a-4866-83c3-991b9f645aca"/>
+				<text><![CDATA[Presentacion Completa]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="174" y="34" width="100" height="20" uuid="a92eec32-3533-4c7b-b3bf-9bc041b52325"/>
+				<text><![CDATA[Precio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="308" y="34" width="100" height="20" uuid="96eee416-e887-4188-845a-0ab4de9ee920"/>
+				<text><![CDATA[Stock]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="443" y="34" width="100" height="20" uuid="b9a34404-0111-4dac-b414-e2d2240f3825"/>
+				<text><![CDATA[Marca]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="48" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="18" width="174" height="20" uuid="51a12d1b-2fed-40ee-b4e2-3139ee80168e"/>
+				<textFieldExpression><![CDATA[$F{Presentacion Completa}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="174" y="18" width="100" height="20" uuid="70ec4b0a-e691-4096-b63e-9e31242586a7"/>
+				<textFieldExpression><![CDATA[$F{Precio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="308" y="18" width="100" height="20" uuid="32f51b2a-728a-4f44-8e9a-04c446bc8c64"/>
+				<textFieldExpression><![CDATA[$F{Stock}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="443" y="18" width="100" height="20" uuid="3ff55c26-95bc-4676-b173-5d64502cf293"/>
+				<textFieldExpression><![CDATA[$F{Marca}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

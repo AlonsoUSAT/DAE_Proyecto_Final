@@ -3,13 +3,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package Capa_Presentacion;
-
-import Capa_Negocio.Cliente;
-import Capa_Negocio.TipoDocumento;
+/*/
+import capaNegocio.Cliente;
+import capaNegocio.TipoDocumento;
 import java.awt.Color;
 import javax.swing.JOptionPane;
 import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
+*/
+
+
+
+import Capa_Negocio.Cliente;
+import Capa_Negocio.TipoDocumento;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+import java.sql.ResultSet;
+
+import java.awt.Color;
 
 /**
  *
@@ -18,9 +30,6 @@ import javax.swing.table.DefaultTableModel;
 public class ManCliente extends javax.swing.JDialog {
     Cliente objCliente = new Cliente();
 
-      private Cliente clienteActual = null; // Guarda el cliente encontrado para Modificar/Dar Baja
-    private boolean esModoNuevo = false; 
-    
     public ManCliente(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -29,130 +38,43 @@ public class ManCliente extends javax.swing.JDialog {
         }
         // 2. Establecer el estado visual inicial
         cargarSexos();
+        cargarListaClientes();
+        txtCodigo.setEditable(false);
         
-        listarClientesEnTabla();
-
     }
-    
-  // Método que se llama al iniciar o al hacer clic en un botón de "Listar/Actualizar"
-    public void listarClientesEnTabla() {
-        // Define el modelo de la tabla (las columnas)
-        DefaultTableModel modelo = new DefaultTableModel(new Object[]{"ID", "Nro. Doc", "Tipo Doc", "Nombres / Razón Social", "Teléfono", "Correo"}, 0);
-        
-        try {
-            // 1. Obtener el ResultSet
-            ResultSet rs = objCliente.listarClientes();
-            
-            // 2. Iterar sobre el ResultSet y llenar el modelo
-            while (rs.next()) {
-                // Obtener los datos del cliente
-                int id = rs.getInt("idCliente");
-                String nroDoc = rs.getString("nroDoc");
-                String tipoDoc = rs.getString("nom_tipoDoc");
-                String nombreCompleto = rs.getString("nombre_completo_o_razon_social");
-                String telefono = rs.getString("telefono");
-                String correo = rs.getString("correo");
-                
-                // Agregar una fila al modelo
-                modelo.addRow(new Object[]{id, nroDoc, tipoDoc, nombreCompleto, telefono, correo});
-            }
-            
-            // 3. Asignar el modelo a tu JTable
-            tblClientes.setModel(modelo);
-            
-            // Opcional: Ajustar el ancho de las columnas, si lo requiere el profesor.
-            
-        } catch (Exception e) {
-            // Muestra un mensaje de error si algo falla en la conexión o consulta
-            javax.swing.JOptionPane.showMessageDialog(this, 
-                "Error al cargar la lista de clientes: " + e.getMessage(), 
-                "Error de Base de Datos", 
-                javax.swing.JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-  private void cargarTiposDocumento(String tipoCliente) {
-    try {
-        cboTipoDocumento.removeAllItems();
-
-        ResultSet rs = objCliente.listarTipoDocumentosFiltrado(tipoCliente); 
-
-        while (rs.next()) {
-            int id = rs.getInt("id_tipoDoc");
-            String nombre = rs.getString("nom_tipoDoc");
-            
-            cboTipoDocumento.addItem(new TipoDocumento(id, nombre)); 
-        }
-
-        if (cboTipoDocumento.getItemCount() > 0) {
-            cboTipoDocumento.setSelectedIndex(0);
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al cargar tipos de documento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-  private void seleccionarTipoDocumento(int idTipoDoc) {
-    for (int i = 0; i < cboTipoDocumento.getItemCount(); i++) {
-        TipoDocumento td = (TipoDocumento) cboTipoDocumento.getItemAt(i);
-        if (td.getId() == idTipoDoc) {
-            cboTipoDocumento.setSelectedIndex(i);
-            break;
-        }
-    }
-}
  
-    private void limpiarFormulario() {
-        txtNumeroDocumento.setText("");
-        txtNombres.setText("");
-        txtApellidoPaterno.setText("");
-        txtApellidoMaterno.setText("");
-        txtRazonSocial.setText("");
-        txtDireccion.setText("");
-        txtTelefono.setText("");
-        txtCorreo.setText("");
-        txtFechaNacimiento.setText("");
-        
-        cboSexo.setSelectedIndex(0);
-        
-        rbPersona.setSelected(true);        
-        //int clienteSeleccionadoId = -1;
-        tblClientes.clearSelection();
+    private void cargarTiposDocumento(String tipoCliente) {
+        try {
+            cboTipoDocumento.removeAllItems();
+
+            ResultSet rs = objCliente.listarTipoDocumentosFiltrado(tipoCliente); 
+
+            while (rs.next()) {
+                int id = rs.getInt("id_tipoDoc");
+                String nombre = rs.getString("nom_tipoDoc");
+
+                cboTipoDocumento.addItem(new TipoDocumento(id, nombre)); 
+            }
+
+            if (cboTipoDocumento.getItemCount() > 0) {
+                cboTipoDocumento.setSelectedIndex(0);
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar tipos de documento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-     
-    public void restablecerModoInicial() {
-        limpiarFormulario(); // Limpiamos los datos de entrada
-
-        // Restablecer el campo ID
-        txtCodigo.setText(""); 
-        txtCodigo.setEnabled(false); // El ID nunca debe ser editable
-
-        // Restablecer el estado de los botones (Modo Búsqueda/Inactivo)
-        esModoNuevo = false;
-        btnGuardar.setText("Nuevo");
-        btnGuardar.setEnabled(true); // Deshabilitar Guardar hasta que se presione "Nuevo" o "Modificar"
-        btnBuscar.setEnabled(true);
-        btnModificar.setEnabled(true);
-        btnEliminar.setEnabled(true); 
-
-        // Deshabilitar campos comunes (Modo Lectura)
-        
-        txtNumeroDocumento.setEnabled(true);
-        txtDireccion.setEnabled(true);
-        txtTelefono.setEnabled(true);
-        txtCorreo.setEnabled(true);
-        cboTipoDocumento.setEnabled(true);
-        rbPersona.setEnabled(true);
-        rbEmpresa.setEnabled(true);
-        
-
-        // Forzar la actualización para deshabilitar los campos Persona/Empresa
-        actualizarCamposSegunTipo(); 
-
-        listarClientesEnTabla();
-}
-    
-      // MÉTODO CLAVE: Habilitar/Deshabilitar campos según tipo
+    private void seleccionarTipoDocumento(int idTipoDoc) {
+        for (int i = 0; i < cboTipoDocumento.getItemCount(); i++) {
+            TipoDocumento td = (TipoDocumento) cboTipoDocumento.getItemAt(i);
+            if (td.getId() == idTipoDoc) {
+                cboTipoDocumento.setSelectedIndex(i);
+                break;
+            }
+        }
+    }
+ 
+      /* MÉTODO CLAVE: Habilitar/Deshabilitar campos según tipo
     private void actualizarCamposSegunTipo() {
         boolean esPersona = rbPersona.isSelected();
         String tipoCliente = esPersona ? "PERSONA" : "EMPRESA";
@@ -177,8 +99,36 @@ public class ManCliente extends javax.swing.JDialog {
         txtApellidoPaterno.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
         txtApellidoMaterno.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
         txtFechaNacimiento.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
-    }
+    }*/
+    
+    private void actualizarCamposSegunTipo() {
+        boolean esPersona = rbPersona.isSelected();
+        String tipoCliente = esPersona ? "PERSONA" : "EMPRESA";
 
+        // 🔥 AQUÍ ESTÁ LA CLAVE: CARGAR LOS TIPOS DE DOCUMENTO FILTRADOS
+        cargarTiposDocumento(tipoCliente);
+
+        // Habilitar/Deshabilitar campos PERSONA
+        txtNombres.setEnabled(esPersona);
+        txtApellidoPaterno.setEnabled(esPersona);
+        txtApellidoMaterno.setEnabled(esPersona);
+        cboSexo.setEnabled(esPersona);
+        txtFechaNacimiento1.setDate(null); // Opcional: limpiar fecha al cambiar
+        txtFechaNacimiento1.setEnabled(esPersona);
+
+        // Habilitar/Deshabilitar campos EMPRESA
+        txtRazonSocial.setEnabled(!esPersona);
+
+        // Cambiar color de fondo para indicar visualmente
+        Color colorDeshabilitado = new Color(204, 224, 250);
+        Color colorHabilitado = Color.WHITE;
+
+        txtNombres.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
+        txtApellidoPaterno.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
+        txtApellidoMaterno.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
+        txtFechaNacimiento1.setBackground(esPersona ? colorHabilitado : colorDeshabilitado);
+        txtRazonSocial.setBackground(!esPersona ? colorHabilitado : colorDeshabilitado);
+    }
     
     private void cargarSexos() {
         // Limpiar el ComboBox antes de llenarlo
@@ -190,6 +140,51 @@ public class ManCliente extends javax.swing.JDialog {
 
         // Seleccionar el primer elemento por defecto
         cboSexo.setSelectedIndex(0);
+    }
+  
+    private void limpiarCampos() {
+        txtCodigo.setText("");
+        txtNroDoc.setText("");
+        txtDireccion.setText("");
+        txtTelefono.setText("");
+        txtCorreo.setText("");
+        txtNombres.setText("");
+        txtApellidoPaterno.setText("");
+        txtApellidoMaterno.setText("");
+        txtRazonSocial.setText("");
+        cboSexo.setSelectedIndex(0);
+        txtFechaNacimiento1.setDate(null);
+        rbPersona.setSelected(true);
+        actualizarCamposSegunTipo();
+    }
+    
+    // Método para cargar todos los clientes en la tabla
+    private void cargarListaClientes() {
+        DefaultTableModel modelo = new DefaultTableModel();
+        // Definir las columnas
+        modelo.addColumn("ID");
+        modelo.addColumn("N° Doc");
+        modelo.addColumn("Tipo");
+        modelo.addColumn("Nombre / Razón Social");
+        modelo.addColumn("Teléfono");
+        modelo.addColumn("Correo");
+
+        try {
+            ResultSet rs = objCliente.listarTodosClientes();
+            while (rs.next()) {
+                Object[] fila = new Object[6];
+                fila[0] = rs.getInt("idcliente");
+                fila[1] = rs.getString("nrodoc");
+                fila[2] = rs.getString("tipo_cliente"); // PERSONA o EMPRESA
+                fila[3] = rs.getString("nombre_completo"); // Nombres o razón social
+                fila[4] = rs.getString("telefono");
+                fila[5] = rs.getString("correo");
+                modelo.addRow(fila);
+            }
+            tblClientes.setModel(modelo);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar lista de clientes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     @SuppressWarnings("unchecked")
@@ -206,14 +201,13 @@ public class ManCliente extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         cboTipoDocumento = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
-        txtNumeroDocumento = new javax.swing.JTextField();
+        txtNroDoc = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         txtDireccion = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         txtCorreo = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
-        txtFechaNacimiento = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         cboSexo = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
@@ -223,6 +217,7 @@ public class ManCliente extends javax.swing.JDialog {
         jLabel5 = new javax.swing.JLabel();
         txtNombres = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
+        txtFechaNacimiento1 = new com.toedter.calendar.JDateChooser();
         txtTelefono = new javax.swing.JTextField();
         jPanel8 = new javax.swing.JPanel();
         jLabel18 = new javax.swing.JLabel();
@@ -237,7 +232,7 @@ public class ManCliente extends javax.swing.JDialog {
         jPanel5 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblClientes = new javax.swing.JTable();
-        txtNumeroDocumento1 = new javax.swing.JTextField();
+        txtNumDocBuscar = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
         txtCodigo = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
@@ -340,25 +335,25 @@ public class ManCliente extends javax.swing.JDialog {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txtFechaNacimiento, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtApellidoPaterno, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel6))
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(txtNombres, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cboSexo, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtApellidoMaterno, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(10, 10, 10))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(65, Short.MAX_VALUE))))
+                        .addContainerGap(65, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtFechaNacimiento1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtApellidoPaterno, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtNombres, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cboSexo, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtApellidoMaterno, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(10, 10, 10))))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -381,9 +376,8 @@ public class ManCliente extends javax.swing.JDialog {
                 .addComponent(cboSexo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(6, 6, 6)
                 .addComponent(jLabel8)
-                .addGap(0, 0, 0)
-                .addComponent(txtFechaNacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(txtFechaNacimiento1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel8.setBackground(new java.awt.Color(204, 204, 255));
@@ -421,7 +415,7 @@ public class ManCliente extends javax.swing.JDialog {
 
         btnEliminar.setBackground(new java.awt.Color(204, 224, 250));
         btnEliminar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/eliminar-usuario.png"))); // NOI18N
+        btnEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/eliminar-usuario.png"))); // NOI18N
         btnEliminar.setText("Eliminar");
         btnEliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -544,7 +538,7 @@ public class ManCliente extends javax.swing.JDialog {
                         .addGap(2, 2, 2)
                         .addComponent(jLabel14)
                         .addGap(18, 18, 18)
-                        .addComponent(txtNumeroDocumento1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtNumDocBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -553,13 +547,14 @@ public class ManCliente extends javax.swing.JDialog {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(12, 12, 12)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtNumeroDocumento1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNumDocBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel14))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
+        txtCodigo.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         txtCodigo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtCodigoActionPerformed(evt);
@@ -584,7 +579,7 @@ public class ManCliente extends javax.swing.JDialog {
                                 .addComponent(rbEmpresa))
                             .addComponent(jLabel3)
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(txtNumeroDocumento, javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(txtNroDoc, javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(cboTipoDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
@@ -637,7 +632,7 @@ public class ManCliente extends javax.swing.JDialog {
                         .addGap(10, 10, 10)
                         .addComponent(jLabel3)
                         .addGap(10, 10, 10)
-                        .addComponent(txtNumeroDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtNroDoc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
                         .addComponent(jLabel9)
                         .addGap(10, 10, 10)
@@ -678,239 +673,181 @@ public class ManCliente extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-    
-        if (btnGuardar.getText().equals("Nuevo")) {
-        // --- FLUJO 1: INICIAR NUEVO REGISTRO ---
-
-        try {
-            esModoNuevo = true; // Establece el modo a INSERCIÓN
-
-            int codigoGenerado = objCliente.generarCodigoCliente();
-            txtCodigo.setText(String.valueOf(codigoGenerado));
-            txtCodigo.setEnabled(false); // ID no editable
-
-            limpiarFormulario(); 
-
-            txtNumeroDocumento.setEnabled(true);
-            txtDireccion.setEnabled(true);
-            txtTelefono.setEnabled(true);
-            txtCorreo.setEnabled(true);
-            cboTipoDocumento.setEnabled(true);
-            rbPersona.setEnabled(true);
-            rbEmpresa.setEnabled(true);
-
-            btnGuardar.setText("Guardar");
-            btnBuscar.setEnabled(false);
-
-            rbPersona.setSelected(true); 
-            actualizarCamposSegunTipo(); 
-            txtNumeroDocumento.requestFocus();
-
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error al generar código: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-        }
-
-    } else if (btnGuardar.getText().equals("Guardar")) {
-        // --- FLUJO 2: EJECUTAR GUARDAR (INSERTAR O MODIFICAR) ---
-
-        int idCliente = esModoNuevo ? 0 : Integer.parseInt(txtCodigo.getText()); 
-        String nroDoc = txtNumeroDocumento.getText().trim();
-        String direccion = txtDireccion.getText().trim();
-        String telefono = txtTelefono.getText().trim();
-        String correo = txtCorreo.getText().trim();
-
-        TipoDocumento tipoSeleccionado = (TipoDocumento) cboTipoDocumento.getSelectedItem();
-        int id_tipoDoc = tipoSeleccionado.getId();
-
-        String nombres = null, apellidoPaterno = null, apellidoMaterno = null, razonSocial = null;
-        String sexo = null;
-        java.util.Date fechaNacimiento = null; 
-        boolean esPersona = rbPersona.isSelected();
-
-        // 🔹 Validaciones generales
-        if (nroDoc.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debe ingresar el número de documento.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // 🔹 Validar longitud según tipo de documento
-        switch (id_tipoDoc) {
-            case 1: // DNI
-                if (nroDoc.length() != 8) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "El DNI debe tener exactamente 8 dígitos.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                break;
-            case 3: // Carné de Extranjería
-                if (nroDoc.length() < 9 || nroDoc.length() > 12) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "El Carné de Extranjería debe tener entre 9 y 12 caracteres.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                break;
-            case 4: // Pasaporte
-                if (nroDoc.length() < 6 || nroDoc.length() > 12) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "El Pasaporte debe tener entre 6 y 12 caracteres.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                break;
-            case 2: // RUC
-                if (nroDoc.length() != 11) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "El RUC debe tener exactamente 11 dígitos.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                break;
-        }
-
-        if (esPersona) {
-            nombres = txtNombres.getText().trim();
-            apellidoPaterno = txtApellidoPaterno.getText().trim();
-            apellidoMaterno = txtApellidoMaterno.getText().trim();
-            sexo = cboSexo.getSelectedItem().toString().substring(0, 1); 
-
-            // 🔹 Validar nombres y apellidos
-            if (nombres.isEmpty() || apellidoPaterno.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Debe ingresar los Nombres y Apellido Paterno para Personas.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // 🔹 Validar fecha de nacimiento
             try {
-                String fechaTexto = txtFechaNacimiento.getText().trim();
-                if (fechaTexto.isEmpty()) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Ingrese su fecha de nacimiento.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("dd/MM/yyyy");
-                fechaNacimiento = format.parse(fechaTexto);
-            } catch (Exception e) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Formato de Fecha de Nacimiento inválido (debe ser dd/MM/yyyy).", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+           // Validaciones básicas
+           if (txtNroDoc.getText().trim().isEmpty()) {
+               JOptionPane.showMessageDialog(this, "El número de documento es obligatorio.", "Error", JOptionPane.ERROR_MESSAGE);
+               return;
+           }
 
-        } else {
-            razonSocial = txtRazonSocial.getText().trim();
+           TipoDocumento td = (TipoDocumento) cboTipoDocumento.getSelectedItem();
+           if (td == null) {
+               JOptionPane.showMessageDialog(this, "Seleccione un tipo de documento.", "Error", JOptionPane.ERROR_MESSAGE);
+               return;
+           }
 
-            // 🔹 Validar Razón Social obligatoria si es Empresa
-            if (razonSocial.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Debe ingresar la Razón Social para Empresas.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        }
+           boolean esPersona = rbPersona.isSelected();
 
-        try {
-            boolean exito = false;
-            java.sql.Date sqlFechaNacimiento = null;
-            if (fechaNacimiento != null) {
-                sqlFechaNacimiento = new java.sql.Date(fechaNacimiento.getTime());
-            }
+           // Validaciones específicas
+           if (esPersona) {
+               if (txtNombres.getText().trim().isEmpty() || txtApellidoPaterno.getText().trim().isEmpty()) {
+                   JOptionPane.showMessageDialog(this, "Los nombres y apellido paterno son obligatorios para personas.", "Error", JOptionPane.ERROR_MESSAGE);
+                   return;
+               }
+           } else {
+               if (txtRazonSocial.getText().trim().isEmpty()) {
+                   JOptionPane.showMessageDialog(this, "La razón social es obligatoria para empresas.", "Error", JOptionPane.ERROR_MESSAGE);
+                   return;
+               }
+           }
 
-            if (esModoNuevo) {
-                exito = objCliente.registrarCliente(
-                    nroDoc, direccion, telefono, correo, id_tipoDoc,
-                    nombres, apellidoPaterno, apellidoMaterno, sexo, 
-                    sqlFechaNacimiento, razonSocial
-                ); 
-            } else {
-                exito = objCliente.modificarCliente(
-                    idCliente, nroDoc, direccion, telefono, correo, id_tipoDoc,
-                    nombres, apellidoPaterno, apellidoMaterno, sexo, 
-                    sqlFechaNacimiento, razonSocial
-                );
-            }
+           // Verificar duplicado
+           if (objCliente.existeNroDoc(txtNroDoc.getText().trim(), 0)) {
+               JOptionPane.showMessageDialog(this, "El número de documento ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+               return;
+           }
 
-            if (exito) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Operación completada exitosamente.", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-            }
+           // Cargar datos en objeto Cliente
+           objCliente.setNroDoc(txtNroDoc.getText().trim());
+           objCliente.setDireccion(txtDireccion.getText().trim());
+           objCliente.setTelefono(txtTelefono.getText().trim());
+           objCliente.setCorreo(txtCorreo.getText().trim());
+           objCliente.setId_tipoDoc(td.getId());
 
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error de base de datos al guardar: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+           if (esPersona) {
+               objCliente.setNombres(txtNombres.getText().trim());
+               objCliente.setApellidoPaterno(txtApellidoPaterno.getText().trim());
+               objCliente.setApellidoMaterno(txtApellidoMaterno.getText().trim());
+               objCliente.setSexo((String) cboSexo.getSelectedItem());
+               objCliente.setFechaNacimiento(txtFechaNacimiento1.getDate());
+           } else {
+               objCliente.setRazonSocial(txtRazonSocial.getText().trim());
+           }
 
-        txtNumeroDocumento.setEnabled(false);
-        txtDireccion.setEnabled(false);
-        txtTelefono.setEnabled(false);
-        txtCorreo.setEnabled(false);
-        actualizarCamposSegunTipo(); 
+           // Insertar en BD
+           if (objCliente.insertarCliente(esPersona)) {
+               JOptionPane.showMessageDialog(this, "Cliente registrado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+               limpiarCampos();
+               cargarListaClientes();
+               // Opcional: dejarlo listo para otro nuevo
+           } else {
+               JOptionPane.showMessageDialog(this, "Error al registrar cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+           }
 
-        btnGuardar.setText("Nuevo");
-        btnBuscar.setEnabled(true);
-        btnModificar.setEnabled(false);
-        limpiarFormulario();
-        listarClientesEnTabla();
-    }
+       } catch (Exception e) {
+           JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+           e.printStackTrace();
+       }
+    
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        // TODO add your handling code here:
-            // 1. Validar que estemos listos para modificar
-    if (clienteActual == null || esModoNuevo) {
-        javax.swing.JOptionPane.showMessageDialog(this, 
-            "Debe buscar un cliente existente y estar en modo Modificar.", 
-            "Advertencia", 
-            javax.swing.JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // 2. HABILITAR todos los campos para la edición
-    txtNumeroDocumento.setEnabled(true);
-    txtDireccion.setEnabled(true);
-    txtTelefono.setEnabled(true);
-    txtCorreo.setEnabled(true);
-    cboTipoDocumento.setEnabled(true);
-    rbPersona.setEnabled(true);
-    rbEmpresa.setEnabled(true);
-    
-    // Habilitar campos específicos (llama a tu método)
-    actualizarCamposSegunTipo();
-
-    // 3. AJUSTAR BOTONES: Entrar en modo edición/Guardar
-    btnGuardar.setText("Guardar");
-    btnGuardar.setEnabled(true); // Habilitar Guardar para ejecutar la modificación
-    
-    btnModificar.setEnabled(false); // Deshabilitar Modificar mientras editamos
-    btnBuscar.setEnabled(false); // Deshabilitar Buscar mientras editamos
-    //btnDarBaja.setEnabled(false); // Deshabilitar Dar Baja mientras editamos
-    
-    txtNumeroDocumento.requestFocus();
-    }//GEN-LAST:event_btnModificarActionPerformed
-
-    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        limpiarFormulario();
-    }//GEN-LAST:event_btnLimpiarActionPerformed
-
-    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        
-        if (txtCodigo.getText().isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debe seleccionar un cliente de la tabla primero.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
+         if (txtCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Primero debe buscar un cliente para modificar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int idClienteAEliminar = Integer.parseInt(txtCodigo.getText());
+        try {
+            // Validaciones (igual que en Nuevo)
+            if (txtNroDoc.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El número de documento es obligatorio.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-        // 2. Mensaje de Confirmación
-        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
-            this, 
-            "¿Está seguro de eliminar al Cliente con ID: " + idClienteAEliminar + "?\nEsta acción es irreversible.", 
-            "Confirmar Eliminación", 
-            javax.swing.JOptionPane.YES_NO_OPTION,
-            javax.swing.JOptionPane.WARNING_MESSAGE
-        );
+            TipoDocumento td = (TipoDocumento) cboTipoDocumento.getSelectedItem();
+            if (td == null) {
+                JOptionPane.showMessageDialog(this, "Seleccione un tipo de documento.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            boolean esPersona = rbPersona.isSelected();
+
+            // Validaciones específicas
+            if (esPersona) {
+                if (txtNombres.getText().trim().isEmpty() || txtApellidoPaterno.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Los nombres y apellido paterno son obligatorios para personas.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } else {
+                if (txtRazonSocial.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "La razón social es obligatoria para empresas.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            // Verificar duplicado (excluyendo el actual)
+            int idActual = Integer.parseInt(txtCodigo.getText().trim());
+            if (objCliente.existeNroDoc(txtNroDoc.getText().trim(), idActual)) {
+                JOptionPane.showMessageDialog(this, "El número de documento ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Cargar datos en objeto Cliente
+            objCliente.setNroDoc(txtNroDoc.getText().trim());
+            objCliente.setDireccion(txtDireccion.getText().trim());
+            objCliente.setTelefono(txtTelefono.getText().trim());
+            objCliente.setCorreo(txtCorreo.getText().trim());
+            objCliente.setId_tipoDoc(td.getId());
+
+            if (esPersona) {
+                objCliente.setNombres(txtNombres.getText().trim());
+                objCliente.setApellidoPaterno(txtApellidoPaterno.getText().trim());
+                objCliente.setApellidoMaterno(txtApellidoMaterno.getText().trim());
+                objCliente.setSexo((String) cboSexo.getSelectedItem());
+                objCliente.setFechaNacimiento(txtFechaNacimiento1.getDate());
+            } else {
+                objCliente.setRazonSocial(txtRazonSocial.getText().trim());
+            }
+
+            // Actualizar en BD
+            objCliente.setIdCliente(idActual);
+            if (objCliente.actualizarCliente(esPersona)) {
+                JOptionPane.showMessageDialog(this, "Cliente actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                limpiarCampos();
+                cargarListaClientes();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al actualizar cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Código de cliente inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnModificarActionPerformed
+
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+         limpiarCampos();
+        // Dejarlo listo para un nuevo registro
+        btnGuardar.setEnabled(true);
+        btnModificar.setEnabled(false);
+        btnEliminar.setEnabled(false);
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        if (txtCodigo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Primero debe buscar un cliente para eliminar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de eliminar este cliente?",
+            "Confirmar eliminación",
+            JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // 3. Ejecutar la Eliminación
-                // Nota: Se asume que objCliente.eliminarCliente(id) existe en tu capa de negocio.
-                boolean exito = objCliente.eliminarCliente(idClienteAEliminar); 
-
-                if (exito) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Cliente eliminado exitosamente.", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-
-                    // 4. Resetear la Interfaz completamente
-                    restablecerModoInicial(); // <-- Llama al método que limpia todo (ID, campos, botones y recarga tabla)
+                objCliente.setIdCliente(Integer.parseInt(txtCodigo.getText().trim()));
+                if (objCliente.eliminarCliente()) {
+                    JOptionPane.showMessageDialog(this, "Cliente eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    limpiarCampos();
+                    cargarListaClientes();
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo eliminar el cliente.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception e) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Error de base de datos al eliminar: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error al eliminar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_btnEliminarActionPerformed
@@ -929,81 +866,50 @@ public class ManCliente extends javax.swing.JDialog {
         actualizarCamposSegunTipo();
     }//GEN-LAST:event_rbPersonaActionPerformed
 
-    private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtCodigoActionPerformed
-
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        String nroDocBusqueda = txtNumeroDocumento1.getText().trim();  
-    
-    if (nroDocBusqueda.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Ingrese el Nro. de Documento a buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        clienteActual = objCliente.buscarCliente(nroDocBusqueda);
-        
-        if (clienteActual != null) {
-            // --- CLIENTE ENCONTRADO (MODO LECTURA/LISTO PARA MODIFICAR) ---
-            JOptionPane.showMessageDialog(this, "Cliente encontrado. Presione Modificar para editar.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
-            esModoNuevo = false; // El modo es Modificar
-            
-            // 3. Llenar campos comunes
-            txtCodigo.setText(String.valueOf(clienteActual.getIdCliente()));
-            txtCodigo.setEnabled(false); 
-            txtNumeroDocumento.setText(clienteActual.getNroDoc());
-            txtDireccion.setText(clienteActual.getDireccion());
-            txtTelefono.setText(clienteActual.getTelefono());
-            txtCorreo.setText(clienteActual.getCorreo());
-            
-            // 4. DESHABILITAR CAMPOS (Modo Lectura)
-            txtNumeroDocumento.setEnabled(false);
-            txtDireccion.setEnabled(false);
-            txtTelefono.setEnabled(false);
-            txtCorreo.setEnabled(false);
-            cboTipoDocumento.setEnabled(false);
-            rbPersona.setEnabled(false);
-            rbEmpresa.setEnabled(false);
-            
-            // 5. Lógica de Persona/Empresa y llenado
-            seleccionarTipoDocumento(clienteActual.getId_tipoDoc());
-            
-            if (clienteActual.getRazonSocial() != null && !clienteActual.getRazonSocial().isEmpty()) {
-                rbEmpresa.setSelected(true);
-                txtRazonSocial.setText(clienteActual.getRazonSocial());
-            } else {
-                rbPersona.setSelected(true);
-                txtNombres.setText(clienteActual.getNombres());
-                txtApellidoPaterno.setText(clienteActual.getApellidoPaterno());
-                txtApellidoMaterno.setText(clienteActual.getApellidoMaterno());
+         String nroDoc = txtNumDocBuscar.getText().trim(); 
+         String nrodoc = txtNroDoc.getText().trim();
+            if (nroDoc.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese un número de documento para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                return;
             }
-            
-            // 6. AJUSTAR BOTONES para el Modo Lectura
-            actualizarCamposSegunTipo(); // Deshabilita los campos Persona/Empresa
-            
-            btnGuardar.setText("Nuevo"); // Aseguramos que el Guardar esté en modo "Nuevo" inactivo
-            btnGuardar.setEnabled(false); 
-            btnBuscar.setEnabled(true); // Se puede buscar otro sin modificar este
-            btnModificar.setEnabled(true); // HABILITAR MODIFICAR
-            btnEliminar.setEnabled(true); // HABILITAR DAR BAJA
-            
-        } else {
-            // --- CLIENTE NO ENCONTRADO (Llamar a Nuevo) ---
-            JOptionPane.showMessageDialog(this, "Cliente no encontrado. Iniciando nuevo registro.", "Información", JOptionPane.INFORMATION_MESSAGE);
-            
-            String tempNroDoc = txtNumeroDocumento.getText();
-            limpiarFormulario();
-            txtNumeroDocumento.setText(tempNroDoc);
 
-            // Llama a la acción del botón Guardar (que está en modo "Nuevo")
-            btnGuardarActionPerformed(null); 
+        try {
+            ResultSet rs = objCliente.buscarClientePorNroDoc(nroDoc);
+            if (rs.next()) {
+                txtCodigo.setText(String.valueOf(rs.getInt("idcliente")));
+                txtDireccion.setText(rs.getString("direccion"));
+                txtTelefono.setText(rs.getString("telefono"));
+                txtCorreo.setText(rs.getString("correo"));
+                seleccionarTipoDocumento(rs.getInt("id_tipodoc"));
+                txtNroDoc.setText(rs.getString("nrodoc")); 
+                
+                // Determinar si es persona o empresa
+                if (rs.getString("nombres") != null) {
+                    rbPersona.setSelected(true);
+                    actualizarCamposSegunTipo();
+                    txtNombres.setText(rs.getString("nombres"));
+                    txtApellidoPaterno.setText(rs.getString("apellidopaterno"));
+                    txtApellidoMaterno.setText(rs.getString("apellidomaterno"));
+                    cboSexo.setSelectedItem(rs.getString("sexo").equals("F") ? "Femenino" : "Masculino");
+                    txtFechaNacimiento1.setDate(rs.getDate("fecha_nacimiento"));
+                } else {
+                    rbEmpresa.setSelected(true);
+                    actualizarCamposSegunTipo();
+                    txtRazonSocial.setText(rs.getString("razonsocial"));
+                }
+
+                // Habilitar botones de edición
+                btnModificar.setEnabled(true);
+                btnEliminar.setEnabled(true);
+                btnGuardar.setEnabled(false); // No se puede crear nuevo mientras editas
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Cliente no encontrado.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error en la búsqueda: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
@@ -1012,34 +918,58 @@ public class ManCliente extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void tblClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblClientesMouseClicked
-        // TODO add your handling code here:
-         int fila = tblClientes.getSelectedRow();
     
-        if (fila < 0) {
-            return;
+        int filaSeleccionada = tblClientes.getSelectedRow();
+        if (filaSeleccionada >= 0) {
+            // Obtener el ID del cliente desde la primera columna (ID)
+            int idCliente = Integer.parseInt(tblClientes.getValueAt(filaSeleccionada, 0).toString());
+
+            try {
+                ResultSet rs = objCliente.buscarClientePorId(idCliente);
+                if (rs.next()) {
+                    // Cargar datos en el formulario
+                    txtCodigo.setText(String.valueOf(rs.getInt("idcliente")));
+                    txtNroDoc.setText(rs.getString("nrodoc"));
+                    txtDireccion.setText(rs.getString("direccion"));
+                    txtTelefono.setText(rs.getString("telefono"));
+                    txtCorreo.setText(rs.getString("correo"));
+                    seleccionarTipoDocumento(rs.getInt("id_tipodoc"));
+
+                    // Determinar si es persona o empresa
+                    if (rs.getString("nombres") != null) {
+                        rbPersona.setSelected(true);
+                        actualizarCamposSegunTipo();
+                        txtNombres.setText(rs.getString("nombres"));
+                        txtApellidoPaterno.setText(rs.getString("apellidopaterno"));
+                        txtApellidoMaterno.setText(rs.getString("apellidomaterno"));
+                        cboSexo.setSelectedItem(rs.getString("sexo").equals("F") ? "Femenino" : "Masculino");
+                        txtFechaNacimiento1.setDate(rs.getDate("fecha_nacimiento"));
+                    } else {
+                        rbEmpresa.setSelected(true);
+                        actualizarCamposSegunTipo();
+                        txtRazonSocial.setText(rs.getString("razonsocial"));
+                    }
+
+                    // Habilitar botones de edición
+                    btnModificar.setEnabled(true);
+                    btnEliminar.setEnabled(true);
+                    btnGuardar.setEnabled(false);
+
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al cargar cliente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
+    
 
-        // Obtener el ID del cliente de la columna "ID" (columna 0)
-        DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
-        int idClienteSeleccionado = (int) modelo.getValueAt(fila, 0); 
-
-        // Cargar el ID en el campo de texto (aunque esté deshabilitado)
-        txtCodigo.setText(String.valueOf(idClienteSeleccionado));
-
-        // Habilitar los botones de acción para este cliente
-        btnModificar.setEnabled(true);
-        btnEliminar.setEnabled(true); // Asumimos que tienes un btnEliminar
-
-        // Deshabilitar el botón "Guardar" mientras se trabaja sobre un cliente existente
-        btnGuardar.setEnabled(false); 
-        btnGuardar.setText("Guardar"); // Esto evita que diga "Nuevo" si está habilitado
-
-        // Si quieres que los campos se carguen para Modificar, aquí deberías llamar a:
-        // clienteActual = objCliente.buscarCliente(idClienteSeleccionado);
-        // mostrarCliente(clienteActual);
+        
     }//GEN-LAST:event_tblClientesMouseClicked
 
-    
+    private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCodigoActionPerformed
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnCerrar;
@@ -1080,10 +1010,10 @@ public class ManCliente extends javax.swing.JDialog {
     private javax.swing.JTextField txtCodigo;
     private javax.swing.JTextField txtCorreo;
     private javax.swing.JTextField txtDireccion;
-    private javax.swing.JTextField txtFechaNacimiento;
+    private com.toedter.calendar.JDateChooser txtFechaNacimiento1;
     private javax.swing.JTextField txtNombres;
-    private javax.swing.JTextField txtNumeroDocumento;
-    private javax.swing.JTextField txtNumeroDocumento1;
+    private javax.swing.JTextField txtNroDoc;
+    private javax.swing.JTextField txtNumDocBuscar;
     private javax.swing.JTextField txtRazonSocial;
     private javax.swing.JTextField txtTelefono;
     // End of variables declaration//GEN-END:variables

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte6" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5e05357b-2b3b-4a69-99b1-19d7fbb9b582">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="19"/>
+	<queryString>
+		<![CDATA[SELECT
+    CASE
+        WHEN EXISTS (SELECT 1 FROM public.persona p WHERE p.idcliente = c.idcliente) THEN 'Persona Natural'
+        WHEN EXISTS (SELECT 1 FROM public.empresa e WHERE e.idcliente = c.idcliente) THEN 'Empresa'
+        ELSE 'No Clasificado' 
+    END AS tipo_cliente,
+    COUNT(v.idventa) AS total_ventas,
+    COUNT(DISTINCT v.idcliente) AS clientes_unicos
+FROM
+    public.venta v
+JOIN
+    public.cliente c ON v.idcliente = c.idcliente
+GROUP BY
+    tipo_cliente
+ORDER BY
+    total_ventas DESC;]]>
+	</queryString>
+	<field name="tipo_cliente" class="java.lang.String"/>
+	<field name="total_ventas" class="java.lang.Long"/>
+	<field name="clientes_unicos" class="java.lang.Long"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="29" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="29" backcolor="#00A2B9" uuid="fa8a647f-d029-46b3-a77b-badf281d59b4"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="29" uuid="e15f1ba9-8a46-44ab-b1bd-b9d4197bede7"/>
+				<textElement textAlignment="Center">
+					<font size="20" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reporte de Frecuencia de Compra por Tipo de Cliente]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="58" splitType="Stretch">
+			<staticText>
+				<reportElement x="38" y="34" width="183" height="17" uuid="fae255cc-ab42-44a2-93f1-be9c38f48487"/>
+				<textElement>
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grupo 01 ]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement x="38" y="16" width="97" height="20" forecolor="#154360" uuid="28121930-5599-4476-af9a-89d75d79dd3f"/>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tipo Cliente]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="211" y="16" width="100" height="20" forecolor="#154360" uuid="a9f1d381-b7ce-4b21-b8a4-0487a70d2477"/>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total de Ventas]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="383" y="16" width="100" height="20" forecolor="#154360" uuid="55a75132-a4a4-4f74-b137-a8cd50ecd413"/>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Clientes Únicos]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="38" splitType="Stretch">
+			<textField>
+				<reportElement x="38" y="11" width="97" height="20" uuid="75cba66a-3bd9-44c6-a5ef-b90a01184343"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tipo_cliente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="211" y="11" width="100" height="20" uuid="c3cf5126-d97b-4987-b40a-92272b1930c6"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_ventas}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="381" y="11" width="100" height="20" uuid="d634905c-9bb3-44c4-8de9-65c32b2ed8f7"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientes_unicos}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="38" y="0" width="445" height="1" forecolor="#CCCCCC" uuid="eae93cb1-62ac-4a83-bf52-c2923c15d3f5"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="42" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy HH.mm.ss">
+				<reportElement x="0" y="22" width="100" height="20" uuid="8d08740a-d00d-46d5-95f4-3b8a94aa2db5"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="433" y="22" width="80" height="20" uuid="971f29a7-9769-4803-a2ed-7bcf61fbfe2f"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="513" y="22" width="40" height="20" uuid="167e6bd0-d317-44b0-9dd8-356ccec77255"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="261" splitType="Stretch">
+			<barChart>
+				<chart>
+					<reportElement x="35" y="13" width="448" height="237" uuid="126b000b-71cc-4697-8105-4eccd6ee174a"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{tipo_cliente}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{tipo_cliente}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{total_ventas}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
+	</summary>
+</jasperReport>

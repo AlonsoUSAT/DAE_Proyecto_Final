@@ -142,4 +142,28 @@ public class clsLaboratorio {
             throw new Exception("Error al modificar el laboratorio: " + e.getMessage());
         }
     }
+    
+    public int getCodigo(String nombre) throws Exception {
+        String strSQL = "SELECT idlaboratorio FROM laboratorio WHERE nombrelaboratorio = '" + nombre + "'";
+        try {
+            ResultSet rs = objConectar.consultarBD(strSQL);
+            if (rs.next()) {
+                return rs.getInt("idlaboratorio");
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al buscar código de laboratorio: " + e.getMessage());
+        }
+        return 0;
+    }
+    
+    public ResultSet listarLaboratorio() throws Exception {
+        // Seleccionamos nombrelaboratorio de la tabla laboratorio
+        strSQL = "SELECT nombrelaboratorio FROM laboratorio WHERE estado = true ORDER BY nombrelaboratorio";
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            return rs;
+        } catch (Exception e) {
+            throw new Exception("Error al listar laboratorios: " + e.getMessage());
+        }
+    }
 }

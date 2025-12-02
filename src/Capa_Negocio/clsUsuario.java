@@ -2,6 +2,7 @@ package Capa_Negocio;
 
 import Capa_Datos.clsJDBC;
 import java.sql.ResultSet;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -15,16 +16,20 @@ public class clsUsuario {
 
     public String[] login(String usu, String con) throws Exception {
         strSQL = "SELECT nombres, codusuario FROM usuario "
-               + "WHERE nomusuario='" + usu + "' AND clave ='" + con + "' AND estado=true";
-        
-        String[] datos = new String[2]; // [0]=Nombre, [1]=ID
-        
+                + "WHERE nomusuario='" + usu + "' AND clave ='" + con + "' AND estado=true";
+
+        String[] datos = new String[2];
+
         try {
             rs = objConectar.consultarBD(strSQL);
             if (rs.next()) {
-                datos[0] = rs.getString("nombres");
-                datos[1] = rs.getString("codusuario"); // Recuperamos el ID
-                return datos;
+                String hahGuardado = rs.getString("clave");
+                if (BCrypt.checkpw(con, hahGuardado)) {
+                    datos[0] = rs.getString("nombres");
+                    datos[1] = rs.getString("codusuario"); // Recuperamos el ID
+                    return datos;
+                }
+
             }
         } catch (Exception e) {
             throw new Exception("Error al iniciar sesión completo: " + e.getMessage());
@@ -94,10 +99,10 @@ public class clsUsuario {
 
     // 2. REGISTRAR CORREGIDO: Eliminé la columna vacía que sobraba
     public void registrarUsuario(int cod, String nombres, String apePaterno, String apeMaterno, String correo, String sexo, String clave, Boolean estado, Integer idRol, String nomusuario, String pregunta, String respuesta) throws Exception {
-        
+        String claveEncriptada = BCrypt.hashpw(clave, BCrypt.gensalt());
         strSQL = "INSERT INTO usuario(codusuario, nombres, apellidopaterno, apellidomaterno, correo, sexo, clave, estado, id_rol, nomusuario, pregunta, respuesta) "
-               + "VALUES(" + cod + ",'" + nombres + "','" + apePaterno + "','" + apeMaterno + "','" + correo + "','" + sexo + "','" + clave + "'," + estado + "," + idRol + ",'" + nomusuario + "', '" + pregunta + "', '" + respuesta + "')";
-        
+                + "VALUES(" + cod + ",'" + nombres + "','" + apePaterno + "','" + apeMaterno + "','" + correo + "','" + sexo + "','" + claveEncriptada + "'," + estado + "," + idRol + ",'" + nomusuario + "', '" + pregunta + "', '" + respuesta + "')";
+
         try {
             objConectar.ejecutarBD(strSQL);
         } catch (Exception e) {
@@ -136,21 +141,36 @@ public class clsUsuario {
 
     // 3. MODIFICAR CORREGIDO: Usamos la sintaxis correcta UPDATE SET
     public void modificarUsuario(int cod, String nombres, String apePaterno, String apeMaterno, String correo, String sexo, String clave, Boolean estado, Integer idRol, String nomusuario, String pregunta, String respuesta) throws Exception {
-
-        strSQL = "UPDATE usuario SET "
-               + "nombres='" + nombres + "', "
-               + "apellidopaterno='" + apePaterno + "', "
-               + "apellidomaterno='" + apeMaterno + "', "
-               + "correo='" + correo + "', "
-               + "sexo='" + sexo + "', "
-               + "clave='" + clave + "', "
-               + "estado=" + estado + ", "
-               + "id_rol=" + idRol + ", "
-               + "nomusuario='" + nomusuario + "', "
-               + "pregunta='" + pregunta + "', "
-               + "respuesta='" + respuesta + "' "
-               + "WHERE codusuario=" + cod;
-
+        if (clave != null && !clave.trim().isEmpty()) {
+            String claveEncriptada = BCrypt.hashpw(clave, BCrypt.gensalt());
+            strSQL = "UPDATE usuario SET "
+                + "nombres='" + nombres + "', "
+                + "apellidopaterno='" + apePaterno + "', "
+                + "apellidomaterno='" + apeMaterno + "', "
+                + "correo='" + correo + "', "
+                + "sexo='" + sexo + "', "
+                + "clave='" + claveEncriptada + "', "
+                + "estado=" + estado + ", "
+                + "id_rol=" + idRol + ", "
+                + "nomusuario='" + nomusuario + "', "
+                + "pregunta='" + pregunta + "', "
+                + "respuesta='" + respuesta + "' "
+                + "WHERE codusuario=" + cod;
+        }else{
+            strSQL = "UPDATE usuario SET "
+                + "nombres='" + nombres + "', "
+                + "apellidopaterno='" + apePaterno + "', "
+                + "apellidomaterno='" + apeMaterno + "', "
+                + "correo='" + correo + "', "
+                + "sexo='" + sexo + "', "
+                + "estado=" + estado + ", "
+                + "id_rol=" + idRol + ", "
+                + "nomusuario='" + nomusuario + "', "
+                + "pregunta='" + pregunta + "', "
+                + "respuesta='" + respuesta + "' "
+                + "WHERE codusuario=" + cod;
+        }
+        
         try {
             objConectar.ejecutarBD(strSQL);
         } catch (Exception e) {
@@ -168,5 +188,4 @@ public class clsUsuario {
         }
     }
 
-   
 }

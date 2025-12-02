@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rp_StockMin" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e6ac6ba0-ab0e-4b85-ab79-691bb4df1dab">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="p_idmarca" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_idlaboratorio" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_idcategoria" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    p.nombre AS producto,
+    m.nombre AS marca,
+    l.nombrelaboratorio AS laboratorio,
+    c.nombrecategoria AS categoria,
+    tp.nombretipopresentacion AS presentacion,
+    pp.stock,
+    pp.precio
+FROM public.presentacion_producto pp
+INNER JOIN public.producto p ON pp.idproducto = p.idproducto
+INNER JOIN public.marca m ON p.idmarca = m.idmarca
+INNER JOIN public.laboratorio l ON m.idlaboratorio = l.idlaboratorio
+INNER JOIN public.categoria c ON p.idcategoria = c.idcategoria
+INNER JOIN public.presentacion pres ON pp.idpresentacion = pres.idpresentacion
+INNER JOIN public.tipo_presentacion tp ON pres.tipopresentacion = tp.idtipopresentacion
+WHERE pp.stock <= 10
+  AND p.estado = true
+  AND ($P{p_idmarca} IS NULL OR m.idmarca = $P{p_idmarca})
+  AND ($P{p_idlaboratorio} IS NULL OR l.idlaboratorio = $P{p_idlaboratorio})
+  AND ($P{p_idcategoria} IS NULL OR c.idcategoria = $P{p_idcategoria})
+ORDER BY pp.stock ASC;]]>
+	</queryString>
+	<field name="producto" class="java.lang.String"/>
+	<field name="marca" class="java.lang.String"/>
+	<field name="laboratorio" class="java.lang.String"/>
+	<field name="categoria" class="java.lang.String"/>
+	<field name="presentacion" class="java.lang.String"/>
+	<field name="stock" class="java.lang.Integer"/>
+	<field name="precio" class="java.lang.Double"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="125" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="10" width="555" height="115" backcolor="#00A2B9" uuid="fa38383d-b021-4884-b1d8-7bf16f4a9a1f"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE STOCK MÍNIMO POR PRODUCO DE ACUERCO A FILTROS (marca, laboratorio,categoria) ]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="24" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="81" splitType="Stretch">
+			<textField>
+				<reportElement x="26" y="2" width="100" height="20" uuid="026d76ca-6bbd-46bb-9432-410fc96c74bf"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="53" width="100" height="20" uuid="5c1a249d-c00c-4390-92d3-32d74918c398"/>
+				<text><![CDATA[presentacion]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="53" width="100" height="20" uuid="56ab4d81-a7e5-4242-81a2-f263262f78ab"/>
+				<text><![CDATA[stock]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="200" y="53" width="100" height="20" uuid="5d7d5eba-975e-4dce-97ca-1940cb5dd703"/>
+				<text><![CDATA[precio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="53" width="100" height="20" uuid="800f87ad-0147-439d-9c38-8cbb2c781cf4"/>
+				<text><![CDATA[marca]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="400" y="53" width="100" height="20" uuid="f1d0d26c-6ca1-47a0-b4d3-7ab5b2857013"/>
+				<text><![CDATA[laboratorio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="500" y="53" width="100" height="20" uuid="9f19f981-0ed6-4643-abe0-c34049549619"/>
+				<text><![CDATA[categoria]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="15" width="100" height="20" uuid="567b2ffd-7c5f-48d0-8b7c-2631a87e4015"/>
+				<textFieldExpression><![CDATA[$F{presentacion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="15" width="100" height="20" uuid="70bc018a-e9aa-43d4-bdfe-09b9ba5764e2"/>
+				<textFieldExpression><![CDATA[$F{stock}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="200" y="15" width="100" height="20" uuid="dc230e34-9b39-4711-b116-b35c73df9539"/>
+				<textFieldExpression><![CDATA[$F{precio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="300" y="15" width="100" height="20" uuid="6f67c59e-b802-46a4-9d81-98ee8d3bae88"/>
+				<textFieldExpression><![CDATA[$F{marca}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="400" y="15" width="100" height="20" uuid="8758c549-00a6-4007-b00a-b61b59e92c79"/>
+				<textFieldExpression><![CDATA[$F{laboratorio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="500" y="15" width="100" height="20" uuid="4ac5ad5f-6315-4c3f-9aaa-91738094cb49"/>
+				<textFieldExpression><![CDATA[$F{categoria}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

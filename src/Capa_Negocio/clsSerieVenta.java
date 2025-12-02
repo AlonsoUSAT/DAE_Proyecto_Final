@@ -48,5 +48,21 @@ public class clsSerieVenta {
         }
         return 0;
     }
+    
+    public ResultSet obtenerSerieActiva(int idTipoComprobante) throws Exception {
+        // Buscamos la serie activa (estado=true) para el tipo de comprobante (1=Boleta, 2=Factura)
+        // Y calculamos el siguiente correlativo sumando 1 al último número
+        strSQL = "SELECT serie, ultimonumero + 1 as correlativo " 
+            + "FROM serie_comprobante " 
+            + "WHERE id_tipocomprobante = " + idTipoComprobante + " " 
+            + "AND estado = true LIMIT 1";
+            
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            return rs;
+        } catch (Exception e) {
+            throw new Exception("Error al obtener serie activa: " + e.getMessage());
+        }
+    }
 
 }

@@ -1,55 +1,61 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package Capa_Presentacion;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class frmMenuPrincipal extends javax.swing.JFrame {
 
-    public frmMenuPrincipal() {
-        initComponents();
-
-        mostrarFecha();
-
-        // 2. Crear y configurar el Timer para que actualice la hora CADA SEGUNDO
-        Timer timer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Cada segundo, se ejecutará este código, que llama al método para refrescar la hora
-                mostrarHora();
-            }
-        });
-
-        // 3. Iniciar el Timer para que empiece a funcionar
-        timer.start();
-
-        // --- FIN DEL CÓDIGO DE FECHA Y HORA ---
-    }
-
-    private void mostrarFecha() {
-        Date fechaActual = new Date();
-        // Formato EEEE da el nombre completo del día, ej: "miércoles, 15 de octubre de 2025"
-        SimpleDateFormat formatoFecha = new SimpleDateFormat("EEEE, dd 'de' MMMM 'de' yyyy");
-        txtFecha.setText(formatoFecha.format(fechaActual));
-    }
-
     /**
-     * Obtiene la hora actual del sistema y la muestra en txtHora. Este método
-     * es llamado repetidamente por el Timer.
+     * Creates new form frmMenuPrincipal
      */
-    private void mostrarHora() {
-        Date horaActual = new Date();
-        // Formato hh:mm:ss a -> Hora (12h):Minutos:Segundos AM/PM
-        // Si prefieres formato de 24h, usa "HH:mm:ss"
-        SimpleDateFormat formatoHora = new SimpleDateFormat("hh:mm:ss a");
-        txtHora.setText(formatoHora.format(horaActual));
+    public frmMenuPrincipal() {
+         initComponents();
+
+    // --- CÓDIGO PARA MOSTRAR FECHA Y HORA EN TIEMPO REAL ---
+
+    // 1. Mostrar la fecha actual al iniciar (esta es fija y no cambia)
+    mostrarFecha();
+
+    // 2. Crear y configurar el Timer para que actualice la hora CADA SEGUNDO
+    Timer timer = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Cada segundo, se ejecutará este código, que llama al método para refrescar la hora
+            mostrarHora();
+        }
+    });
+
+    // 3. Iniciar el Timer para que empiece a funcionar
+    timer.start();
+
+    // --- FIN DEL CÓDIGO DE FECHA Y HORA ---
+        
     }
+    
+    private void mostrarFecha() {
+    Date fechaActual = new Date();
+    // Formato EEEE da el nombre completo del día, ej: "miércoles, 15 de octubre de 2025"
+    SimpleDateFormat formatoFecha = new SimpleDateFormat("EEEE, dd 'de' MMMM 'de' yyyy");
+    txtFecha.setText(formatoFecha.format(fechaActual));
+}
+
+/**
+ * Obtiene la hora actual del sistema y la muestra en txtHora.
+ * Este método es llamado repetidamente por el Timer.
+ */
+private void mostrarHora() {
+    Date horaActual = new Date();
+    // Formato hh:mm:ss a -> Hora (12h):Minutos:Segundos AM/PM
+    // Si prefieres formato de 24h, usa "HH:mm:ss"
+    SimpleDateFormat formatoHora = new SimpleDateFormat("hh:mm:ss a");
+    txtHora.setText(formatoHora.format(horaActual));
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -82,7 +88,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         btnProductos = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         btnProveedores = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         jLabel1 = new javax.swing.JLabel();
@@ -109,10 +114,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jMenu9 = new javax.swing.JMenu();
-        jMenuItem5 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem7 = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -125,6 +126,19 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jMenuItem12 = new javax.swing.JMenuItem();
         mnuCliente = new javax.swing.JMenuItem();
         jMenuItem13 = new javax.swing.JMenuItem();
+        jMenu7 = new javax.swing.JMenu();
+        jMenu6 = new javax.swing.JMenu();
+        jMenuItem14 = new javax.swing.JMenuItem();
+        jMenuItem15 = new javax.swing.JMenuItem();
+        jMenuItem16 = new javax.swing.JMenuItem();
+        rpLotesAVencer = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
+        rpProductosPorPresentacion = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
+        jMenuItem17 = new javax.swing.JMenuItem();
+        jMenuItem18 = new javax.swing.JMenuItem();
+        jMenu9 = new javax.swing.JMenu();
+        jMenuItem5 = new javax.swing.JMenuItem();
 
         jMenu1.setText("jMenu1");
 
@@ -262,17 +276,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         });
         jToolBar1.add(btnProveedores);
 
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/inventario-disponible.png"))); // NOI18N
-        jButton4.setText("Inventario");
-        jButton4.setFocusable(false);
-        jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(jButton4);
-
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/reportes.png"))); // NOI18N
         jButton5.setText("Reportes");
         jButton5.setFocusable(false);
@@ -322,8 +325,13 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jLabel6.setText("Ventas totales");
 
         jTextField1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jTextField1.setText("$12,500");
+        jTextField1.setText("Próximamente");
         jTextField1.setBorder(null);
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -365,7 +373,7 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jLabel8.setText("Productos en inventarios");
 
         jTextField2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jTextField2.setText("250");
+        jTextField2.setText("Próximamente");
         jTextField2.setBorder(null);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -408,7 +416,7 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         jLabel12.setText("Clientes Nuevos");
 
         jTextField4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jTextField4.setText("35");
+        jTextField4.setText("Próximamente");
         jTextField4.setBorder(null);
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
@@ -523,7 +531,7 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(14, 14, 14))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -531,30 +539,17 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
 
         jMenuBar1.setBackground(new java.awt.Color(204, 204, 255));
 
-        jMenu3.setText("Inicio de Sesión");
+        jMenu3.setText("Sistema");
 
-        jMenuItem1.setText("jMenuItem1");
+        jMenuItem1.setText("Salir");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem1);
 
         jMenuBar1.add(jMenu3);
-
-        jMenu9.setText("Acerca de");
-
-        jMenuItem5.setText("Sobre Nosotros");
-        jMenu9.add(jMenuItem5);
-
-        jMenuItem4.setText("Políticas");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
-            }
-        });
-        jMenu9.add(jMenuItem4);
-
-        jMenuItem7.setText("Mantenimiento");
-        jMenu9.add(jMenuItem7);
-
-        jMenuBar1.add(jMenu9);
 
         jMenu5.setText("Mantenimiento");
 
@@ -648,6 +643,97 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu5);
 
+        jMenu7.setText("Ventas");
+        jMenuBar1.add(jMenu7);
+
+        jMenu6.setText("Reportes");
+
+        jMenuItem14.setText("Ventas Por Producto");
+        jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem14ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem14);
+
+        jMenuItem15.setText("Ventas Por Categoría");
+        jMenuItem15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem15ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem15);
+
+        jMenuItem16.setText("Ventas Por Laboratorio");
+        jMenuItem16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem16ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem16);
+
+        rpLotesAVencer.setText("Lotes próximos a vencer por producto");
+        rpLotesAVencer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rpLotesAVencerActionPerformed(evt);
+            }
+        });
+        jMenu6.add(rpLotesAVencer);
+
+        jMenuItem4.setText("Stock mínimo");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem4);
+
+        rpProductosPorPresentacion.setText("Productos por presentación");
+        rpProductosPorPresentacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rpProductosPorPresentacionActionPerformed(evt);
+            }
+        });
+        jMenu6.add(rpProductosPorPresentacion);
+
+        jMenuItem7.setText("Ventas por Sexo y Edad");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem7);
+
+        jMenuItem17.setText("Frecuencia de Compra por Tipo de Cliente");
+        jMenuItem17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem17ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem17);
+
+        jMenuItem18.setText("Productos Menos Vendidos");
+        jMenuItem18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem18ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem18);
+
+        jMenuBar1.add(jMenu6);
+
+        jMenu9.setText("Acerca de");
+
+        jMenuItem5.setText("Sobre Nosotros");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu9.add(jMenuItem5);
+
+        jMenuBar1.add(jMenu9);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -667,11 +753,13 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClientesActionPerformed
-        // TODO add your handling code here:
+        ManCliente frm = new ManCliente(null, true);
+        frm.setVisible(true);
     }//GEN-LAST:event_btnClientesActionPerformed
 
     private void btnProveedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProveedoresActionPerformed
-        // TODO add your handling code here:
+         mantLaboratorio frm = new mantLaboratorio(null, true);
+        frm.setVisible(true);
     }//GEN-LAST:event_btnProveedoresActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -693,79 +781,85 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private void txtFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFechaActionPerformed
-
-    private void btnVentasActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
-    }
+                                      
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        mantMarca frm = new mantMarca(null, true);
-        frm.setVisible(true);
+       mantMarca frm = new mantMarca(null, true);
+    frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         mantLaboratorio frm = new mantLaboratorio(null, true);
-        frm.setVisible(true);
+    frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         mantCategoria frm = new mantCategoria(null, true);
-        frm.setVisible(true);
+    frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        mantProducto mPro = new mantProducto(this, true);
-        mPro.setVisible(true);
+        mantProducto mPro = new mantProducto(this,true);
+       mPro.setVisible(true);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void mPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mPresentacionActionPerformed
-        ManPresentacion mPre = new ManPresentacion(this, true);
+        ManPresentacion mPre = new ManPresentacion(this,true);
         mPre.setVisible(true);
     }//GEN-LAST:event_mPresentacionActionPerformed
 
     private void mTipoPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mTipoPreActionPerformed
-        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this, true);
+        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this,true);
         mTipoPre.setVisible(true);
     }//GEN-LAST:event_mTipoPreActionPerformed
 
     private void mUnidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mUnidadActionPerformed
-        ManUnidad mUni = new ManUnidad(this, true);
-        mUni.setVisible(true);
+       ManUnidad mUni = new  ManUnidad(this,true);
+       mUni.setVisible(true);
     }//GEN-LAST:event_mUnidadActionPerformed
 
     private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
-        // TODO add your handling code here:
+        mantProducto frm = new mantProducto(this,true);
+        frm.setVisible(true);
     }//GEN-LAST:event_btnProductosActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+     // 1. Preguntar confirmación (Opcional pero recomendado)
+    int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
+        this, 
+        "¿Está seguro de que desea cerrar sesión?", 
+        "Cerrar Sesión", 
+        javax.swing.JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+        // 2. Cerrar la ventana actual (Menú Principal)
+        this.dispose();
+        
+        // 3. Abrir la ventana de Login
+        FrmLogin login = new FrmLogin(this,true); // Asegúrate que el nombre de la clase sea exacto
+        login.setVisible(true);
+    }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btnVentas2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVentas2ActionPerformed
-        // TODO add your handling code here:
+        jdVenta jdVenta = new jdVenta(this,true);
+       jdVenta.setVisible(true);
     }//GEN-LAST:event_btnVentas2ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        jdVenta1 frm = new jdVenta1(this, true);
-        frm.setVisible(true);
+       manVenta frm = new  manVenta(this,true);
+       frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-        mantUsuario manUs = new mantUsuario(this, true);
-        manUs.setVisible(true);
+        mantUsuario manUs = new  mantUsuario(this,true);
+       manUs.setVisible(true);
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        FrmLogin frm = new FrmLogin(this, true);
+        FrmLogin frm = new FrmLogin(this,true);
         frm.setLocationRelativeTo(this);
         frm.setVisible(true);
     }//GEN-LAST:event_formWindowOpened
@@ -783,9 +877,88 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
         frm.setLocationRelativeTo(this);
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
+    private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
+         jdReporteVentasPorProducto report = new jdReporteVentasPorProducto(this,true);
+         report.setVisible(true);
+         report.setLocationRelativeTo(this);
+    }//GEN-LAST:event_jMenuItem14ActionPerformed
+
+    private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
+        jdReporteVentasPorCategoria report = new jdReporteVentasPorCategoria(this,true);
+         report.setVisible(true);
+         report.setLocationRelativeTo(this);
+    }//GEN-LAST:event_jMenuItem15ActionPerformed
+
+    private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
+        jdReporteVentasPorLaboratorio report = new jdReporteVentasPorLaboratorio(this,true);
+         report.setVisible(true);
+         report.setLocationRelativeTo(this);
+    }//GEN-LAST:event_jMenuItem16ActionPerformed
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+      final String INFO_FARMACIA = 
+        "Boticas Mi Salud\n\n" +
+        "Tu salud y bienestar son nuestra prioridad. Ofrecemos:\n" +
+        "- Medicamentos de calidad garantizada.\n" +
+        "- Atención farmacéutica especializada.";
+        
+    // 1. Llamada CORRECTA: No asignamos el resultado a ninguna variable.
+    JOptionPane.showMessageDialog(
+        this, 
+        INFO_FARMACIA, 
+        "Acerca de Boticas Mi Salud", 
+        JOptionPane.INFORMATION_MESSAGE
+    );
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        int opt = JOptionPane.showConfirmDialog(this,"¿Desea salir del sistema?","Confirmación de Cierre del Sistema", JOptionPane.YES_NO_OPTION);
+    if (opt==0){
+        System.exit(0);}
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void rpLotesAVencerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rpLotesAVencerActionPerformed
+        jsLotesAVencer jdLotes = new jsLotesAVencer(null,true);
+        jdLotes.setVisible(true);
+    }//GEN-LAST:event_rpLotesAVencerActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        jdReporteStockMin jdStockMin = new jdReporteStockMin(null,true);
+        jdStockMin.setVisible(true);
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void rpProductosPorPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rpProductosPorPresentacionActionPerformed
+        jdReporteProductosPorPresentación jdProducPres= new jdReporteProductosPorPresentación(null,true);
+        jdProducPres.setVisible(true);
+    }//GEN-LAST:event_rpProductosPorPresentacionActionPerformed
+
+    private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
+        // TODO add your handling code here:
+         jdReporteFrecuenciaCompraTipoCliente jdStockMin1 = new jdReporteFrecuenciaCompraTipoCliente(null,true);
+        jdStockMin1.setVisible(true);
+    }//GEN-LAST:event_jMenuItem17ActionPerformed
+
+    private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
+        // TODO add your handling code here:
+         jdReporteProductosMenosVendidos jdStockMin22 = new jdReporteProductosMenosVendidos(null,true);
+        jdStockMin22.setVisible(true);
+    }//GEN-LAST:event_jMenuItem18ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        // TODO add your handling code here:
+        jdReporteVentasSexoEdad jdStockMin3 = new jdReporteVentasSexoEdad(null,true);
+        jdStockMin3.setVisible(true);
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+
     /**
      * @param args the command line arguments
      */
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClientes;
@@ -796,7 +969,6 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton8;
@@ -817,6 +989,8 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
+    private javax.swing.JMenu jMenu7;
     private javax.swing.JMenu jMenu9;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
@@ -824,6 +998,11 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem13;
+    private javax.swing.JMenuItem jMenuItem14;
+    private javax.swing.JMenuItem jMenuItem15;
+    private javax.swing.JMenuItem jMenuItem16;
+    private javax.swing.JMenuItem jMenuItem17;
+    private javax.swing.JMenuItem jMenuItem18;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
@@ -851,6 +1030,8 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem mTipoPre;
     private javax.swing.JMenuItem mUnidad;
     private javax.swing.JMenuItem mnuCliente;
+    private javax.swing.JMenuItem rpLotesAVencer;
+    private javax.swing.JMenuItem rpProductosPorPresentacion;
     private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtHora;
     // End of variables declaration//GEN-END:variables

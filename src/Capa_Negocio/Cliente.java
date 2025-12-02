@@ -1,421 +1,378 @@
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Capa_Negocio;
 
-
 import Capa_Datos.clsJDBC;
-import java.security.Timestamp;
 import java.sql.ResultSet;
 import java.util.Date;
+import java.sql.Connection;
 
 /**
  *
  * @author Nicole
  */
 public class Cliente {
+
     clsJDBC objConectar = new clsJDBC();
     String strSQL;
     ResultSet rs = null;
-    
-// 2. ATRIBUTOS DE LA ENTIDAD CLIENTE (Tabla CLIENTE)
-    // Usamos Integer y String para que el método de BÚSQUEDA pueda cargar los datos
+
+    // ATRIBUTOS DE LA ENTIDAD CLIENTE
     private int idCliente;
     private String nroDoc;
-    // private Timestamp fecha_registro; // Por ahora lo omitiremos si no lo usas en el formulario
     private String direccion;
     private String telefono;
     private String correo;
-    private int id_tipoDoc; // FK (DNI=1, RUC=2, etc.)
+    private int id_tipoDoc;
 
-    // 3. ATRIBUTOS EXTRAS para la Interfaz (de Persona o Empresa)
-    // Nota: Es mejor crear clases Persona y Empresa, pero para seguir tu lógica simple:
+    // ATRIBUTOS EXTRAS PARA INTERFAZ
     private String nombres;
     private String apellidoPaterno;
     private String apellidoMaterno;
     private String razonSocial;
-    
+    private String sexo; // Para persona
+    private Date fechaNacimiento; // Para persona
 
-    public ResultSet listarClientes() throws Exception {
-
-        // Consulta SQL mejorada: Junta CLIENTE, TIPO_DOCUMENTO, PERSONA y EMPRESA
-        // Muestra: ID, Nro. Doc, Tipo Doc, Nombre Completo/Razón Social, Teléfono, correo.
-        this.strSQL = 
-            "SELECT " +
-            "    C.idCliente, " +
-            "    C.nroDoc, " +
-            "    TD.nom_tipoDoc, " +
-            "    CASE " +
-            "        WHEN C.id_tipoDoc = 1 THEN CONCAT(P.nombres, ' ', P.apellidoPaterno, ' ', P.apellidoMaterno) " + // DNI = Persona (Asumiendo id_tipoDoc=1 para DNI)
-            "        WHEN C.id_tipoDoc = 2 THEN E.razonSocial " + // RUC = Empresa (Asumiendo id_tipoDoc=2 para RUC)
-            "        ELSE 'Cliente Vario' " +
-            "    END AS nombre_completo_o_razon_social, " +
-            "    C.telefono, " +
-            "    C.correo " +
-            "FROM CLIENTE C " +
-            "JOIN TIPO_DOCUMENTO TD ON C.id_tipoDoc = TD.id_tipoDoc " +
-            "LEFT JOIN PERSONA P ON C.idCliente = P.idCliente " +
-            "LEFT JOIN EMPRESA E ON C.idCliente = E.idCliente " +
-            "ORDER BY C.idCliente DESC"; // Últimos registrados primero (Opcional)
-
-        try {
-            // Ejecuta la consulta usando el método consultarBD de clsJDBC
-            // Nota: consultarBD() abre la conexión, ejecuta, y devuelve el ResultSet.
-            this.rs = objConectar.consultarBD(strSQL);
-            return this.rs;
-        } catch (Exception e) {
-            throw new Exception("Error al listar clientes: " + e.getMessage());
-        }
+    // CONSTRUCTOR VACÍO
+    public Cliente() {
     }
-    
+
+    // GETTERS Y SETTERS (Ya los tenías, los mantengo completos)
+    public int getIdCliente() { return idCliente; }
+    public void setIdCliente(int idCliente) { this.idCliente = idCliente; }
+
+    public String getNroDoc() { return nroDoc; }
+    public void setNroDoc(String nroDoc) { this.nroDoc = nroDoc; }
+
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
+
+    public int getId_tipoDoc() { return id_tipoDoc; }
+    public void setId_tipoDoc(int id_tipoDoc) { this.id_tipoDoc = id_tipoDoc; }
+
+    public String getNombres() { return nombres; }
+    public void setNombres(String nombres) { this.nombres = nombres; }
+
+    public String getApellidoPaterno() { return apellidoPaterno; }
+    public void setApellidoPaterno(String apellidoPaterno) { this.apellidoPaterno = apellidoPaterno; }
+
+    public String getApellidoMaterno() { return apellidoMaterno; }
+    public void setApellidoMaterno(String apellidoMaterno) { this.apellidoMaterno = apellidoMaterno; }
+
+    public String getRazonSocial() { return razonSocial; }
+    public void setRazonSocial(String razonSocial) { this.razonSocial = razonSocial; }
+
+    public String getSexo() { return sexo; }
+    public void setSexo(String sexo) { this.sexo = sexo; }
+
+    public Date getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+
+    // MÉTODO PARA LISTAR TIPOS DE DOCUMENTOS (YA LO TENÍAS, CORREGIDO)
     public ResultSet listarTiposClientes() throws Exception {
-
-        // Consulta simple a la tabla TIPO_DOCUMENTO
-        this.strSQL = "SELECT id_tipoDoc, nom_tipoDoc FROM TIPO_DOCUMENTO ORDER BY id_tipoDoc";
-
+        this.strSQL = "SELECT id_tipodoc, nom_tipodoc FROM tipo_documento ORDER BY id_tipodoc";
         try {
-            // Ejecuta la consulta usando el método consultarBD de clsJDBC
-            // Nota: consultarBD() abre la conexión, ejecuta y devuelve el ResultSet.
             this.rs = objConectar.consultarBD(strSQL);
             return this.rs;
-
         } catch (Exception e) {
             throw new Exception("Error al listar tipos de clientes (documentos): " + e.getMessage());
         }
     }
-    
-    public ResultSet listarTipoDocumentosFiltrado(String tipoCliente) throws Exception{
-        // Lógica para filtrar por nombre (ajusta los nombres de documentos si son diferentes)
+
+    // MÉTODO FILTRADO POR TIPO (PERSONA O EMPRESA)
+    public ResultSet listarTipoDocumentosFiltrado(String tipoCliente) throws Exception {
         if (tipoCliente.equals("PERSONA")) {
-            // Documentos que aplican a PERSONAS
-            strSQL = "SELECT id_tipoDoc, nom_tipoDoc FROM TIPO_DOCUMENTO WHERE nom_tipoDoc IN ('DNI', 'Carné de Extranjería', 'Pasaporte')";
+            strSQL = "SELECT id_tipodoc, nom_tipodoc FROM tipo_documento WHERE nom_tipodoc IN ('DNI', 'Carné de Extranjería', 'Pasaporte')";
         } else if (tipoCliente.equals("EMPRESA")) {
-            // Documentos que aplican a EMPRESAS
-            strSQL = "SELECT id_tipoDoc, nom_tipoDoc FROM TIPO_DOCUMENTO WHERE nom_tipoDoc = 'RUC'";
+            strSQL = "SELECT id_tipodoc, nom_tipodoc FROM tipo_documento WHERE nom_tipodoc = 'RUC'";
         } else {
-            // Por defecto, no mostrar nada o todos, según tu preferencia
-            strSQL = "SELECT id_tipoDoc, nom_tipoDoc FROM TIPO_DOCUMENTO WHERE 1=0"; // No devuelve resultados
+            strSQL = "SELECT id_tipodoc, nom_tipodoc FROM tipo_documento WHERE 1=0";
         }
-
-        try{
+        try {
             return objConectar.consultarBD(strSQL);
-        }catch (Exception e){
-            throw new Exception ("Error al listar tipos de documento filtrado: " + e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Error al listar tipos de documento filtrado: " + e.getMessage());
         }
     }
-    
-   public int generarCodigoCliente() throws Exception {
-    
-    // Consulta para obtener el valor máximo (o el último valor de la secuencia si fuera necesario)
-    this.strSQL = "SELECT MAX(idCliente) FROM CLIENTE";
-    int nuevoId = 1; // Por defecto, si la tabla está vacía, será 1.
 
-    // Usamos un bloque try-catch-finally para asegurar el cierre de recursos
-    try {
-        // Ejecuta la consulta (esto abre la conexión y devuelve el ResultSet)
-        this.rs = objConectar.consultarBD(strSQL);
-
-        if (this.rs.next()) {
-            // 1. OBTENER EL VALOR MÁXIMO
-            int maxId = rs.getInt(1); 
-            
-            // 2. CALCULAR EL NUEVO ID
-            if (maxId > 0) { // Si ya hay clientes
-                nuevoId = maxId + 1;
-            } 
-            // Si maxId es 0 o NULL (tabla vacía), nuevoId sigue siendo 1
-        }
-        
-        // CERRAR RECURSOS: IMPORTANTE para liberar la conexión
-        this.rs.close(); 
-        
-
-        return nuevoId;
-
-    } catch (Exception e) {
-        throw new Exception("Error al generar el código del cliente: " + e.getMessage());
-    } finally {
-        // Asegurarse de cerrar el ResultSet y la conexión en el caso de que tu clsJDBC lo requiera
+    // ✅ MÉTODO PARA INSERTAR UN CLIENTE (PERSONA O EMPRESA)
+    public boolean insertarCliente(boolean esPersona) throws Exception {
+        Connection localCon = null;
         try {
-            if (this.rs != null && !this.rs.isClosed()) {
-                this.rs.close();
+            objConectar.conectar();
+            localCon = objConectar.getCon();
+            localCon.setAutoCommit(false); // Iniciar transacción
+
+            // 1. Insertar en tabla CLIENTE
+            strSQL = "INSERT INTO cliente (nrodoc, direccion, telefono, correo, id_tipodoc, estado) "
+                    + "VALUES (?, ?, ?, ?, ?, TRUE) RETURNING idcliente";
+
+            java.sql.PreparedStatement ps = localCon.prepareStatement(strSQL);
+            ps.setString(1, this.nroDoc);
+            ps.setString(2, this.direccion != null ? this.direccion : "");
+            ps.setString(3, this.telefono != null ? this.telefono : "");
+            ps.setString(4, this.correo != null ? this.correo : "");
+            ps.setInt(5, this.id_tipoDoc);
+
+            ResultSet rsId = ps.executeQuery();
+            int idGenerado = -1;
+            if (rsId.next()) {
+                idGenerado = rsId.getInt(1);
             }
-            // Si tu clsJDBC tiene un método para forzar la desconexión, ponlo aquí
-            // objConectar.desconectar(); 
-        } catch (Exception ex) {
-            // Ignorar errores al cerrar
+            this.idCliente = idGenerado; // Guardamos el ID generado
+
+            // 2. Insertar en PERSONA o EMPRESA según el tipo
+            if (esPersona) {
+                strSQL = "INSERT INTO persona (idpersona, nombres, apellidopaterno, apellidomaterno, sexo, fecha_nacimiento, idcliente) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                ps = localCon.prepareStatement(strSQL);
+                ps.setInt(1, idGenerado); // idpersona = idcliente (clave primaria compuesta)
+                ps.setString(2, this.nombres);
+                ps.setString(3, this.apellidoPaterno);
+                ps.setString(4, this.apellidoMaterno != null ? this.apellidoMaterno : "");
+                ps.setString(5, this.sexo != null ? this.sexo.substring(0, 1) : "M"); // 'M' o 'F'
+                if (this.fechaNacimiento != null) {
+                    ps.setDate(6, new java.sql.Date(this.fechaNacimiento.getTime()));
+                } else {
+                    ps.setNull(6, java.sql.Types.DATE);
+                }
+                ps.setInt(7, idGenerado); // idcliente
+                ps.executeUpdate();
+
+            } else { // Es Empresa
+                strSQL = "INSERT INTO empresa (idempresa, razonsocial, idcliente) "
+                        + "VALUES (?, ?, ?)";
+                ps = localCon.prepareStatement(strSQL);
+                ps.setInt(1, idGenerado); // idempresa = idcliente
+                ps.setString(2, this.razonSocial);
+                ps.setInt(3, idGenerado); // idcliente
+                ps.executeUpdate();
+            }
+
+            localCon.commit(); // Confirmar transacción
+            return true;
+
+        } catch (Exception e) {
+            if (localCon != null) {
+                localCon.rollback(); // Revertir si hay error
+            }
+            throw new Exception("Error al insertar cliente: " + e.getMessage());
+        } finally {
+            if (localCon != null) {
+                localCon.setAutoCommit(true); // Restaurar auto-commit
+                objConectar.desconectar(); // Cerrar conexión
+            }
         }
     }
-}
-    
-    public Cliente buscarCliente(String nroDoc) throws Exception {
-        Cliente clienteEncontrado = null;
-        ResultSet rs = null;
 
-        // Consulta SQL que combina CLIENTE con PERSONA y EMPRESA (usando LEFT JOIN)
-        String strSQL = String.format(
-            "SELECT C.*, P.nombres, P.apellidoPaterno, P.apellidoMaterno, E.razonSocial " +
-            "FROM CLIENTE C " +
-            "LEFT JOIN PERSONA P ON C.idCliente = P.idCliente " +
-            "LEFT JOIN EMPRESA E ON C.idCliente = E.idCliente " +
-            "WHERE C.nroDoc = '%s'", nroDoc
-        );
-
+    // ✅ MÉTODO PARA ACTUALIZAR UN CLIENTE
+    public boolean actualizarCliente(boolean esPersona) throws Exception {
+        Connection localCon = null;
         try {
-            // Usa tu método consultarBD() de clsJDBC que abre, ejecuta y cierra la conexión
-            rs = objConectar.consultarBD(strSQL);
+            objConectar.conectar();
+            localCon = objConectar.getCon();
+            localCon.setAutoCommit(false);
 
+            // 1. Actualizar tabla CLIENTE
+            strSQL = "UPDATE cliente SET nrodoc=?, direccion=?, telefono=?, correo=?, id_tipodoc=? WHERE idcliente=?";
+            java.sql.PreparedStatement ps = localCon.prepareStatement(strSQL);
+            ps.setString(1, this.nroDoc);
+            ps.setString(2, this.direccion != null ? this.direccion : "");
+            ps.setString(3, this.telefono != null ? this.telefono : "");
+            ps.setString(4, this.correo != null ? this.correo : "");
+            ps.setInt(5, this.id_tipoDoc);
+            ps.setInt(6, this.idCliente);
+            ps.executeUpdate();
+
+            // 2. Actualizar PERSONA o EMPRESA
+            if (esPersona) {
+                strSQL = "UPDATE persona SET nombres=?, apellidopaterno=?, apellidomaterno=?, sexo=?, fecha_nacimiento=? WHERE idcliente=?";
+                ps = localCon.prepareStatement(strSQL);
+                ps.setString(1, this.nombres);
+                ps.setString(2, this.apellidoPaterno);
+                ps.setString(3, this.apellidoMaterno != null ? this.apellidoMaterno : "");
+                ps.setString(4, this.sexo != null ? this.sexo.substring(0, 1) : "M");
+                if (this.fechaNacimiento != null) {
+                    ps.setDate(5, new java.sql.Date(this.fechaNacimiento.getTime()));
+                } else {
+                    ps.setNull(5, java.sql.Types.DATE);
+                }
+                ps.setInt(6, this.idCliente);
+                ps.executeUpdate();
+
+            } else { // Empresa
+                strSQL = "UPDATE empresa SET razonsocial=? WHERE idcliente=?";
+                ps = localCon.prepareStatement(strSQL);
+                ps.setString(1, this.razonSocial);
+                ps.setInt(2, this.idCliente);
+                ps.executeUpdate();
+            }
+
+            localCon.commit();
+            return true;
+
+        } catch (Exception e) {
+            if (localCon != null) {
+                localCon.rollback();
+            }
+            throw new Exception("Error al actualizar cliente: " + e.getMessage());
+        } finally {
+            if (localCon != null) {
+                localCon.setAutoCommit(true);
+                objConectar.desconectar();
+            }
+        }
+    }
+
+    // ✅ MÉTODO PARA ELIMINAR UN CLIENTE (y su registro en persona/empresa)
+    public boolean eliminarCliente() throws Exception {
+        Connection localCon = null;
+        try {
+            objConectar.conectar();
+            localCon = objConectar.getCon();
+            localCon.setAutoCommit(false);
+
+            // Primero, verificar si existe en persona o empresa
+            String tipo = obtenerTipoCliente(this.idCliente);
+            if (tipo == null) {
+                throw new Exception("Cliente no encontrado.");
+            }
+
+            // Eliminar de la tabla secundaria (persona o empresa)
+            if ("PERSONA".equals(tipo)) {
+                strSQL = "DELETE FROM persona WHERE idcliente = ?";
+            } else {
+                strSQL = "DELETE FROM empresa WHERE idcliente = ?";
+            }
+            java.sql.PreparedStatement ps = localCon.prepareStatement(strSQL);
+            ps.setInt(1, this.idCliente);
+            ps.executeUpdate();
+
+            // Luego, eliminar de la tabla cliente
+            strSQL = "DELETE FROM cliente WHERE idcliente = ?";
+            ps = localCon.prepareStatement(strSQL);
+            ps.setInt(1, this.idCliente);
+            ps.executeUpdate();
+
+            localCon.commit();
+            return true;
+
+        } catch (Exception e) {
+            if (localCon != null) {
+                localCon.rollback();
+            }
+            throw new Exception("Error al eliminar cliente: " + e.getMessage());
+        } finally {
+            if (localCon != null) {
+                localCon.setAutoCommit(true);
+                objConectar.desconectar();
+            }
+        }
+    }
+
+    // ✅ MÉTODO AUXILIAR: Obtener tipo de cliente (PERSONA o EMPRESA)
+    private String obtenerTipoCliente(int idCliente) throws Exception {
+        strSQL = "SELECT CASE WHEN p.idcliente IS NOT NULL THEN 'PERSONA' ELSE 'EMPRESA' END AS tipo "
+                + "FROM cliente c LEFT JOIN persona p ON c.idcliente = p.idcliente "
+                + "LEFT JOIN empresa e ON c.idcliente = e.idcliente WHERE c.idcliente = ?";
+        try {
+            java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
+            ps.setInt(1, idCliente);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                // 1. Se encontró el cliente: Creamos un nuevo objeto
-                clienteEncontrado = new Cliente();
-
-                // 2. Cargar los atributos del NUEVO objeto (REQUIERE SETTERS)
-                clienteEncontrado.setIdCliente(rs.getInt("idCliente"));
-                clienteEncontrado.setNroDoc(rs.getString("nroDoc"));
-                clienteEncontrado.setDireccion(rs.getString("direccion"));
-                clienteEncontrado.setTelefono(rs.getString("telefono"));
-                clienteEncontrado.setCorreo(rs.getString("correo"));
-                clienteEncontrado.setId_tipoDoc(rs.getInt("id_tipoDoc"));
-                // clienteEncontrado.setEstado(rs.getBoolean("estado")); // Si tienes este campo
-
-                // Cargar datos de PERSONA/EMPRESA
-                clienteEncontrado.setNombres(rs.getString("nombres"));
-                clienteEncontrado.setApellidoPaterno(rs.getString("apellidoPaterno"));
-                clienteEncontrado.setApellidoMaterno(rs.getString("apellidoMaterno"));
-                clienteEncontrado.setRazonSocial(rs.getString("razonSocial"));
+                return rs.getString("tipo");
             }
-
-            return clienteEncontrado; // Devuelve el objeto cargado o null
-
+            return null;
         } catch (Exception e) {
-            throw new Exception("Error al ejecutar la búsqueda: " + e.getMessage());
+            throw new Exception("Error al obtener tipo de cliente: " + e.getMessage());
         }
     }
-    
-    public boolean registrarCliente(String nroDoc, String direccion, String telefono, String correo, 
-                                      int id_tipoDoc, String nombres, String apellidoPaterno, 
-                                      String apellidoMaterno, String sexo, Date fechaNacimiento, 
-                                      String razonSocial) throws Exception {
-        
-        // 1. OBTENER EL PRÓXIMO ID (Necesario si la BD es PostgreSQL o no soporta GET GENERATED KEYS simple)
-        int idClienteGenerado = generarCodigoCliente(); // Usamos tu método
-        
-        // 2. INSERTAR en CLIENTE
-        String sqlCliente = String.format(
-            "INSERT INTO CLIENTE (idCliente, nroDoc, direccion, telefono, correo, id_tipoDoc) " +
-            "VALUES (%d, '%s', '%s', '%s', '%s', %d)", 
-            idClienteGenerado, nroDoc, direccion, telefono, correo, id_tipoDoc
-        );
 
-        // 3. INSERTAR en PERSONA o EMPRESA
-        String sqlEspecifica = "";
-        
-        if (razonSocial == null || razonSocial.isEmpty()) { 
-            // Es PERSONA
-            sqlEspecifica = String.format(
-                "INSERT INTO PERSONA (idPersona, nombres, apellidoPaterno, apellidoMaterno, sexo, fecha_nacimiento, idCliente) " +
-                "VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d)",
-                idClienteGenerado, // Asumiendo que idPersona = idCliente
-                nombres, apellidoPaterno, apellidoMaterno, sexo, 
-                fechaNacimiento != null ? fechaNacimiento.toString() : null, // Convierte Date a String (formato YYYY-MM-DD)
-                idClienteGenerado
-            );
-        } else {
-            // Es EMPRESA
-            sqlEspecifica = String.format(
-                "INSERT INTO EMPRESA (idEmpresa, razonSocial, idCliente) " +
-                "VALUES (%d, '%s', %d)",
-                idClienteGenerado, // Asumiendo que idEmpresa = idCliente
-                razonSocial, 
-                idClienteGenerado
-            );
-        }
-        
-        // 4. EJECUTAR TRANSACCIÓN (Ambas inserciones deben tener éxito)
+    // ✅ MÉTODO PARA BUSCAR CLIENTE POR NRO DOC
+    public ResultSet buscarClientePorNroDoc(String nroDoc) throws Exception {
+        strSQL = "SELECT c.*, p.nombres, p.apellidopaterno, p.apellidomaterno, p.sexo, p.fecha_nacimiento, "
+                + "e.razonsocial "
+                + "FROM cliente c "
+                + "LEFT JOIN persona p ON c.idcliente = p.idcliente "
+                + "LEFT JOIN empresa e ON c.idcliente = e.idcliente "
+                + "WHERE c.nrodoc = ?";
         try {
-            objConectar.conectar();
-            objConectar.ejecutarBD(sqlCliente); // Ejecutar INSERT en CLIENTE
-            objConectar.ejecutarBD(sqlEspecifica); // Ejecutar INSERT en PERSONA/EMPRESA
-            return true;
+            java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
+            ps.setString(1, nroDoc);
+            return ps.executeQuery();
         } catch (Exception e) {
-            // Manejo de errores (por ejemplo, deshacer si solo falló el segundo insert)
-            throw new Exception("Error al registrar el cliente: " + e.getMessage());
-        } finally {
-            objConectar.desconectar();
+            throw new Exception("Error al buscar cliente por número de documento: " + e.getMessage());
         }
     }
-    
-    public boolean modificarCliente(int idCliente, String nroDoc, String direccion, String telefono, 
-                                  String correo, int id_tipoDoc, String nombres, String apellidoPaterno, 
-                                  String apellidoMaterno, String sexo, java.sql.Date fechaNacimiento, 
-                                  String razonSocial) throws Exception {
-    
-    // 1. UPDATE en CLIENTE
-        String sqlCliente = String.format(
-            "UPDATE CLIENTE SET nroDoc = '%s', direccion = '%s', telefono = '%s', correo = '%s', id_tipoDoc = %d " +
-            "WHERE idCliente = %d", 
-            nroDoc, direccion, telefono, correo, id_tipoDoc, idCliente
-        );
 
-        // 2. UPDATE en PERSONA o EMPRESA
-        String sqlEspecifica = "";
-
-        if (razonSocial == null || razonSocial.isEmpty()) { 
-            // Es PERSONA
-            sqlEspecifica = String.format(
-                "UPDATE PERSONA SET nombres = '%s', apellidoPaterno = '%s', apellidoMaterno = '%s', sexo = '%s', fecha_nacimiento = '%s' " +
-                "WHERE idCliente = %d",
-                nombres, apellidoPaterno, apellidoMaterno, sexo, 
-                fechaNacimiento != null ? fechaNacimiento.toString() : null, // Convierte Date a String (YYYY-MM-DD)
-                idCliente
-            );
-        } else {
-            // Es EMPRESA
-            sqlEspecifica = String.format(
-                "UPDATE EMPRESA SET razonSocial = '%s' WHERE idCliente = %d",
-                razonSocial, 
-                idCliente
-            );
-        }
-
-        // 3. EJECUTAR TRANSACCIÓN
+    // ✅ MÉTODO PARA CARGAR TODOS LOS CLIENTES (para llenar JTable)
+    public ResultSet listarTodosClientes() throws Exception {
+        strSQL = "SELECT c.idcliente, c.nrodoc, c.direccion, c.telefono, c.correo, td.nom_tipodoc, "
+                + "CASE WHEN p.idcliente IS NOT NULL THEN 'PERSONA' ELSE 'EMPRESA' END AS tipo_cliente, "
+                + "COALESCE(p.nombres || ' ' || p.apellidopaterno, e.razonsocial) AS nombre_completo "
+                + "FROM cliente c "
+                + "JOIN tipo_documento td ON c.id_tipodoc = td.id_tipodoc "
+                + "LEFT JOIN persona p ON c.idcliente = p.idcliente "
+                + "LEFT JOIN empresa e ON c.idcliente = e.idcliente "
+                + "ORDER BY c.idcliente DESC";
         try {
-            objConectar.conectar();
-            objConectar.ejecutarBD(sqlCliente); // Ejecutar UPDATE en CLIENTE
-            objConectar.ejecutarBD(sqlEspecifica); // Ejecutar UPDATE en PERSONA/EMPRESA
-            return true;
+            return objConectar.consultarBD(strSQL);
         } catch (Exception e) {
-            throw new Exception("Error al modificar el cliente: " + e.getMessage());
-        } finally {
-            objConectar.desconectar();
+            throw new Exception("Error al listar clientes: " + e.getMessage());
         }
     }
-    
-    public boolean eliminarCliente(int idCliente) throws Exception {
-        String sqlCliente = String.format("UPDATE CLIENTE SET estado = FALSE WHERE idCliente = %d", idCliente);
 
+    // ✅ MÉTODO PARA BUSCAR CLIENTE POR ID (para cargar en formulario)
+    public ResultSet buscarClientePorId(int idCliente) throws Exception {
+        strSQL = "SELECT c.*, p.nombres, p.apellidopaterno, p.apellidomaterno, p.sexo, p.fecha_nacimiento, "
+                + "e.razonsocial "
+                + "FROM cliente c "
+                + "LEFT JOIN persona p ON c.idcliente = p.idcliente "
+                + "LEFT JOIN empresa e ON c.idcliente = e.idcliente "
+                + "WHERE c.idcliente = ?";
         try {
-            objConectar.conectar(); // Abrir conexión
-
-            // Solo se actualiza el estado del cliente
-            objConectar.ejecutarBD(sqlCliente);
-
-            return true;
+            java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
+            ps.setInt(1, idCliente);
+            return ps.executeQuery();
         } catch (Exception e) {
-            throw new Exception("Error al dar de baja al cliente: " + e.getMessage());
-        } finally {
-            objConectar.desconectar(); // Cerrar conexión
+            throw new Exception("Error al buscar cliente por ID: " + e.getMessage());
         }
     }
-    
 
-    public clsJDBC getObjConectar() {
-        return objConectar;
+    // ✅ MÉTODO PARA VERIFICAR SI EL NÚMERO DE DOCUMENTO YA EXISTE (ANTES DE INSERTAR)
+    public boolean existeNroDoc(String nroDoc, int idClienteActual) throws Exception {
+        strSQL = "SELECT COUNT(*) FROM cliente WHERE nrodoc = ? AND idcliente != ?";
+        try {
+            java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
+            ps.setString(1, nroDoc);
+            ps.setInt(2, idClienteActual); // Para excluir el cliente actual en caso de modificación
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Error al verificar número de documento: " + e.getMessage());
+        }
     }
 
-    public void setObjConectar(clsJDBC objConectar) {
-        this.objConectar = objConectar;
+    // ✅ MÉTODO PARA HABILITAR/DeshabilitAR CLIENTE (cambiar estado)
+    public boolean cambiarEstadoCliente(int idCliente, boolean nuevoEstado) throws Exception {
+        strSQL = "UPDATE cliente SET estado = ? WHERE idcliente = ?";
+        try {
+            java.sql.PreparedStatement ps = objConectar.getCon().prepareStatement(strSQL);
+            ps.setBoolean(1, nuevoEstado);
+            ps.setInt(2, idCliente);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (Exception e) {
+            throw new Exception("Error al cambiar estado del cliente: " + e.getMessage());
+        }
     }
 
-    public String getStrSQL() {
-        return strSQL;
-    }
-
-    public void setStrSQL(String strSQL) {
-        this.strSQL = strSQL;
-    }
-
-    public ResultSet getRs() {
-        return rs;
-    }
-
-    public void setRs(ResultSet rs) {
-        this.rs = rs;
-    }
-
-    public int getIdCliente() {
-        return idCliente;
-    }
-
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
-    }
-
-    public String getNroDoc() {
-        return nroDoc;
-    }
-
-    public void setNroDoc(String nroDoc) {
-        this.nroDoc = nroDoc;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public int getId_tipoDoc() {
-        return id_tipoDoc;
-    }
-
-    public void setId_tipoDoc(int id_tipoDoc) {
-        this.id_tipoDoc = id_tipoDoc;
-    }
-
-   
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidoPaterno() {
-        return apellidoPaterno;
-    }
-
-    public void setApellidoPaterno(String apellidoPaterno) {
-        this.apellidoPaterno = apellidoPaterno;
-    }
-
-    public String getApellidoMaterno() {
-        return apellidoMaterno;
-    }
-
-    public void setApellidoMaterno(String apellidoMaterno) {
-        this.apellidoMaterno = apellidoMaterno;
-    }
-
-    public String getRazonSocial() {
-        return razonSocial;
-    }
-
-    public void setRazonSocial(String razonSocial) {
-        this.razonSocial = razonSocial;
-    }
-    
-    
 }

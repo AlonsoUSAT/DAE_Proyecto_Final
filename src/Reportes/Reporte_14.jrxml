@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte14" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5e05357b-2b3b-4a69-99b1-19d7fbb9b582">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="118"/>
+	<queryString>
+		<![CDATA[SELECT
+    p.sexo,
+
+    CASE
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) < 18 THEN '01 - Niñez / Adolescencia'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) BETWEEN 18 AND 25 THEN '02 - Juventud'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) BETWEEN 26 AND 40 THEN '03 - Adultez Temprana'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) BETWEEN 41 AND 60 THEN '04 - Madurez / Adultez Plena'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) > 60 THEN '05 - Vejez / Tercera Edad'
+        ELSE '06 - Edad Desconocida'
+    END AS rango_edad_descriptivo,
+
+    CASE
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) < 18 THEN '0-17'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) BETWEEN 18 AND 25 THEN '18-25'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) BETWEEN 26 AND 40 THEN '26-40'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) BETWEEN 41 AND 60 THEN '41-60'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, p.fecha_nacimiento)) > 60 THEN '61+'
+        ELSE 'Desconocido'
+    END AS rango_edad,
+
+    COUNT(v.idventa) AS cantidad_ventas,
+    SUM(cv.total) AS total_ventas
+
+FROM public.venta v
+JOIN public.persona p ON v.idcliente = p.idcliente
+JOIN public.comprobante_venta cv ON v.idventa = cv.idventa
+WHERE p.fecha_nacimiento IS NOT NULL
+GROUP BY
+    p.sexo,
+    rango_edad_descriptivo,
+    rango_edad
+ORDER BY
+    rango_edad_descriptivo,
+    p.sexo;]]>
+	</queryString>
+	<field name="sexo" class="java.lang.String"/>
+	<field name="rango_edad_descriptivo" class="java.lang.String"/>
+	<field name="rango_edad" class="java.lang.String"/>
+	<field name="cantidad_ventas" class="java.lang.Long"/>
+	<field name="total_ventas" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="46" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="46" backcolor="#00A2B9" uuid="521d1ac3-22ec-4656-80f9-506a095e8266"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="46" uuid="3e7c8591-ed5b-4602-860b-00a514f4d32b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reporte de Ventas por Sexo y Edad]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="60" splitType="Stretch">
+			<staticText>
+				<reportElement x="16" y="35" width="188" height="17" uuid="28a921e2-f74a-4ed3-a4ed-f9087ddaf6e8"/>
+				<textElement>
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grupo 01 ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="16" y="11" width="273" height="17" uuid="cfe8f31e-728a-4677-9c50-78b2370139f8"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Elaborado por: Fernández Tineo Grisel Nicole]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="54" splitType="Stretch">
+			<textField>
+				<reportElement x="16" y="22" width="45" height="20" forecolor="#154360" uuid="c5f40017-c92b-4f6d-8c81-038ea61266e4"/>
+				<textElement markup="none">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Sexo"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="76" y="22" width="128" height="20" forecolor="#154360" uuid="c64ea33e-cac7-4aaa-a4c3-d0225f27b4f8"/>
+				<textElement markup="none">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Rango Edad Descriptivo"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="232" y="22" width="70" height="20" forecolor="#154360" uuid="16d8865b-d1b5-4ab9-815b-26577436ce20"/>
+				<textElement markup="none">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Rango Edad"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="327" y="22" width="100" height="20" forecolor="#154360" uuid="fab15974-6248-4e6f-bce9-e1e6530f2327"/>
+				<textElement markup="none">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Cantidad Ventas"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="457" y="22" width="77" height="20" forecolor="#154360" uuid="b6fba86f-1007-43b1-8d78-93fc1d68b7f6"/>
+				<textElement markup="none">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Ventas"]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="16" y="49" width="518" height="1" uuid="5cc07f1b-eaa2-449e-9353-a75d29db1041"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="48" splitType="Stretch">
+			<textField>
+				<reportElement x="16" y="15" width="45" height="20" uuid="3bbabbf3-b0dc-4a27-b795-910df4a53e53"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sexo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="76" y="15" width="138" height="20" uuid="90486499-c779-465f-ba63-604324f491a0"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rango_edad_descriptivo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="242" y="15" width="60" height="20" uuid="009b333b-bdb0-46da-a8d7-59cbd2a6d975"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rango_edad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="362" y="15" width="49" height="20" uuid="b8b088fd-fb88-4bfc-9b70-989841931ddc"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad_ventas}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="474" y="15" width="60" height="20" uuid="51504200-6f63-4a07-871d-a293646404b9"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_ventas}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="16" y="47" width="518" height="1" forecolor="#CCCCCC" uuid="d5fe352c-72d3-43ad-9257-1f335719912d"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="20" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="42" splitType="Stretch">
+			<textField>
+				<reportElement x="435" y="22" width="80" height="20" uuid="e74480d6-8d23-4691-a5ea-973fb97213c6"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="22" width="40" height="20" uuid="a59108f9-1665-4775-b6d4-1089d6ef3fc5"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy HH.mm.ss">
+				<reportElement x="0" y="22" width="100" height="20" uuid="0f729b5c-8be4-424d-8b69-12b8f926a532"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="261" splitType="Stretch">
+			<barChart>
+				<chart>
+					<reportElement x="0" y="13" width="555" height="248" uuid="39806a3b-a038-44f6-88e1-a91c7030fc26"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{sexo}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{rango_edad}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{total_ventas}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
+	</summary>
+</jasperReport>

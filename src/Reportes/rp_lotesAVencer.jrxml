@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rp_lotesAVencer" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="25d7803c-01d9-4b91-ab04-e25cc6e71fc0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="RANGO_DIAS" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[90]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_PRODUCTO_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA["TODOS"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fechaInicio" class="java.util.Date"/>
+	<parameter name="fechaFin" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[SELECT
+    l.nrolote AS LoteNum,
+    p.nombre AS Producto,
+    pr.cantidad || ' ' || u.nombreunidad || ' ' || tp.nombretipopresentacion AS PresCompleta,
+    l.stockactual AS StockLote,
+    l.fechavencimiento AS FechaVenc
+FROM
+    public.lote l
+    JOIN public.producto p ON l.idproducto = p.idproducto
+    JOIN public.presentacion pr ON l.idpresentacion = pr.idpresentacion
+    JOIN public.tipo_presentacion tp ON pr.tipopresentacion = tp.idtipopresentacion
+    JOIN public.unidad u ON pr.idunidad = u.idunidad
+WHERE
+    l.estado = TRUE
+    -- 1. FILTRO DE FECHAS (OJO: Asegúrate de poner suficientes días en el parámetro)
+    AND l.fechavencimiento BETWEEN CURRENT_DATE AND (CURRENT_DATE + ($P{RANGO_DIAS} || ' days')::INTERVAL)
+    -- 2. FILTRO POR ID (Mucho más seguro que por nombre)
+    AND (
+        $P{P_PRODUCTO_ID} IS NULL
+        OR $P{P_PRODUCTO_ID}::text = 'TODOS'
+        OR p.idproducto::text = $P{P_PRODUCTO_ID}::text
+    )
+ORDER BY
+    l.fechavencimiento ASC;]]>
+	</queryString>
+	<field name="lotenum" class="java.lang.String"/>
+	<field name="producto" class="java.lang.String"/>
+	<field name="prescompleta" class="java.lang.String"/>
+	<field name="stocklote" class="java.lang.Integer"/>
+	<field name="fechavenc" class="java.sql.Date"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="83" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="83" backcolor="#00A2B9" uuid="1b76c11c-a2c1-4218-b004-a93acec651b6"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE LOTES PROXIMOS A VENCER]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="58" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="48" uuid="3d00b32f-3dab-41c8-a676-4384c0ba5034"/>
+				<textElement textAlignment="Justified">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaInicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaFin})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="69" splitType="Stretch">
+			<staticText>
+				<reportElement x="15" y="49" width="100" height="20" uuid="b741e511-4674-4aa4-a66d-da48efa90f7e"/>
+				<text><![CDATA[N° de lote]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="146" y="49" width="129" height="20" uuid="7875cab9-4229-495c-9072-44e79a5ad71f"/>
+				<text><![CDATA[Presentación del producto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="301" y="49" width="100" height="20" uuid="80d0f5a8-b500-4c2a-835a-4d34094c1e0c"/>
+				<text><![CDATA[Stock]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="423" y="49" width="132" height="20" uuid="34652f96-4013-4cc7-95c6-d5e7881506f7"/>
+				<text><![CDATA[Fecha de vencimiento:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="15" y="0" width="201" height="36" uuid="bce6d2b5-88b0-4564-b49e-9473860a9bd5"/>
+				<textElement>
+					<font size="24" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="34" splitType="Stretch">
+			<textField>
+				<reportElement x="15" y="0" width="100" height="20" uuid="04cbaf48-3c62-46d9-9469-bfaa3bcf7ff1"/>
+				<textFieldExpression><![CDATA[$F{lotenum}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="146" y="0" width="100" height="20" uuid="f2da2d3a-488c-4f2e-9eda-cbb5ca8a7193"/>
+				<textFieldExpression><![CDATA[$F{prescompleta}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="301" y="0" width="100" height="20" uuid="ecb5aea2-793d-4505-bd9b-2a5f38a3b7fc"/>
+				<textFieldExpression><![CDATA[$F{stocklote}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="423" y="0" width="132" height="20" uuid="288235bc-4e47-4771-b16e-3c6a91d02a51"/>
+				<textFieldExpression><![CDATA[$F{fechavenc}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="32" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

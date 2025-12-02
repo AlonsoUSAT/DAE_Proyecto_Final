@@ -5,8 +5,8 @@
 package Capa_Presentacion;
 
 import Capa_Negocio.clsLote;
-import Capa_Datos.LoteDAO;
-import Capa_Negocio.clsProducto;
+// import Capa_Datos.LoteDAO; // <-- ELIMINADO/COMENTADO
+import Capa_Negocio.clsProducto; // Importación necesaria
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,17 +22,17 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManLote extends javax.swing.JDialog {
 
-     private final LoteDAO objLote = new LoteDAO();
+    private final clsLote objLote = new clsLote(0, null, null, null, 0, 0, false, 0, 0, null, null);
+    
     private List<clsLote> listaLotes;
     private boolean esNuevo = true; 
 
-  
+   
     private final int productoID;
     private final String productoNombre;
     private final int presentacionID;
     private final String presentacionDescripcion;
-    private final boolean permiteNuevosLotes; 
-    
+    private final boolean permiteNuevosLotes;
     
    public ManLote(java.awt.Frame parent, boolean modal, int idProducto, String nombreProducto, int idPresentacion, String presentacionDesc, boolean permiteNuevos) {
         super(parent, modal);

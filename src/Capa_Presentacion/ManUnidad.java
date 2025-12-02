@@ -3,9 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package Capa_Presentacion;
-import Capa_Datos.UnidadDAO;
-import Capa_Datos.PresentacionDAO; 
+
+
 import Capa_Negocio.clsUnidad;
+// Asumo que clsPresentacion tiene el método verificarUsoUnidad(int idUnidad)
+import Capa_Negocio.clsPresentacion; 
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -16,10 +18,15 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManUnidad extends javax.swing.JDialog {
 
-         private final UnidadDAO objDAO = new UnidadDAO();
-    private final PresentacionDAO objPresentacionDAO = new PresentacionDAO(); 
+      // 💡 CAMBIOS CLAVE: Instancias de la Capa de Negocio
+    // 1. La clase de negocio clsUnidad ahora hace el trabajo de UnidadDAO
+    private final clsUnidad objUnidad = new clsUnidad();
+    
+    // 2. Necesitamos una instancia de clsPresentacion para verificar si la unidad está en uso
+    private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
+    
     private List<clsUnidad> listaUnidades;
-    private clsUnidad unidadSeleccionadaActual; 
+    private clsUnidad unidadSeleccionadaActual;
     
     
     public ManUnidad(java.awt.Frame parent, boolean modal) {
@@ -53,7 +60,7 @@ public class ManUnidad extends javax.swing.JDialog {
         DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
         modelo.setRowCount(0);
         try {
-            listaUnidades = objDAO.listarTodas();
+            listaUnidades = objUnidad.listarTodas();
             for (clsUnidad unidad : listaUnidades) {
                 modelo.addRow(new Object[]{
                     unidad.getId(),
@@ -398,7 +405,7 @@ public class ManUnidad extends javax.swing.JDialog {
         }
         try {
             int id = Integer.parseInt(txtID.getText());
-            clsUnidad unidad = objDAO.buscarPorId(id);
+            clsUnidad unidad = objUnidad.buscarPorId(id);
             if (unidad != null) {
                 unidadSeleccionadaActual = unidad; 
                 cargarDatos(unidad);
@@ -418,7 +425,7 @@ public class ManUnidad extends javax.swing.JDialog {
             gestionarEstadoControles("nuevo");
             limpiarCampos();
             try {
-                txtID.setText(String.valueOf(objDAO.generarNuevoId()));
+                txtID.setText(String.valueOf(objUnidad.generarNuevoId()));
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error al generar ID: " + e.getMessage());
             }
@@ -433,7 +440,7 @@ public class ManUnidad extends javax.swing.JDialog {
                 unidad.setId(Integer.parseInt(txtID.getText()));
                 unidad.setNombre(txtNombre.getText());
                 unidad.setEstado(chkEstado.isSelected());
-                objDAO.registrar(unidad);
+                objUnidad.registrar(unidad);
                 JOptionPane.showMessageDialog(this, "Unidad registrada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 actualizarTabla();
                 gestionarEstadoControles("inicio");
@@ -454,7 +461,7 @@ public class ManUnidad extends javax.swing.JDialog {
             int idUnidad = Integer.parseInt(txtID.getText()); 
 
             
-            boolean enUso = objPresentacionDAO.verificarUsoUnidad(idUnidad);
+            boolean enUso = objPresentacion.verificarUsoUnidad(idUnidad);
             if (enUso) {
                 JOptionPane.showMessageDialog(this,
                         "No se puede ELIMINAR esta Unidad porque está siendo utilizada.",
@@ -466,7 +473,7 @@ public class ManUnidad extends javax.swing.JDialog {
 
             int confirm = JOptionPane.showConfirmDialog(this, "Esta acción es irreversible. ¿Desea eliminar la unidad?", "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
             if (confirm == JOptionPane.YES_OPTION) {
-                objDAO.eliminar(idUnidad); 
+                objUnidad.eliminar(idUnidad); 
                 JOptionPane.showMessageDialog(this, "Unidad eliminada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 actualizarTabla();
                 gestionarEstadoControles("inicio");
@@ -500,7 +507,7 @@ public class ManUnidad extends javax.swing.JDialog {
            
             if (viejoEstado == true && nuevoEstado == false) {
                
-                boolean enUso = objPresentacionDAO.verificarUsoUnidad(idUnidad);
+                boolean enUso = objPresentacion.verificarUsoUnidad(idUnidad);
                 if (enUso) {
                     JOptionPane.showMessageDialog(this,
                             "No se puede DESACTIVAR esta Unidad porque está siendo utilizada.",
@@ -517,7 +524,7 @@ public class ManUnidad extends javax.swing.JDialog {
             unidad.setNombre(txtNombre.getText());
             unidad.setEstado(nuevoEstado);
             
-            objDAO.modificar(unidad);
+            objUnidad.modificar(unidad);
             
             JOptionPane.showMessageDialog(this, "Unidad modificada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             actualizarTabla();
@@ -535,7 +542,7 @@ public class ManUnidad extends javax.swing.JDialog {
             int idUnidad = Integer.parseInt(txtID.getText()); 
 
           
-            boolean enUso = objPresentacionDAO.verificarUsoUnidad(idUnidad);
+            boolean enUso = objPresentacion.verificarUsoUnidad(idUnidad);
             if (enUso) {
                 JOptionPane.showMessageDialog(this,
                         "No se puede DAR DE BAJA esta Unidad porque está siendo utilizada.",
@@ -547,7 +554,7 @@ public class ManUnidad extends javax.swing.JDialog {
 
             int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que desea dar de baja esta unidad?", "Confirmar", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                objDAO.darDeBaja(idUnidad); 
+                objUnidad.darDeBaja(idUnidad); 
                 JOptionPane.showMessageDialog(this, "Unidad dada de baja.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 actualizarTabla();
                 gestionarEstadoControles("inicio");

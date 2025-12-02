@@ -130,4 +130,30 @@ public class clsCategoria {
             throw new Exception("Error al modificar la categoría: " + e.getMessage());
         }
     }
+    
+    public ResultSet listarCategoria() throws Exception{
+        strSQL = "Select * from categoria";
+        try{
+            rs = objConectar.consultarBD(strSQL);
+            return rs;
+        }catch(Exception e){
+            throw new Exception("Error al listar categoria");
+        }
+    }
+
+
+public int getCodigo(String nom) throws Exception {
+    // La tabla de Categoría usa 'codcategoria' y 'nomcategoria'
+    strSQL = "select idcategoria from categoria where nombrecategoria='" + nom + "'"; 
+    try {
+        rs = objConectar.consultarBD(strSQL);
+        if (rs.next()) {
+            return rs.getInt("idcategoria"); // CORREGIDO: Usamos el nombre de columna correcto
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al obtener código de categoría: " + e.getMessage());
+    }
+    return 0;
+}
+
 }

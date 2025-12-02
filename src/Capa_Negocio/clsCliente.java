@@ -54,19 +54,40 @@ public class clsCliente {
     }
     
      
-    // Cambiamos 'int' por 'String' para soportar RUCs
-public int obtenerCodigoCliente(String nroDoc) throws Exception {
-    // Usamos TRIM() para limpiar espacios en blanco por si acaso
-    strSQL = "SELECT idcliente FROM cliente WHERE nrodoc = '" + nroDoc.trim() + "'";
-    
-    try {
-        rs = objConectar.consultarBD(strSQL);
-        if (rs.next()) {
-            return rs.getInt("idcliente");
+    public int obtenerCodigoCliente(String nroDoc) throws Exception {
+        // Usamos TRIM() para limpiar espacios en blanco por si acaso
+        strSQL = "SELECT idcliente FROM cliente WHERE nrodoc = '" + nroDoc.trim() + "'";
+        
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            if (rs.next()) {
+                return rs.getInt("idcliente");
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al buscar el cliente: " + e.getMessage());
         }
-    } catch (Exception e) {
-        throw new Exception("Error al buscar el cliente: " + e.getMessage());
+        return 0; // Retorna 0 si no encuentra al cliente
     }
-    return 0; // Retorna 0 si no encuentra al cliente
-}
+
+
+    public ResultSet buscarClientePorId(int idCliente) throws Exception {
+        // Usamos la misma lógica de JOINs que ya tienes, pero filtrando por ID
+        strSQL = "SELECT C.idcliente, C.nrodoc, C.direccion, "
+            + "P.nombres, P.apellidopaterno, P.apellidomaterno, "
+            + "E.razonsocial "
+            + "FROM cliente C "
+            + "LEFT JOIN persona P ON C.idcliente = P.idcliente "
+            + "LEFT JOIN empresa E ON C.idcliente = E.idcliente "
+            + "WHERE C.idcliente = " + idCliente;
+
+        try {
+            rs = objConectar.consultarBD(strSQL);
+            return rs;
+        } catch (Exception e) {
+            throw new Exception("Error al buscar cliente por ID: " + e.getMessage());
+        }
+    }
+
+
+
 }

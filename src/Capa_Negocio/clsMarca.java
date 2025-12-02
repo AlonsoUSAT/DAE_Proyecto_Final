@@ -136,4 +136,19 @@ public class clsMarca {
             throw new Exception("Error al modificar la marca: " + e.getMessage());
         }
     }
+    
+    public int getCodigo(String nom) throws Exception {
+    // Asumo que la tabla de Marca usa 'codmarca' y 'nombre' o 'nomarca'
+    // Según tu código, usa 'codmarca' y 'nomarca'
+    strSQL = "SELECT idmarca FROM marca WHERE nombre = '" + nom + "';"; 
+    try {
+        rs = objConectar.consultarBD(strSQL);
+        if (rs.next()) {
+            return rs.getInt("idmarca"); // CORREGIDO: Usamos el nombre de columna correcto
+        }
+    } catch (Exception e) {
+        throw new Exception("Error al obtener el código de la marca: " + e.getMessage());
+    }
+    return 0;
+}
 }

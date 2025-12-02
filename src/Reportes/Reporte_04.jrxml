@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte01" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5e05357b-2b3b-4a69-99b1-19d7fbb9b582">
+	<property name="ireport.zoom" value="1.3310000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[SELECT
+    p.nombre AS nombre_producto,
+    tp.nombretipopresentacion AS tipo_presentacion,
+    pr.cantidad AS cantidad_presentacion,
+    u.nombreunidad AS unidad_medida,
+    SUM(dv.cantidad) AS total_unidades_vendidas,
+    COUNT(dv.iddetalle) AS num_ventas_con_producto
+FROM
+    public.detalle_venta dv
+JOIN
+    public.producto p ON dv.idproducto = p.idproducto
+JOIN
+    public.presentacion pr ON dv.idpresentacion = pr.idpresentacion
+JOIN
+    public.tipo_presentacion tp ON pr.tipopresentacion = tp.idtipopresentacion
+JOIN
+    public.unidad u ON pr.idunidad = u.idunidad
+GROUP BY
+    p.nombre,
+    tp.nombretipopresentacion,
+    pr.cantidad,
+    u.nombreunidad
+ORDER BY
+    total_unidades_vendidas ASC]]>
+	</queryString>
+	<field name="nombre_producto" class="java.lang.String"/>
+	<field name="tipo_presentacion" class="java.lang.String"/>
+	<field name="cantidad_presentacion" class="java.lang.Double"/>
+	<field name="unidad_medida" class="java.lang.String"/>
+	<field name="total_unidades_vendidas" class="java.lang.Long"/>
+	<field name="num_ventas_con_producto" class="java.lang.Long"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="63" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="63" backcolor="#00A2B9" uuid="3f1740ef-98cd-41f5-b2b4-ba796e478281"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+					<topPen lineWidth="2.0" lineStyle="Solid"/>
+					<leftPen lineWidth="2.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="2.0" lineStyle="Solid"/>
+					<rightPen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="43" width="555" height="20" forecolor="#555555" uuid="1fce6915-492c-44dd-9142-473fb0f09e54"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Análisis de ventas por producto, presentación y unidad de medida]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="32" backcolor="#00A2B9" uuid="9367e8d5-0da0-4c4e-aa13-250b875467d3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reporte de los Productos Menos Vendidos]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="58" splitType="Stretch">
+			<staticText>
+				<reportElement x="27" y="33" width="183" height="17" uuid="b152599e-a0f0-4298-b5d2-481854e5cf68"/>
+				<textElement>
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grupo 01 ]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="41" splitType="Stretch">
+			<textField>
+				<reportElement x="27" y="12" width="100" height="20" forecolor="#154360" uuid="ad153b38-2327-474b-af2d-522fc30ea080"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Producto"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="153" y="12" width="100" height="20" forecolor="#154360" uuid="8d2694bf-bb47-4961-85bd-24fe9f771629"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Presentación"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="289" y="12" width="100" height="20" forecolor="#154360" uuid="2b3396a7-024f-4144-b469-85965fd2d9b8"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Vendido"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="424" y="12" width="100" height="20" forecolor="#154360" uuid="b12f1051-c73b-4dde-b488-77b7906165a0"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Nº de Ventas"]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="27" y="40" width="497" height="1" forecolor="#000000" uuid="dfdf98b5-b1fc-458e-b433-8ef4abb745ea"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="43" splitType="Stretch">
+			<textField>
+				<reportElement x="27" y="10" width="99" height="31" uuid="da40d90a-d57f-49fb-8171-bdfb95465bd6"/>
+				<textFieldExpression><![CDATA[$F{nombre_producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="152" y="10" width="107" height="31" uuid="82de1fdc-5371-4412-be73-de80dda9c128"/>
+				<textFieldExpression><![CDATA[$F{tipo_presentacion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="316" y="10" width="54" height="20" uuid="1807b033-6550-4818-995a-84956c0f35e5"/>
+				<textFieldExpression><![CDATA[$F{total_unidades_vendidas}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="449" y="10" width="66" height="20" uuid="a2a77ef5-b911-4467-8807-445efa3f12d2"/>
+				<textFieldExpression><![CDATA[$F{num_ventas_con_producto}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="27" y="41" width="497" height="1" forecolor="#CCCCCC" uuid="98c860c1-a876-4296-8bd7-ccf79ce25a2b"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="29" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="42" splitType="Stretch">
+			<textField>
+				<reportElement x="435" y="22" width="80" height="20" uuid="456543f8-84da-447f-b209-310d91990664"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="22" width="40" height="20" uuid="5881ab2f-6f0f-4dbf-8631-e298cfca2e5a"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy HH.mm.ss">
+				<reportElement x="0" y="22" width="100" height="20" uuid="f3eaecd2-b3b8-471a-84e1-1d702705af24"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="261" splitType="Stretch">
+			<barChart>
+				<chart>
+					<reportElement x="0" y="0" width="555" height="261" uuid="d8777a99-bd77-41f1-a0c3-aaea438f3227"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["Unidades Vendidas"]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{nombre_producto}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{total_unidades_vendidas}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
+	</summary>
+</jasperReport>
