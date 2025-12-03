@@ -4,12 +4,10 @@
  */
 package Capa_Presentacion;
 
-// Importaciones adaptadas a la nueva estructura:
-// import Capa_Datos.PresentacionDAO;      // <-- Eliminado
-// import Capa_Datos.TipoPresentacionDAO1; // <-- Eliminado
+
 import Capa_Negocio.clsTipoPresentacion;
 
-// Asumo que tienes una clase clsPresentacion con la lógica de verificar el uso:
+
 import Capa_Negocio.clsPresentacion; 
 
 import java.util.List;
@@ -24,13 +22,10 @@ public class ManTipoPresentacion extends javax.swing.JDialog {
 
    
     
-  // 💡 CAMBIOS CLAVE: Instancias de la Capa de Negocio
-    // 1. La clase de negocio clsTipoPresentacion ahora hace el trabajo de TipoPresentacionDAO1
-    // Inicializamos una instancia para llamar a sus métodos no estáticos.
+ 
     private final clsTipoPresentacion objTipoPresentacion = new clsTipoPresentacion();
     
-    // 2. Necesitamos una instancia de clsPresentacion para llamar a verificarUsoTipoPresentacion
-    // (Asumiendo que el constructor largo no tiene impacto en la instancia de utility)
+    
     private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
     
     private List<clsTipoPresentacion> listaTipos;

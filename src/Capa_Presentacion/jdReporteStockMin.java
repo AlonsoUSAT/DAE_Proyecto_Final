@@ -18,7 +18,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.swing.JRViewer;
 /**
  *
- * @author USER
+ * @author Tiznado Leon
  */
 public class jdReporteStockMin extends javax.swing.JDialog {
 
@@ -53,15 +53,15 @@ public class jdReporteStockMin extends javax.swing.JDialog {
     
     private void cargarCombos() {
         try {
-            // A. Cargar Laboratorios
+          
             cboLaboratorio.removeAllItems();
             cboLaboratorio.addItem(new ItemCombo(0, "--- TODOS ---"));
             
             clsLaboratorio objLab = new clsLaboratorio();
-            ResultSet rsLab = objLab.listarLaboratoriosActivos(); // Usamos tu método existente
+            ResultSet rsLab = objLab.listarLaboratoriosActivos(); 
             
             while (rsLab.next()) {
-                // OJO: Asegúrate de usar los nombres de columna exactos de tu BD
+             
                 cboLaboratorio.addItem(new ItemCombo(
                     rsLab.getInt("idlaboratorio"), 
                     rsLab.getString("nombrelaboratorio")
@@ -70,12 +70,12 @@ public class jdReporteStockMin extends javax.swing.JDialog {
 
 
 
-            // C. Cargar Categorias
+      
             cboCategoria.removeAllItems();
             cboCategoria.addItem(new ItemCombo(0, "--- TODOS ---"));
             
             clsCategoria objCat = new clsCategoria();
-            ResultSet rsCat = objCat.listarCategoriasActivas(); // Usamos tu método existente
+            ResultSet rsCat = objCat.listarCategoriasActivas(); 
             
             while (rsCat.next()) {
                 cboCategoria.addItem(new ItemCombo(
@@ -273,16 +273,16 @@ public class jdReporteStockMin extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVerReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerReporteActionPerformed
-        clsJDBC jdbc = new clsJDBC(); // Instanciamos TU clase de conexión
+        clsJDBC jdbc = new clsJDBC(); 
         Connection con = null;
 
         try {
-            // Usamos tu método conectar()
+         
             con = jdbc.conectar(); 
             
             Map<String, Object> parametros = new HashMap<>();
             
-            // Lógica Laboratorio
+         
             if (cboLaboratorio.getSelectedIndex() == 0) {
                 parametros.put("p_idlaboratorio", null);
             } else {
@@ -292,7 +292,7 @@ public class jdReporteStockMin extends javax.swing.JDialog {
             
  
 
-            // Lógica Categoria
+          
             if (cboCategoria.getSelectedIndex() == 0) {
                 parametros.put("p_idcategoria", null);
             } else {
@@ -300,13 +300,13 @@ public class jdReporteStockMin extends javax.swing.JDialog {
                 parametros.put("p_idcategoria", item.getId());
             }
             
-            // Ruta del reporte
+          
             String rutaReporte = "src/Reportes/rp_StockMin.jasper"; 
             
-            // Llenamos el reporte pasando la conexión 'con' que obtuvimos de clsJDBC
+         
             JasperPrint print = JasperFillManager.fillReport(rutaReporte, parametros, con);
             
-            // Mostrar en el JDesktopPane
+           
             vistaReporte.removeAll();
             JInternalFrame frame = new JInternalFrame("Vista Previa");
             frame.getContentPane().add(new JRViewer(print));

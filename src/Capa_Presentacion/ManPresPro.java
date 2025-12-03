@@ -11,18 +11,15 @@ package Capa_Presentacion;
 
 
 
-// Importaciones necesarias de la Capa de Negocio
+
 import Capa_Negocio.clsLote; 
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsPresentacionProducto;
-// Las importaciones de DAO deben ser eliminadas o comentadas si la lógica se migró:
-// import Capa_Datos.LoteDAO;
-// import Capa_Datos.PresentacionDAO;
-// import Capa_Datos.PresentacionProductoDAO;
 
-import Capa_Negocio.clsProducto; // Mantener si se usa clsProducto
 
-import java.math.BigDecimal; // Necesario para manejar BigDecimal del ResultSet si es necesario (Revisar en listarFormatosParaTabla)
+import Capa_Negocio.clsProducto; 
+
+import java.math.BigDecimal; 
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
@@ -34,13 +31,13 @@ import javax.swing.table.DefaultTableModel;
 public class ManPresPro extends javax.swing.JDialog {
 
  
-    // Instancia de la clase actual (Presentacion-Producto)
+   
     private final clsPresentacionProducto objPresProd = new clsPresentacionProducto(0, 0, 0, 0, false); 
     
-    // Instancia de la clase Presentacion (asumiendo que contiene sus métodos DAO)
+   
     private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
     
-    // Instancia de la clase Lote (asumiendo que contiene sus métodos DAO)
+   
     private final clsLote objLote = new clsLote(0, null, null, null, 0, 0, false, 0, 0, null, null);
 
     
@@ -584,8 +581,7 @@ public class ManPresPro extends javax.swing.JDialog {
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
          if (btnNuevo.getText().equals("Nuevo")) {
-        // MODO "NUEVO": Prepara el formulario para recibir datos.
-        // Esta parte está correcta y no cambia.
+        
         limpiarControles();
         tblPresentacionProducto.clearSelection();
         gestionarEstadoControles("nuevo");

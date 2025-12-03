@@ -6,7 +6,7 @@ package Capa_Presentacion;
 
 
 import Capa_Negocio.clsUnidad;
-// Asumo que clsPresentacion tiene el método verificarUsoUnidad(int idUnidad)
+
 import Capa_Negocio.clsPresentacion; 
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -18,11 +18,10 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManUnidad extends javax.swing.JDialog {
 
-      // 💡 CAMBIOS CLAVE: Instancias de la Capa de Negocio
-    // 1. La clase de negocio clsUnidad ahora hace el trabajo de UnidadDAO
+   
     private final clsUnidad objUnidad = new clsUnidad();
     
-    // 2. Necesitamos una instancia de clsPresentacion para verificar si la unidad está en uso
+ 
     private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
     
     private List<clsUnidad> listaUnidades;

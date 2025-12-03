@@ -5,8 +5,8 @@
 package Capa_Presentacion;
 
 import Capa_Negocio.clsLote;
-// import Capa_Datos.LoteDAO; // <-- ELIMINADO/COMENTADO
-import Capa_Negocio.clsProducto; // Importación necesaria
+
+import Capa_Negocio.clsProducto; 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -811,7 +811,7 @@ public class ManLote extends javax.swing.JDialog {
         try {
            
             if (!validarCamposParaGuardar()) {
-                return; // Si algo falla, la validación ya mostró el mensaje y detenemos todo.
+                return; 
             }
 
           
@@ -846,7 +846,7 @@ public class ManLote extends javax.swing.JDialog {
     try {
       
         if (!validarCamposParaGuardar()) {
-            return; // Si la validación falla, nos detenemos.
+            return;
         }
         
      

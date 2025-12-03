@@ -7,13 +7,10 @@ package Capa_Presentacion;
 import Capa_Negocio.clsPresentacion;
 import Capa_Negocio.clsTipoPresentacion;
 import Capa_Negocio.clsUnidad;
-// Importamos la clase de negocio que contiene la lógica para verificar si una presentación está en uso
+
 import Capa_Negocio.clsPresentacionProducto; 
 
-// ELIMINAMOS O COMENTAMOS LAS REFERENCIAS A CLASES DAO EXTERNAS:
-// import Capa_Datos.PresentacionProductoDAO;
-// import Capa_Datos.TipoPresentacionDAO1;
-// import Capa_Datos.UnidadDAO;
+
 
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
@@ -32,16 +29,16 @@ import javax.swing.table.DefaultTableModel;
 public class ManPresentacion extends javax.swing.JDialog {
 
     
-   // 1. Instancia para las operaciones de Presentación (CRUD)
+   
     private final clsPresentacion objPresentacion = new clsPresentacion(0, null, 0, null, true); 
     
-    // 2. Instancia para listar los Tipos de Presentación
+    
     private final clsTipoPresentacion objTipoPresentacion = new clsTipoPresentacion();
     
-    // 3. Instancia para listar las Unidades
+   
     private final clsUnidad objUnidad = new clsUnidad();
     
-    // 4. Instancia para verificar si la Presentación está en uso (Lógica de Presentacion_Producto)
+ 
     private final clsPresentacionProducto objPresProd = new clsPresentacionProducto(0, 0, 0, 0, false); 
     
     private List<clsPresentacion> listaDePresentaciones;

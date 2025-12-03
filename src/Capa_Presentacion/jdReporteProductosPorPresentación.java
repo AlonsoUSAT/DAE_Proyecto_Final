@@ -8,20 +8,20 @@ import Capa_Negocio.clsProducto;
 import Capa_Negocio.clsREPORTE;
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Frame; // Importar Frame
+import java.awt.Frame; 
 import java.util.Map;
 import javax.swing.JOptionPane;
 import net.sf.jasperreports.swing.JRViewer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.table.DefaultTableModel; // Para manejar el JTable
-import javax.swing.SwingUtilities; // Para obtener el Frame padre
-// Importamos JRRuntimeException para un manejo más específico de errores de reporte
+import javax.swing.table.DefaultTableModel; 
+import javax.swing.SwingUtilities; 
+
 import net.sf.jasperreports.engine.JRRuntimeException;
 
 /**
  *
- * @author USER
+ * @author Tiznado Leon
  */
 public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
 
@@ -44,12 +44,12 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
      private void listarProductos() {
         ResultSet rsProductos = null;
         DefaultTableModel modelo = new DefaultTableModel();
-        // Solo necesitamos CÓDIGO y NOMBRE en esta vista
+      
         modelo.addColumn("CÓDIGO");
         modelo.addColumn("NOMBRE"); 
         
         try {
-            // Filtrar usa el texto del txtNombreProducto
+      
             rsProductos = objProducto.filtrar(txtNombreProducto.getText(), 0, 99999);
             
             while(rsProductos.next()){
@@ -61,21 +61,21 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(rootPane, "Error al listar productos: " + e.getMessage());
         } finally {
-             // Cerrar ResultSet y Conexión para liberar recursos
+          
             if (rsProductos != null) {
                 try {
-                    // Cierra el ResultSet y la conexión asociada (ver clsJDBC)
+                
                     rsProductos.getStatement().getConnection().close(); 
                 } catch (SQLException ex) {
-                    // Manejar error de cierre
+                 
                 } catch (Exception e) {
-                    // Manejo de error general al intentar cerrar
+                 
                 }
             }
         }
         
         tblProductos.setModel(modelo);
-        // Ocultar columna de código para el usuario (opcional, pero buena práctica)
+       
         if (tblProductos.getColumnModel().getColumnCount() > 0) {
             tblProductos.getColumnModel().getColumn(0).setMaxWidth(0);
             tblProductos.getColumnModel().getColumn(0).setMinWidth(0);
@@ -86,15 +86,14 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
   
   private void seleccionarProducto(int cod) {
         try {
-            // Guardar el código seleccionado
+          
             codProductoSeleccionado = cod;
             
-            // Obtener el nombre del producto para mostrarlo en el JTextField
+          
             String nombre = objProducto.getNombreProducto(cod);
             txtNombreProducto.setText(nombre);
             
-            // Opcional: Ocultar la tabla después de la selección
-            // jScrollPane1.setVisible(false);
+          
             
             JOptionPane.showMessageDialog(this, "Producto seleccionado: " + nombre);
             
@@ -355,7 +354,7 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
     private void tblProductosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductosMouseClicked
         int filaSeleccionada = tblProductos.getSelectedRow();
         if (filaSeleccionada != -1) {
-            // El código está en la columna 0 (que se ocultó)
+           
             int cod = Integer.parseInt(String.valueOf(tblProductos.getValueAt(filaSeleccionada, 0)));
             seleccionarProducto(cod);
         }
@@ -367,57 +366,48 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
 
     private void txtNombreProductoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNombreProductoKeyReleased
         listarProductos();
-        // Al empezar a escribir, reiniciamos la selección (asumiendo que busca otro)
+       
         codProductoSeleccionado = 0;
     }//GEN-LAST:event_txtNombreProductoKeyReleased
 
     private void btnBusquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBusquedaActionPerformed
-       // 1. Instanciar la búsqueda avanzada
+    
     jdBusqAvanzada objConsulta = new jdBusqAvanzada((Frame) SwingUtilities.getWindowAncestor(this), true);
     
-    // 2. Mostrarla (el código se detendrá aquí hasta que objConsulta haga dispose())
+   
     objConsulta.setVisible(true);
     
-    // 3. Al cerrarse la ventana, recuperamos el ID
+    
     int cod = objConsulta.getCod();
     
-    // 4. Si el código es válido (mayor a 0), ejecutamos la selección
+   
     if (cod > 0) {
-        seleccionarProducto(cod); // Este método ya lo tienes creado en tu clase
+        seleccionarProducto(cod); 
     }
     }//GEN-LAST:event_btnBusquedaActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
-            // --- 1. CAPTURAR VALORES ---
+            
            
             int productoID = codProductoSeleccionado;
 
-            // --- 2. PREPARAR LOS PARÁMETROS ---
+           
             Map<String, Object> parametros = new java.util.HashMap<>();
      
             parametros.put("p_id_producto", productoID);
 
-            // --- 3. GENERAR EL REPORTE ---
+       
             JRViewer objReporte = new clsREPORTE().reporteInterno("rp_productoPorPresentacion.jasper", parametros);
 
-            // --- 4. VERIFICAR RESULTADOS Y MOSTRAR ---
-
-            // El JRViewer creado es el reporte mismo. No tiene un método getReportViewer().
-            // En este punto, si el reporte no tiene datos, JasperReports *suele* lanzar una JRRuntimeException.
-            // Si no lanza una excepción, verificamos si es null.
+           
 
             if (objReporte == null) {
-                // Esto solo se activaría si clsReporte.reporteInterno devuelve null explícitamente
+              
                 throw new Exception("El objeto de reporte es nulo. Verifique la conexión o el archivo .jasper.");
             }
 
-            // NOTA: Para verificar el número de páginas, la forma correcta puede ser
-            // objReporte.getViewer().getPages().size() si tu versión de Jasper es antigua,
-            // o depender de la excepción JRRuntimeException que ya estamos capturando.
-            // Vamos a depender de la captura de excepción para el "No Data", que es el patrón más común.
-
-            // Si no se lanzó excepción, asumimos que tiene contenido y lo mostramos
+          
             Container contenedor = this.vistaReporte;
             contenedor.setLayout(new BorderLayout());
             contenedor.removeAll();
@@ -430,11 +420,9 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
             this.vistaReporte.setVisible(true);
 
         } catch (net.sf.jasperreports.engine.JRRuntimeException e) {
-            // Esta excepción se lanza típicamente cuando el data source está vacío
-            // y el reporte no tiene un manejo explícito de "No Data".
-
+           
             try {
-                // Intentar obtener el nombre del producto de forma segura aquí
+              
                 int productoID = codProductoSeleccionado;
                 String nombreProducto = (productoID > 0) ? objProducto.getNombreProducto(productoID) : null;
 
@@ -446,14 +434,14 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
                 this.vistaReporte.setVisible(false);
 
             } catch (Exception exInterno) {
-                // Manejar error si falla la obtención del nombre del producto (secundario)
+              
                 JOptionPane.showMessageDialog(this, "No se encontraron lotes. (Error interno al obtener nombre: " + exInterno.getMessage() + ")",
                     "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
                 this.vistaReporte.setVisible(false);
             }
 
         } catch (Exception e) {
-            // Para cualquier otro error inesperado (conexión, consulta SQL fallida, etc.)
+          
             JOptionPane.showMessageDialog(this, "ERROR grave en Reporte: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
             this.vistaReporte.setVisible(false);
