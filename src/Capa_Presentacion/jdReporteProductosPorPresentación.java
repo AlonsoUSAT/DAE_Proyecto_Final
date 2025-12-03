@@ -372,21 +372,19 @@ public class jdReporteProductosPorPresentación extends javax.swing.JDialog {
     }//GEN-LAST:event_txtNombreProductoKeyReleased
 
     private void btnBusquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBusquedaActionPerformed
-        // Se mantiene la lógica de búsqueda avanzada si la clase jdBusquedaAvanzada
-        // está disponible y devuelve el código del producto.
-        jdBusqAvanzada objConsulta =
-        new jdBusqAvanzada((Frame) SwingUtilities.getWindowAncestor(this), true);
-
-        objConsulta.setBuscando(true);
-        objConsulta.setLocationRelativeTo(this);
-        objConsulta.setVisible(true);
-
-        int cod = objConsulta.getCod(); // Asumiendo que getCod() devuelve el ID del producto
-
-        if (cod > 0) {
-            // En este reporte solo queremos el código, no la cantidad/descuento
-            seleccionarProducto(cod);
-        }
+       // 1. Instanciar la búsqueda avanzada
+    jdBusqAvanzada objConsulta = new jdBusqAvanzada((Frame) SwingUtilities.getWindowAncestor(this), true);
+    
+    // 2. Mostrarla (el código se detendrá aquí hasta que objConsulta haga dispose())
+    objConsulta.setVisible(true);
+    
+    // 3. Al cerrarse la ventana, recuperamos el ID
+    int cod = objConsulta.getCod();
+    
+    // 4. Si el código es válido (mayor a 0), ejecutamos la selección
+    if (cod > 0) {
+        seleccionarProducto(cod); // Este método ya lo tienes creado en tu clase
+    }
     }//GEN-LAST:event_btnBusquedaActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
