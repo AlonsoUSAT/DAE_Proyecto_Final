@@ -230,15 +230,21 @@ public class clsProducto {
         return 0.0;
     }
 
-    public ResultSet filtrar(String nom, int min, int max) throws Exception {
-        String strSQL = "SELECT p.idproducto, p.nombre, p.descripcion, p.estado, m.nombre AS nomMarca, c.nombrecategoria AS nomCategoria, "
-                + "pp.precio, pp.stock "
+   public ResultSet filtrar(String nom, int min, int max) throws Exception {
+      
+        String strSQL = "SELECT p.idproducto, p.nombre, p.descripcion, p.estado, "
+                + "m.nombre AS nomMarca, c.nombrecategoria AS nomCategoria, "
+                + "MAX(pp.precio) as precio, " 
+                + "SUM(pp.stock) as stock "  
                 + "FROM producto p "
-                + "INNER JOIN marca m ON p.idmarca = m.idmarca " // <--- CORREGIDO: p.idmarca
-                + "INNER JOIN categoria c ON p.idcategoria = c.idcategoria " // <--- CORREGIDO: p.idcategoria
+                + "INNER JOIN marca m ON p.idmarca = m.idmarca "
+                + "INNER JOIN categoria c ON p.idcategoria = c.idcategoria "
                 + "INNER JOIN presentacion_producto pp ON p.idproducto = pp.idproducto "
                 + "WHERE UPPER(p.nombre) LIKE UPPER('%" + nom + "%') AND "
-                + "pp.precio BETWEEN " + min + " AND " + max + ";";
+                + "pp.precio BETWEEN " + min + " AND " + max + " "
+              
+                + "GROUP BY p.idproducto, p.nombre, p.descripcion, p.estado, m.nombre, c.nombrecategoria "
+                + "ORDER BY p.nombre";
 
         try {
             rs = objConectar.consultarBD(strSQL);
