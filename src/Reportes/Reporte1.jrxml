@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Ventas diarias" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52c51f02-6b77-4e0a-949e-0f596940f4e4">
-	<property name="ireport.zoom" value="1.4641000000000008"/>
+	<property name="ireport.zoom" value="1.0000000000000004"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="fecha_inicio" class="java.util.Date">
@@ -12,16 +12,22 @@
 	<queryString>
 		<![CDATA[SELECT
     v.fecha,
-    COUNT(c.idComprobante) AS cantidad_ventas,
+    COUNT(c.idcomprobante) AS cantidad_ventas,
     SUM(c.subtotal) AS subtotal_dia,
     SUM(c.igv) AS impuestos_dia,
     SUM(c.total) AS total_vendido_dia
-FROM COMPROBANTE_VENTA c
-JOIN VENTA v ON c.idVenta = v.idVenta
-WHERE v.fecha BETWEEN $P{fecha_inicio} AND $P{fecha_fin}
-AND c.estado = true
-GROUP BY v.fecha
-ORDER BY v.fecha ASC;]]>
+FROM
+    public.comprobante_venta c
+JOIN
+    public.venta v ON c.idventa = v.idventa
+WHERE
+    v.fecha >= $P{fecha_inicio}
+    AND v.fecha <= $P{fecha_fin}
+    AND c.estado = true
+GROUP BY
+    v.fecha
+ORDER BY
+    v.fecha ASC;]]>
 	</queryString>
 	<field name="fecha" class="java.sql.Date"/>
 	<field name="cantidad_ventas" class="java.lang.Long"/>

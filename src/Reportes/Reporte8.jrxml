@@ -85,15 +85,15 @@ ORDER BY v.fecha DESC, v.hora DESC;]]>
 				<text><![CDATA[Fecha de anulación]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="140" y="4" width="79" height="20" uuid="a600b95c-cbce-4136-b186-62b708fc760d"/>
-				<textElement textAlignment="Center">
+				<reportElement x="151" y="4" width="79" height="20" uuid="a600b95c-cbce-4136-b186-62b708fc760d"/>
+				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Hora]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="219" y="4" width="162" height="20" uuid="b94a084a-1034-410c-97ca-24393144ba19"/>
-				<textElement textAlignment="Center">
+				<reportElement x="230" y="4" width="120" height="20" uuid="b94a084a-1034-410c-97ca-24393144ba19"/>
+				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Usuario Responsable]]></text>
@@ -141,7 +141,7 @@ ORDER BY v.fecha DESC, v.hora DESC;]]>
 				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("HH:mm:ss").format($F{hora})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="219" y="11" width="162" height="20" uuid="6cd9e424-fc4e-4d5b-86f5-a69c259f542a"/>
+				<reportElement x="230" y="11" width="162" height="20" uuid="6cd9e424-fc4e-4d5b-86f5-a69c259f542a"/>
 				<textElement>
 					<font size="12"/>
 				</textElement>

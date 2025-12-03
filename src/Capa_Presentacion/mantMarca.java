@@ -16,6 +16,9 @@ public class mantMarca extends javax.swing.JDialog {
         llenarComboLaboratorio(); 
         actualizarTabla();
         limpiarCampos();
+        txtUsuario.setText(FrmLogin.nomUser);
+        txtUsuario.setEditable(false);
+        this.setTitle("Mantenimiento de Marca");
     }
     
     private void llenarComboLaboratorio() {
@@ -101,6 +104,13 @@ public class mantMarca extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel11 = new javax.swing.JPanel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        txtUsuario = new javax.swing.JTextField();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel23 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblMarca = new javax.swing.JTable();
@@ -128,7 +138,75 @@ public class mantMarca extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(153, 204, 255));
+        jPanel11.setBackground(new java.awt.Color(153, 204, 255));
+
+        jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/logo.png"))); // NOI18N
+        jLabel19.setText("jLabel1");
+
+        jLabel20.setFont(new java.awt.Font("Yu Gothic", 1, 18)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel20.setText("Farmacia Salud Vida");
+
+        jLabel21.setFont(new java.awt.Font("Consolas", 1, 12)); // NOI18N
+        jLabel21.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel21.setText("Usuario:");
+
+        txtUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUsuarioActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel21)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel19)
+                    .addComponent(jLabel21)))
+        );
+
+        jPanel5.setBackground(new java.awt.Color(51, 102, 255));
+
+        jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        jLabel23.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel23.setText("Mantenimiento de Marca");
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 413, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jLabel23)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         tblMarca.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -152,7 +230,6 @@ public class mantMarca extends javax.swing.JDialog {
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Botones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14), new java.awt.Color(255, 255, 255))); // NOI18N
         jPanel2.setName(""); // NOI18N
 
-        btnNuevo.setBackground(new java.awt.Color(204, 224, 250));
         btnNuevo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnNuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/agregar-usuario.png"))); // NOI18N
         btnNuevo.setText("Nuevo");
@@ -163,7 +240,6 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        btnLimpiar.setBackground(new java.awt.Color(204, 224, 250));
         btnLimpiar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnLimpiar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/limpiar-usuario.png"))); // NOI18N
         btnLimpiar.setText("Limpiar");
@@ -174,7 +250,6 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        btnEliminar.setBackground(new java.awt.Color(204, 224, 250));
         btnEliminar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/eliminar-usuario.png"))); // NOI18N
         btnEliminar.setText("Eliminar");
@@ -185,7 +260,6 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        btnCerrar.setBackground(new java.awt.Color(204, 224, 250));
         btnCerrar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnCerrar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/cerrar-sesion (1).png"))); // NOI18N
         btnCerrar.setText("Cerrar");
@@ -196,7 +270,6 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        btnModificar.setBackground(new java.awt.Color(204, 224, 250));
         btnModificar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/editar-usuario.png"))); // NOI18N
         btnModificar.setText("Modificar");
@@ -207,7 +280,6 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        btnDardeBaja.setBackground(new java.awt.Color(204, 224, 250));
         btnDardeBaja.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDardeBaja.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Recursos/darBaja-usuario.png"))); // NOI18N
         btnDardeBaja.setText("Dar de Baja");
@@ -225,36 +297,36 @@ public class mantMarca extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(61, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnModificar, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                    .addComponent(btnModificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnNuevo, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnLimpiar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnEliminar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                    .addComponent(btnDardeBaja, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDardeBaja, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
                 .addGap(48, 48, 48))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(10, 10, 10)
                 .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22)
+                .addGap(10, 10, 10)
                 .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(10, 10, 10)
                 .addComponent(btnDardeBaja, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(10, 10, 10)
                 .addComponent(btnEliminar)
-                .addGap(18, 18, 18)
+                .addGap(10, 10, 10)
                 .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(10, 10, 10)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
-        jPanel3.setBackground(new java.awt.Color(153, 204, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Marca", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14), new java.awt.Color(255, 255, 255))); // NOI18N
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Marca", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14))); // NOI18N
 
-        jLabel3.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         jLabel3.setText("ID:");
 
         btnBuscar.setBackground(new java.awt.Color(204, 224, 250));
@@ -267,13 +339,13 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        jLabel4.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         jLabel4.setText("Nombre:");
 
-        jLabel1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         jLabel1.setText("Descripción:");
 
-        jLabel2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         jLabel2.setText("Laboratorio:");
 
         txtDescripcion.setColumns(20);
@@ -287,7 +359,7 @@ public class mantMarca extends javax.swing.JDialog {
             }
         });
 
-        jLabel5.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         jLabel5.setText("Vigencia:");
 
         chkVigencia.setText("(Vigente)");
@@ -297,54 +369,58 @@ public class mantMarca extends javax.swing.JDialog {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(71, 71, 71)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtID)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnBuscar)
+                .addGap(16, 16, 16))
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel5)
                     .addComponent(jLabel2)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cmbLaboratorio, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
-                            .addComponent(txtNombre)
-                            .addComponent(txtID, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(txtNombre))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnBuscar)
-                            .addComponent(btnNuevoLaboratorio))
-                        .addGap(16, 16, 16))
+                        .addComponent(btnNuevoLaboratorio)
+                        .addGap(10, 10, 10))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(chkVigencia)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 183, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(40, 40, 40)
+                .addGap(10, 10, 10)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel3)
                         .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(btnBuscar))
-                .addGap(38, 38, 38)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(32, 32, 32)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(26, 26, 26)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(cmbLaboratorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(btnNuevoLaboratorio))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(32, 32, 32)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(cmbLaboratorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnNuevoLaboratorio, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
@@ -356,17 +432,15 @@ public class mantMarca extends javax.swing.JDialog {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 723, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(54, 54, 54)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(49, 49, 49))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -375,46 +449,180 @@ public class mantMarca extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(10, 10, 10)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0))
+            .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsuarioActionPerformed
+
+    private void btnNuevoLaboratorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoLaboratorioActionPerformed
+        mantLaboratorio formLab = new mantLaboratorio(null, true);
+        formLab.setVisible(true);
+        llenarComboLaboratorio();
+    }//GEN-LAST:event_btnNuevoLaboratorioActionPerformed
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        String textoBusqueda = txtID.getText().trim();
+        if (textoBusqueda.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un ID para buscar.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+            txtID.requestFocus();
+            return;
+        }
+
+        ResultSet rs = null;
+        try {
+            int id = Integer.parseInt(textoBusqueda);
+            rs = objMarca.buscarMarca(id);
+
+            if (rs != null && rs.next()) {
+                txtID.setText(String.valueOf(rs.getInt("idMarca")));
+                txtNombre.setText(rs.getString("nombre"));
+                txtDescripcion.setText(rs.getString("descripcion"));
+                chkVigencia.setSelected(rs.getBoolean("estado"));
+
+                String nombreLabBuscado = rs.getString("nombrelaboratorio");
+
+                cmbLaboratorio.setSelectedItem(nombreLabBuscado);
+
+                txtID.setEnabled(false);
+                txtNombre.setEnabled(true);
+                txtDescripcion.setEnabled(true);
+                cmbLaboratorio.setEnabled(true);
+                chkVigencia.setEnabled(true);
+                btnNuevo.setEnabled(false);
+                btnModificar.setText("Modificar");
+                btnModificar.setEnabled(true);
+                btnEliminar.setEnabled(true);
+                btnDardeBaja.setEnabled(true);
+
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró ninguna marca con el ID: " + id, "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocurrió un error al buscar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
+        int filaSeleccionada = tblMarca.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una marca de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String estadoActual = (String) tblMarca.getValueAt(filaSeleccionada, 4);
+        boolean estaActivo = estadoActual.equals("Vigente");
+        String accion = estaActivo ? "dar de baja" : "reactivar";
+
+        int confirmacion = JOptionPane.showConfirmDialog(
+            this,
+            "¿Está seguro de que desea " + accion + " esta marca?",
+            "Confirmar Acción",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            try {
+                int idMarca = (int) tblMarca.getValueAt(filaSeleccionada, 0);
+
+                // Llamamos al método de servicio correspondiente
+                if (estaActivo) {
+                    objMarca.darBajaMarca(idMarca);
+                } else {
+                    objMarca.reactivarMarca(idMarca);
+                }
+
+                actualizarTabla();
+                limpiarCampos();
+                JOptionPane.showMessageDialog(this, "Marca actualizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al " + accion + " la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnDardeBajaActionPerformed
+
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        if (txtNombre.getText().trim().isEmpty() || cmbLaboratorio.getSelectedIndex() == -1) {
+            JOptionPane.showMessageDialog(this, "El Nombre y el Laboratorio son obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            // Recopilar datos
+            String nombre = txtNombre.getText().trim();
+            String descripcion = txtDescripcion.getText();
+            boolean estado = chkVigencia.isSelected();
+            // Obtener el código del laboratorio usando tu método auxiliar
+            int idLab = objLaboratorio.obtenerCodigoLaboratorio(cmbLaboratorio.getSelectedItem().toString());
+
+            if (btnModificar.getText().equals("Guardar")) {
+                // --- Lógica de INSERTAR (SIN ID) ---
+                // Llamamos al método que modificamos en el Paso 1 (ya no pasamos txtID)
+                objMarca.registrarMarca(nombre, descripcion, idLab, estado);
+
+                JOptionPane.showMessageDialog(this, "Marca registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // --- Lógica de MODIFICAR (CON ID) ---
+                int idMarca = Integer.parseInt(txtID.getText());
+                objMarca.modificarMarca(idMarca, nombre, descripcion, idLab, estado);
+
+                JOptionPane.showMessageDialog(this, "Marca modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            actualizarTabla();
+            limpiarCampos();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al procesar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnModificarActionPerformed
+
+    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btnCerrarActionPerformed
+
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         int filaSeleccionada = tblMarca.getSelectedRow();
-    
+
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar una marca de la tabla para eliminar.", "Validación", JOptionPane.WARNING_MESSAGE);
             return;
         }
         int confirmacion = JOptionPane.showConfirmDialog(
-            this, 
-            "¿Seguro desea eliminar la marca seleccionada?", 
-            "Confirmar Eliminación Física", 
-            JOptionPane.YES_NO_OPTION, 
-            JOptionPane.WARNING_MESSAGE 
+            this,
+            "¿Seguro desea eliminar la marca seleccionada?",
+            "Confirmar Eliminación Física",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
         );
-    
+
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
                 int idMarca = (int) tblMarca.getValueAt(filaSeleccionada, 0);
@@ -425,73 +633,35 @@ public class mantMarca extends javax.swing.JDialog {
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Eliminación", JOptionPane.ERROR_MESSAGE);
             }
-        }    
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
-    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-            // 1. Primero limpiamos y dejamos todo en estado inicial (bloqueado)
-    // 1. Limpiamos primero
-    limpiarCampos();
-
-    // 2. HABILITAMOS los campos para escribir
-    txtNombre.setEnabled(true);
-    txtDescripcion.setEnabled(true);
-    cmbLaboratorio.setEnabled(true);
-    chkVigencia.setEnabled(true);
-    
-    // 3. Configuramos la interfaz para "Guardar"
-    txtID.setText("(Automático)");
-    txtID.setEnabled(false); // El ID no se toca en nuevo
-    
-    btnNuevo.setEnabled(false);       // Apagamos Nuevo
-    btnModificar.setText("Guardar");  // Cambiamos Modificar a Guardar
-    btnModificar.setEnabled(true);    // Encendemos el botón de acción
-    
-    // 4. Foco
-    txtNombre.requestFocus();
-    }//GEN-LAST:event_btnNuevoActionPerformed
-
-    private void btnNuevoLaboratorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoLaboratorioActionPerformed
-        mantLaboratorio formLab = new mantLaboratorio(null, true); 
-        formLab.setVisible(true);
-        llenarComboLaboratorio();       
-    }//GEN-LAST:event_btnNuevoLaboratorioActionPerformed
-
-    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        if (txtNombre.getText().trim().isEmpty() || cmbLaboratorio.getSelectedIndex() == -1) {
-        JOptionPane.showMessageDialog(this, "El Nombre y el Laboratorio son obligatorios.", "Validación", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    try {
-        // Recopilar datos
-        String nombre = txtNombre.getText().trim();
-        String descripcion = txtDescripcion.getText();
-        boolean estado = chkVigencia.isSelected();
-        // Obtener el código del laboratorio usando tu método auxiliar
-        int idLab = objLaboratorio.obtenerCodigoLaboratorio(cmbLaboratorio.getSelectedItem().toString());
-
-        if (btnModificar.getText().equals("Guardar")) {
-            // --- Lógica de INSERTAR (SIN ID) ---
-            // Llamamos al método que modificamos en el Paso 1 (ya no pasamos txtID)
-            objMarca.registrarMarca(nombre, descripcion, idLab, estado);
-            
-            JOptionPane.showMessageDialog(this, "Marca registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            // --- Lógica de MODIFICAR (CON ID) ---
-            int idMarca = Integer.parseInt(txtID.getText());
-            objMarca.modificarMarca(idMarca, nombre, descripcion, idLab, estado);
-            
-            JOptionPane.showMessageDialog(this, "Marca modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        }
-        
-        actualizarTabla();
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
         limpiarCampos();
-        
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al procesar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }//GEN-LAST:event_btnModificarActionPerformed
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
+        // 1. Primero limpiamos y dejamos todo en estado inicial (bloqueado)
+        // 1. Limpiamos primero
+        limpiarCampos();
+
+        // 2. HABILITAMOS los campos para escribir
+        txtNombre.setEnabled(true);
+        txtDescripcion.setEnabled(true);
+        cmbLaboratorio.setEnabled(true);
+        chkVigencia.setEnabled(true);
+
+        // 3. Configuramos la interfaz para "Guardar"
+        txtID.setText("(Automático)");
+        txtID.setEnabled(false); // El ID no se toca en nuevo
+
+        btnNuevo.setEnabled(false);       // Apagamos Nuevo
+        btnModificar.setText("Guardar");  // Cambiamos Modificar a Guardar
+        btnModificar.setEnabled(true);    // Encendemos el botón de acción
+
+        // 4. Foco
+        txtNombre.requestFocus();
+    }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void tblMarcaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMarcaMouseClicked
         int fila = tblMarca.getSelectedRow();
@@ -511,13 +681,13 @@ public class mantMarca extends javax.swing.JDialog {
 
                     cmbLaboratorio.setSelectedItem(nombreLabBuscado);
 
-                    txtID.setEnabled(false); 
+                    txtID.setEnabled(false);
                     txtNombre.setEnabled(true);
                     txtDescripcion.setEnabled(true);
                     cmbLaboratorio.setEnabled(true);
                     chkVigencia.setEnabled(true);
-                    btnNuevo.setEnabled(false); 
-                    btnModificar.setText("Modificar"); 
+                    btnNuevo.setEnabled(false);
+                    btnModificar.setText("Modificar");
                     btnModificar.setEnabled(true);
                     btnEliminar.setEnabled(true);
                     btnDardeBaja.setEnabled(true);
@@ -531,96 +701,6 @@ public class mantMarca extends javax.swing.JDialog {
             // ADVERTENCIA: Fuga de recursos. rs no se cierra.
         }
     }//GEN-LAST:event_tblMarcaMouseClicked
-
-    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        limpiarCampos();
-    }//GEN-LAST:event_btnLimpiarActionPerformed
-
-    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_btnCerrarActionPerformed
-
-    private void btnDardeBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDardeBajaActionPerformed
-        int filaSeleccionada = tblMarca.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una marca de la tabla.", "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-    
-        String estadoActual = (String) tblMarca.getValueAt(filaSeleccionada, 4);
-        boolean estaActivo = estadoActual.equals("Vigente");
-        String accion = estaActivo ? "dar de baja" : "reactivar";
-
-        int confirmacion = JOptionPane.showConfirmDialog(
-            this, 
-            "¿Está seguro de que desea " + accion + " esta marca?", 
-            "Confirmar Acción", 
-            JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            try {
-                int idMarca = (int) tblMarca.getValueAt(filaSeleccionada, 0);
-                
-                // Llamamos al método de servicio correspondiente
-                if (estaActivo) {
-                    objMarca.darBajaMarca(idMarca);
-                } else {
-                    objMarca.reactivarMarca(idMarca);
-                }
-                
-                actualizarTabla();
-                limpiarCampos();
-                JOptionPane.showMessageDialog(this, "Marca actualizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al " + accion + " la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }//GEN-LAST:event_btnDardeBajaActionPerformed
-
-    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-     String textoBusqueda = txtID.getText().trim();
-     if (textoBusqueda.isEmpty()) {
-         JOptionPane.showMessageDialog(this, "Por favor, ingrese un ID para buscar.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-         txtID.requestFocus();
-         return;
-     }
-
-     ResultSet rs = null; 
-     try {
-         int id = Integer.parseInt(textoBusqueda);
-         rs = objMarca.buscarMarca(id);
-
-         if (rs != null && rs.next()) {
-             txtID.setText(String.valueOf(rs.getInt("idMarca")));
-             txtNombre.setText(rs.getString("nombre"));
-             txtDescripcion.setText(rs.getString("descripcion"));
-             chkVigencia.setSelected(rs.getBoolean("estado"));
-
-             String nombreLabBuscado = rs.getString("nombrelaboratorio");
-
-             cmbLaboratorio.setSelectedItem(nombreLabBuscado);
-
-             txtID.setEnabled(false); 
-             txtNombre.setEnabled(true);
-             txtDescripcion.setEnabled(true);
-             cmbLaboratorio.setEnabled(true);
-             chkVigencia.setEnabled(true);
-             btnNuevo.setEnabled(false); 
-             btnModificar.setText("Modificar"); 
-             btnModificar.setEnabled(true);
-             btnEliminar.setEnabled(true);
-             btnDardeBaja.setEnabled(true);
-
-         } else {
-             JOptionPane.showMessageDialog(this, "No se encontró ninguna marca con el ID: " + id, "Búsqueda Fallida", JOptionPane.INFORMATION_MESSAGE);
-         }
-     } catch (NumberFormatException e) {
-         JOptionPane.showMessageDialog(this, "El ID debe ser un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-     } catch (Exception e) {
-         JOptionPane.showMessageDialog(this, "Ocurrió un error al buscar la marca: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-     }
-    }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -639,18 +719,25 @@ public class mantMarca extends javax.swing.JDialog {
     private javax.swing.JCheckBox chkVigencia;
     private javax.swing.JComboBox<clsLaboratorio> cmbLaboratorio;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tblMarca;
     private javax.swing.JTextArea txtDescripcion;
     private javax.swing.JTextField txtID;
     private javax.swing.JTextField txtNombre;
+    private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 }

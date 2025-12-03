@@ -1,43 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Ventas por método de pago" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="02121d1c-5e07-43e7-9370-f2ce3f4903fc">
-	<property name="ireport.zoom" value="1.3310000000000033"/>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7fb57192-99bd-43b8-a15f-a00efe09b848">
+	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="57"/>
-	<parameter name="fecha_inicio" class="java.util.Date">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
-	<parameter name="fecha_fin" class="java.util.Date">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fecha_inicio" class="java.util.Date"/>
+	<parameter name="fecha_fin" class="java.util.Date"/>
 	<queryString>
 		<![CDATA[SELECT
-    mp.nombre AS metodo_pago,
-    COUNT(c.idComprobante) AS cantidad_operaciones,
-    SUM(c.total) AS monto_total
-FROM COMPROBANTE_VENTA c
-JOIN MEDIO_PAGO mp ON c.idMedioPago = mp.idMedioPago
-JOIN VENTA v ON c.idVenta = v.idVenta
-WHERE v.fecha BETWEEN $P{fecha_inicio} AND $P{fecha_fin}
-AND c.estado = true
-GROUP BY mp.idMedioPago, mp.nombre
-ORDER BY monto_total DESC;]]>
+    mp.nombre AS "Metodo Pago",
+    -- AQUÍ ESTÁ EL CAMBIO: Usamos los nombres que tu reporte ya tiene
+    COUNT(DISTINCT pv.idventa) AS cantidad_operaciones,
+    SUM(pv.monto) AS monto_total
+FROM
+    public.pago_venta pv
+INNER JOIN public.venta v ON pv.idventa = v.idventa
+INNER JOIN public.medio_pago mp ON pv.idmediopago = mp.idmediopago
+WHERE
+    v.estado = true
+    AND v.fecha >= $P{fecha_inicio}
+    AND v.fecha <= $P{fecha_fin}
+GROUP BY
+    mp.idmediopago, mp.nombre
+ORDER BY
+    monto_total DESC;]]>
 	</queryString>
-	<field name="metodo_pago" class="java.lang.String"/>
+	<field name="Metodo Pago" class="java.lang.String"/>
 	<field name="cantidad_operaciones" class="java.lang.Long"/>
 	<field name="monto_total" class="java.math.BigDecimal"/>
-	<variable name="suma_cantidad" class="java.lang.Integer" calculation="Sum">
-		<variableExpression><![CDATA[$F{cantidad_operaciones}]]></variableExpression>
-	</variable>
-	<variable name="suma_monto" class="java.math.BigDecimal" calculation="Sum">
-		<variableExpression><![CDATA[$F{monto_total}]]></variableExpression>
-	</variable>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="100" splitType="Stretch">
+		<band height="79" splitType="Stretch">
 			<staticText>
-				<reportElement mode="Opaque" x="0" y="0" width="555" height="86" backcolor="#00A2B9" uuid="0702be82-a6a9-462b-918a-101da91469b3"/>
+				<reportElement mode="Opaque" x="0" y="-7" width="555" height="86" backcolor="#00A2B9" uuid="4898dc7b-b6fc-48a3-8310-6227039b2e0f"/>
 				<box>
 					<pen lineWidth="2.0" lineStyle="Solid"/>
 					<topPen lineWidth="2.0" lineStyle="Solid"/>
@@ -48,17 +44,14 @@ ORDER BY monto_total DESC;]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="26" isBold="true"/>
 				</textElement>
-				<text><![CDATA[REPORTE DE VENTAS POR MÉTODOS DE PAGO]]></text>
+				<text><![CDATA[REPORTE DE VENTAS POR MEDIO DE PAGO]]></text>
 			</staticText>
 		</band>
 	</title>
 	<pageHeader>
-		<band height="22" splitType="Stretch">
-			<line>
-				<reportElement x="0" y="20" width="555" height="1" uuid="cb0693e6-4338-4aca-bd88-c4c249bc36f2"/>
-			</line>
+		<band height="35" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="2" width="555" height="20" uuid="44172fd3-1185-454e-a543-ec2ae68b7134"/>
+				<reportElement x="10" y="10" width="555" height="20" uuid="7daff2a3-8196-4511-bce8-61a3eaf5b723"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -67,132 +60,63 @@ ORDER BY monto_total DESC;]]>
 		</band>
 	</pageHeader>
 	<columnHeader>
-		<band height="31" splitType="Stretch">
+		<band height="33" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="147" height="27" uuid="34329ae6-f23a-4c7a-abe0-b684ff330d18"/>
+				<reportElement x="9" y="10" width="131" height="20" uuid="a1562a5f-fe25-4627-bcb7-661678b056ec"/>
 				<textElement>
-					<font size="18" isBold="true"/>
+					<font size="14" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Método de pago]]></text>
 			</staticText>
-			<line>
-				<reportElement x="0" y="26" width="555" height="1" uuid="f1ecd689-ced5-4d35-a56c-6eea2c807cba"/>
-			</line>
 			<staticText>
-				<reportElement x="294" y="0" width="261" height="26" uuid="b360007a-393d-4316-8ff9-54d9e60cda39"/>
+				<reportElement x="158" y="10" width="128" height="20" uuid="5b4e9ad9-5711-4fc5-9117-9b2ee9847f4b"/>
 				<textElement>
-					<font size="18" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Monto total vendido]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="157" y="0" width="127" height="27" uuid="bcd1f5f2-9210-4bac-aa5a-5ab72a311474"/>
-				<textElement>
-					<font size="18" isBold="true"/>
+					<font size="14" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Ventas hechas]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="314" y="10" width="179" height="20" uuid="cd211463-9400-4315-b794-4e875794d5bc"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Monto total vendido]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="65" splitType="Stretch">
+		<band height="33" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="20" width="147" height="33" uuid="8745d0b8-5291-4ccb-90c1-4494fb86aa80"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{metodo_pago}]]></textFieldExpression>
+				<reportElement x="21" y="11" width="100" height="20" uuid="d69bab60-6694-4434-ac99-93f3c28ae2ed"/>
+				<textFieldExpression><![CDATA[$F{Metodo Pago}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="157" y="20" width="127" height="33" uuid="db06c6df-635b-45c2-b6fd-8bcce1f4c195"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
+				<reportElement x="158" y="11" width="128" height="20" uuid="1757df01-e53b-47a2-81dd-e612b6b7bff6"/>
 				<textFieldExpression><![CDATA[$F{cantidad_operaciones}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="294" y="20" width="100" height="33" uuid="2f930768-f531-446d-b0cd-ce0111cdc297"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
+				<reportElement x="314" y="11" width="152" height="20" uuid="f462fcd4-4527-4b58-aaad-6ed4c38b9e24"/>
 				<textFieldExpression><![CDATA[$F{monto_total}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
 	<columnFooter>
-		<band height="250" splitType="Stretch">
-			<line>
-				<reportElement x="0" y="6" width="555" height="1" uuid="ebd426a7-f30c-48f8-bac4-ef38ad6e13c2"/>
-			</line>
-			<staticText>
-				<reportElement x="0" y="23" width="147" height="27" uuid="c44ec442-b67e-45cd-8296-6590c0f639db"/>
-				<textElement>
-					<font size="18" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Total]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="157" y="22" width="127" height="28" uuid="268dd375-4929-4e5d-80c7-9f97eb30620c"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$V{suma_cantidad}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="294" y="22" width="100" height="27" uuid="394659d6-1217-4ddf-8b4e-511a91e52186"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$V{suma_monto}]]></textFieldExpression>
-			</textField>
-			<pieChart>
-				<chart>
-					<reportElement x="153" y="103" width="241" height="147" uuid="853d3703-ec05-4b9b-a61d-f03e7ee40cf2"/>
-					<chartTitle/>
-					<chartSubtitle/>
-					<chartLegend/>
-				</chart>
-				<pieDataset>
-					<keyExpression><![CDATA[$F{metodo_pago}]]></keyExpression>
-					<valueExpression><![CDATA[$F{cantidad_operaciones}]]></valueExpression>
-				</pieDataset>
-				<piePlot>
-					<plot/>
-					<itemLabel/>
-				</piePlot>
-			</pieChart>
-			<line>
-				<reportElement x="0" y="102" width="555" height="1" uuid="2ee91988-60c3-42bc-8b5b-e75655d6af96"/>
-			</line>
-			<staticText>
-				<reportElement x="0" y="82" width="555" height="20" uuid="f7c640ff-7660-438e-90bd-7e94f26b0b6f"/>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
-				<text><![CDATA[Gráfico por preferencias de métodos de pago]]></text>
-			</staticText>
-			<line>
-				<reportElement x="0" y="63" width="555" height="1" uuid="68f8cb37-d8d6-482d-b691-62c515c55486"/>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-		</band>
+		<band height="45" splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="54" splitType="Stretch">
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch">
 			<textField>
-				<reportElement x="435" y="34" width="80" height="20" uuid="8ed1ef7d-44db-438d-bc18-c94910262740"/>
+				<reportElement x="434" y="22" width="80" height="20" uuid="7e1b116f-8424-45c4-94f7-878f56330f28"/>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement x="515" y="34" width="40" height="20" uuid="819e592f-605f-4a00-91d6-fc5108c82c8b"/>
+				<reportElement x="514" y="22" width="40" height="20" uuid="3424ecfe-ee8c-45ad-9ba2-b3aff88a6fde"/>
 				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 		</band>
-	</pageFooter>
-	<summary>
-		<band height="42" splitType="Stretch"/>
 	</summary>
 </jasperReport>

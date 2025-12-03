@@ -1,4 +1,3 @@
-
 package Capa_Presentacion;
 
 import java.awt.event.ActionEvent;
@@ -14,48 +13,47 @@ public class frmMenuPrincipal extends javax.swing.JFrame {
      * Creates new form frmMenuPrincipal
      */
     public frmMenuPrincipal() {
-         initComponents();
+        initComponents();
 
-    // --- CÓDIGO PARA MOSTRAR FECHA Y HORA EN TIEMPO REAL ---
+        // --- CÓDIGO PARA MOSTRAR FECHA Y HORA EN TIEMPO REAL ---
+        // 1. Mostrar la fecha actual al iniciar (esta es fija y no cambia)
+        mostrarFecha();
+        this.setTitle("Menu principal");
+        this.setLocationRelativeTo(null);
 
-    // 1. Mostrar la fecha actual al iniciar (esta es fija y no cambia)
-    mostrarFecha();
+        // 2. Crear y configurar el Timer para que actualice la hora CADA SEGUNDO
+        Timer timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Cada segundo, se ejecutará este código, que llama al método para refrescar la hora
+                mostrarHora();
+            }
+        });
 
-    // 2. Crear y configurar el Timer para que actualice la hora CADA SEGUNDO
-    Timer timer = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Cada segundo, se ejecutará este código, que llama al método para refrescar la hora
-            mostrarHora();
-        }
-    });
+        // 3. Iniciar el Timer para que empiece a funcionar
+        timer.start();
 
-    // 3. Iniciar el Timer para que empiece a funcionar
-    timer.start();
-
-    // --- FIN DEL CÓDIGO DE FECHA Y HORA ---
-        
+        // --- FIN DEL CÓDIGO DE FECHA Y HORA ---
     }
-    
+
     private void mostrarFecha() {
-    Date fechaActual = new Date();
-    // Formato EEEE da el nombre completo del día, ej: "miércoles, 15 de octubre de 2025"
-    SimpleDateFormat formatoFecha = new SimpleDateFormat("EEEE, dd 'de' MMMM 'de' yyyy");
-    txtFecha.setText(formatoFecha.format(fechaActual));
-}
+        Date fechaActual = new Date();
+        // Formato EEEE da el nombre completo del día, ej: "miércoles, 15 de octubre de 2025"
+        SimpleDateFormat formatoFecha = new SimpleDateFormat("EEEE, dd 'de' MMMM 'de' yyyy");
+        txtFecha.setText(formatoFecha.format(fechaActual));
+    }
 
-/**
- * Obtiene la hora actual del sistema y la muestra en txtHora.
- * Este método es llamado repetidamente por el Timer.
- */
-private void mostrarHora() {
-    Date horaActual = new Date();
-    // Formato hh:mm:ss a -> Hora (12h):Minutos:Segundos AM/PM
-    // Si prefieres formato de 24h, usa "HH:mm:ss"
-    SimpleDateFormat formatoHora = new SimpleDateFormat("hh:mm:ss a");
-    txtHora.setText(formatoHora.format(horaActual));
-}
-
+    /**
+     * Obtiene la hora actual del sistema y la muestra en txtHora. Este método
+     * es llamado repetidamente por el Timer.
+     */
+    private void mostrarHora() {
+        Date horaActual = new Date();
+        // Formato hh:mm:ss a -> Hora (12h):Minutos:Segundos AM/PM
+        // Si prefieres formato de 24h, usa "HH:mm:ss"
+        SimpleDateFormat formatoHora = new SimpleDateFormat("hh:mm:ss a");
+        txtHora.setText(formatoHora.format(horaActual));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -136,6 +134,12 @@ private void mostrarHora() {
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem17 = new javax.swing.JMenuItem();
         jMenuItem18 = new javax.swing.JMenuItem();
+        jMenuItem19 = new javax.swing.JMenuItem();
+        jMenuItem20 = new javax.swing.JMenuItem();
+        jMenuItem21 = new javax.swing.JMenuItem();
+        jMenuItem22 = new javax.swing.JMenuItem();
+        jMenuItem23 = new javax.swing.JMenuItem();
+        jMenuItem24 = new javax.swing.JMenuItem();
         jMenu9 = new javax.swing.JMenu();
         jMenuItem5 = new javax.swing.JMenuItem();
 
@@ -499,7 +503,7 @@ private void mostrarHora() {
                     .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 271, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -529,7 +533,7 @@ private void mostrarHora() {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 161, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(14, 14, 14))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -715,6 +719,54 @@ private void mostrarHora() {
         });
         jMenu6.add(jMenuItem18);
 
+        jMenuItem19.setText("Reporte Ventas Diarias");
+        jMenuItem19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem19ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem19);
+
+        jMenuItem20.setText("Reporte de productos más vendidos");
+        jMenuItem20.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem20ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem20);
+
+        jMenuItem21.setText("Reporte de ventas por usuario");
+        jMenuItem21.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem21ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem21);
+
+        jMenuItem22.setText("Reporte de ventas por metodo de pago");
+        jMenuItem22.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem22ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem22);
+
+        jMenuItem23.setText("Reporte de ventas anuladas");
+        jMenuItem23.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem23ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem23);
+
+        jMenuItem24.setText("Reporte Mensual de ventas");
+        jMenuItem24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem24ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem24);
+
         jMenuBar1.add(jMenu6);
 
         jMenu9.setText("Acerca de");
@@ -749,11 +801,13 @@ private void mostrarHora() {
 
     private void btnClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClientesActionPerformed
         ManCliente frm = new ManCliente(null, true);
+        frm.setLocationRelativeTo(null);
         frm.setVisible(true);
     }//GEN-LAST:event_btnClientesActionPerformed
 
     private void btnProveedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProveedoresActionPerformed
-         mantLaboratorio frm = new mantLaboratorio(null, true);
+        mantLaboratorio frm = new mantLaboratorio(null, true);
+        frm.setLocationRelativeTo(null);
         frm.setVisible(true);
     }//GEN-LAST:event_btnProveedoresActionPerformed
 
@@ -772,85 +826,101 @@ private void mostrarHora() {
     private void txtFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFechaActionPerformed
-                                      
+
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-       mantMarca frm = new mantMarca(null, true);
-    frm.setVisible(true);
+        mantMarca frm = new mantMarca(null, true);
+        frm.setLocationRelativeTo(null);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         mantLaboratorio frm = new mantLaboratorio(null, true);
-    frm.setVisible(true);
+        frm.setLocationRelativeTo(null);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         mantCategoria frm = new mantCategoria(null, true);
-    frm.setVisible(true);
+        frm.setLocationRelativeTo(null);
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        mantProducto mPro = new mantProducto(this,true);
-       mPro.setVisible(true);
+        mantProducto mPro = new mantProducto(this, true);
+        mPro.setLocationRelativeTo(null);
+        mPro.setVisible(true);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void mPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mPresentacionActionPerformed
-        ManPresentacion mPre = new ManPresentacion(this,true);
+        ManPresentacion mPre = new ManPresentacion(this, true);
+        mPre.setLocationRelativeTo(null);
+
         mPre.setVisible(true);
     }//GEN-LAST:event_mPresentacionActionPerformed
 
     private void mTipoPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mTipoPreActionPerformed
-        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this,true);
+        ManTipoPresentacion mTipoPre = new ManTipoPresentacion(this, true);
+        mTipoPre.setLocationRelativeTo(null);
+
         mTipoPre.setVisible(true);
     }//GEN-LAST:event_mTipoPreActionPerformed
 
     private void mUnidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mUnidadActionPerformed
-       ManUnidad mUni = new  ManUnidad(this,true);
-       mUni.setVisible(true);
+        ManUnidad mUni = new ManUnidad(this, true);
+        mUni.setLocationRelativeTo(null);
+
+        mUni.setVisible(true);
     }//GEN-LAST:event_mUnidadActionPerformed
 
     private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
-        mantProducto frm = new mantProducto(this,true);
+        mantProducto frm = new mantProducto(this, true);
+        frm.setLocationRelativeTo(null);
+
         frm.setVisible(true);
     }//GEN-LAST:event_btnProductosActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-     // 1. Preguntar confirmación (Opcional pero recomendado)
-    int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
-        this, 
-        "¿Está seguro de que desea cerrar sesión?", 
-        "Cerrar Sesión", 
-        javax.swing.JOptionPane.YES_NO_OPTION
-    );
+        // 1. Preguntar confirmación (Opcional pero recomendado)
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea cerrar sesión?",
+                "Cerrar Sesión",
+                javax.swing.JOptionPane.YES_NO_OPTION
+        );
 
-    if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
-        // 2. Cerrar la ventana actual (Menú Principal)
-        this.dispose();
-        
-        // 3. Abrir la ventana de Login
-        FrmLogin login = new FrmLogin(this,true); // Asegúrate que el nombre de la clase sea exacto
-        login.setVisible(true);
-    }
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            // 2. Cerrar la ventana actual (Menú Principal)
+            this.dispose();
+
+            // 3. Abrir la ventana de Login
+            FrmLogin login = new FrmLogin(this, true); // Asegúrate que el nombre de la clase sea exacto
+            login.setVisible(true);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btnVentas2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVentas2ActionPerformed
-        jdVenta jdVenta = new jdVenta(this,true);
-       jdVenta.setVisible(true);
+        jdVenta jdVenta = new jdVenta(this, true);
+        jdVenta.setLocationRelativeTo(null);
+
+        jdVenta.setVisible(true);
     }//GEN-LAST:event_btnVentas2ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-       manVenta frm = new  manVenta(this,true);
-       frm.setVisible(true);
+        manVenta frm = new manVenta(this, true);
+        frm.setLocationRelativeTo(null);
+
+        frm.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-        mantUsuario manUs = new  mantUsuario(this,true);
-       manUs.setVisible(true);
+        mantUsuario manUs = new mantUsuario(this, true);
+        manUs.setVisible(true);
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        FrmLogin frm = new FrmLogin(this,true);
+        FrmLogin frm = new FrmLogin(this, true);
         frm.setLocationRelativeTo(this);
         frm.setVisible(true);
     }//GEN-LAST:event_formWindowOpened
@@ -858,6 +928,8 @@ private void mostrarHora() {
     private void mnuClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuClienteActionPerformed
         // TODO add your handling code here:
         ManCliente frm = new ManCliente(this, true);
+        frm.setLocationRelativeTo(null);
+
         frm.setVisible(true);
     }//GEN-LAST:event_mnuClienteActionPerformed
 
@@ -869,37 +941,37 @@ private void mostrarHora() {
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
-         jdReporteVentasPorProducto report = new jdReporteVentasPorProducto(this,true);
-         report.setVisible(true);
-         report.setLocationRelativeTo(this);
+        jdReporteVentasPorProducto report = new jdReporteVentasPorProducto(this, true);
+        report.setVisible(true);
+        report.setLocationRelativeTo(this);
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
     private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
-        jdReporteVentasPorCategoria report = new jdReporteVentasPorCategoria(this,true);
-         report.setVisible(true);
-         report.setLocationRelativeTo(this);
+        jdReporteVentasPorCategoria report = new jdReporteVentasPorCategoria(this, true);
+        report.setVisible(true);
+        report.setLocationRelativeTo(this);
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
     private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
-        jdReporteVentasPorLaboratorio report = new jdReporteVentasPorLaboratorio(this,true);
-         report.setVisible(true);
-         report.setLocationRelativeTo(this);
+        jdReporteVentasPorLaboratorio report = new jdReporteVentasPorLaboratorio(this, true);
+        report.setVisible(true);
+        report.setLocationRelativeTo(this);
     }//GEN-LAST:event_jMenuItem16ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-      final String INFO_FARMACIA = 
-        "Boticas Mi Salud\n\n" +
-        "Tu salud y bienestar son nuestra prioridad. Ofrecemos:\n" +
-        "- Medicamentos de calidad garantizada.\n" +
-        "- Atención farmacéutica especializada.";
-        
-    // 1. Llamada CORRECTA: No asignamos el resultado a ninguna variable.
-    JOptionPane.showMessageDialog(
-        this, 
-        INFO_FARMACIA, 
-        "Acerca de Boticas Mi Salud", 
-        JOptionPane.INFORMATION_MESSAGE
-    );
+        final String INFO_FARMACIA
+                = "Boticas Salud Vida\n\n"
+                + "Tu salud y bienestar son nuestra prioridad. Ofrecemos:\n"
+                + "- Medicamentos de calidad garantizada.\n"
+                + "- Atención farmacéutica especializada.";
+
+        // 1. Llamada CORRECTA: No asignamos el resultado a ninguna variable.
+        JOptionPane.showMessageDialog(
+                this,
+                INFO_FARMACIA,
+                "Acerca de Boticas Mi Salud",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
@@ -907,41 +979,53 @@ private void mostrarHora() {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        int opt = JOptionPane.showConfirmDialog(this,"¿Desea salir del sistema?","Confirmación de Cierre del Sistema", JOptionPane.YES_NO_OPTION);
-    if (opt==0){
-        System.exit(0);}
+        int opt = JOptionPane.showConfirmDialog(this, "¿Desea salir del sistema?", "Confirmación de Cierre del Sistema", JOptionPane.YES_NO_OPTION);
+        if (opt == 0) {
+            System.exit(0);
+        }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void rpLotesAVencerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rpLotesAVencerActionPerformed
-        jsLotesAVencer jdLotes = new jsLotesAVencer(null,true);
+        jsLotesAVencer jdLotes = new jsLotesAVencer(null, true);
+        jdLotes.setLocationRelativeTo(null);
+
         jdLotes.setVisible(true);
     }//GEN-LAST:event_rpLotesAVencerActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        jdReporteStockMin jdStockMin = new jdReporteStockMin(null,true);
+        jdReporteStockMin jdStockMin = new jdReporteStockMin(null, true);
+        jdStockMin.setLocationRelativeTo(null);
+
         jdStockMin.setVisible(true);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void rpProductosPorPresentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rpProductosPorPresentacionActionPerformed
-        jdReporteProductosPorPresentación jdProducPres= new jdReporteProductosPorPresentación(null,true);
+        jdReporteProductosPorPresentación jdProducPres = new jdReporteProductosPorPresentación(null, true);
+        jdProducPres.setLocationRelativeTo(null);
+
         jdProducPres.setVisible(true);
     }//GEN-LAST:event_rpProductosPorPresentacionActionPerformed
 
     private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
         // TODO add your handling code here:
-         jdReporteFrecuenciaCompraTipoCliente jdStockMin1 = new jdReporteFrecuenciaCompraTipoCliente(null,true);
+        jdReporteFrecuenciaCompraTipoCliente jdStockMin1 = new jdReporteFrecuenciaCompraTipoCliente(null, true);
+        jdStockMin1.setLocationRelativeTo(null);
+
         jdStockMin1.setVisible(true);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
         // TODO add your handling code here:
-         jdReporteProductosMenosVendidos jdStockMin22 = new jdReporteProductosMenosVendidos(null,true);
+        jdReporteProductosMenosVendidos jdStockMin22 = new jdReporteProductosMenosVendidos(null, true);
+        jdStockMin22.setLocationRelativeTo(null);
+
         jdStockMin22.setVisible(true);
     }//GEN-LAST:event_jMenuItem18ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         // TODO add your handling code here:
-        jdReporteVentasSexoEdad jdStockMin3 = new jdReporteVentasSexoEdad(null,true);
+        jdReporteVentasSexoEdad jdStockMin3 = new jdReporteVentasSexoEdad(null, true);
+        jdStockMin3.setLocationRelativeTo(null);
         jdStockMin3.setVisible(true);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
@@ -949,11 +1033,51 @@ private void mostrarHora() {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    private void jMenuItem19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem19ActionPerformed
+
+        jdReporte1 reporte = new jdReporte1(this, true);
+        reporte.setLocationRelativeTo(null);
+
+        reporte.setVisible(true);
+    }//GEN-LAST:event_jMenuItem19ActionPerformed
+
+    private void jMenuItem20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem20ActionPerformed
+        jdReporte3 reporte = new jdReporte3(this, true);
+        reporte.setLocationRelativeTo(null);
+        reporte.setVisible(true);
+    }//GEN-LAST:event_jMenuItem20ActionPerformed
+
+    private void jMenuItem21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem21ActionPerformed
+        jdReporte5 reporte = new jdReporte5(this, true);
+        reporte.setLocationRelativeTo(null);
+
+        reporte.setVisible(true);
+    }//GEN-LAST:event_jMenuItem21ActionPerformed
+
+    private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
+        jdReporte7 reporte = new jdReporte7(this, true);
+        reporte.setLocationRelativeTo(null);
+
+        reporte.setVisible(true);
+    }//GEN-LAST:event_jMenuItem22ActionPerformed
+
+    private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
+        jdReporte8 reporte = new jdReporte8(this, true);
+        reporte.setLocationRelativeTo(null);
+
+        reporte.setVisible(true);
+    }//GEN-LAST:event_jMenuItem23ActionPerformed
+
+    private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
+        jdReporte9 reporte = new jdReporte9(this, true);
+        reporte.setLocationRelativeTo(null);
+
+        reporte.setVisible(true);
+    }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClientes;
@@ -997,7 +1121,13 @@ private void mostrarHora() {
     private javax.swing.JMenuItem jMenuItem16;
     private javax.swing.JMenuItem jMenuItem17;
     private javax.swing.JMenuItem jMenuItem18;
+    private javax.swing.JMenuItem jMenuItem19;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem20;
+    private javax.swing.JMenuItem jMenuItem21;
+    private javax.swing.JMenuItem jMenuItem22;
+    private javax.swing.JMenuItem jMenuItem23;
+    private javax.swing.JMenuItem jMenuItem24;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;

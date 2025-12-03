@@ -42,6 +42,7 @@ public class FrmLogin extends javax.swing.JDialog {
         initComponents();
         generarCaptcha(this.txtPregunta);
         this.setLocationRelativeTo(null);
+        this.setTitle("Inicio de Sesion");
     }
 
     private static String generarCaptcha(JTextField txtPregunta) {
@@ -87,7 +88,7 @@ public class FrmLogin extends javax.swing.JDialog {
             }
         });
 
-        jPanel2.setBackground(new java.awt.Color(126, 214, 198));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel3.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel3.setText("Contraseña:");
@@ -179,7 +180,7 @@ public class FrmLogin extends javax.swing.JDialog {
                     .addComponent(btnCambiarCaptcha))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtRespuesta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
