@@ -64,70 +64,137 @@ ORDER BY
 		</band>
 	</title>
 	<pageHeader>
-		<band height="58" splitType="Stretch">
-			<textField>
-				<reportElement x="0" y="0" width="555" height="48" uuid="3d00b32f-3dab-41c8-a676-4384c0ba5034"/>
-				<textElement textAlignment="Justified">
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="273" height="17" uuid="6beccaf4-4dbc-4134-8e70-38f0c24b3ab7"/>
+				<textElement>
 					<font isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Reporte calculado desde el día " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaInicio}) + " hasta la fecha " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaFin})]]></textFieldExpression>
-			</textField>
+				<text><![CDATA[Elaborado por: Tiznado León Dana Mabel Yakori]]></text>
+			</staticText>
 		</band>
 	</pageHeader>
 	<columnHeader>
-		<band height="69" splitType="Stretch">
+		<band height="60" splitType="Stretch">
 			<staticText>
-				<reportElement x="15" y="49" width="100" height="20" uuid="b741e511-4674-4aa4-a66d-da48efa90f7e"/>
+				<reportElement x="0" y="36" width="100" height="20" uuid="b741e511-4674-4aa4-a66d-da48efa90f7e"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
 				<text><![CDATA[N° de lote]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="146" y="49" width="129" height="20" uuid="7875cab9-4229-495c-9072-44e79a5ad71f"/>
+				<reportElement x="102" y="36" width="221" height="20" uuid="7875cab9-4229-495c-9072-44e79a5ad71f"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
 				<text><![CDATA[Presentación del producto]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="301" y="49" width="100" height="20" uuid="80d0f5a8-b500-4c2a-835a-4d34094c1e0c"/>
+				<reportElement x="323" y="36" width="100" height="20" uuid="80d0f5a8-b500-4c2a-835a-4d34094c1e0c"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
 				<text><![CDATA[Stock]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="423" y="49" width="132" height="20" uuid="34652f96-4013-4cc7-95c6-d5e7881506f7"/>
+				<reportElement x="423" y="36" width="132" height="20" uuid="34652f96-4013-4cc7-95c6-d5e7881506f7"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
 				<text><![CDATA[Fecha de vencimiento:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="15" y="0" width="201" height="36" uuid="bce6d2b5-88b0-4564-b49e-9473860a9bd5"/>
+				<reportElement x="0" y="0" width="201" height="36" uuid="bce6d2b5-88b0-4564-b49e-9473860a9bd5"/>
 				<textElement>
-					<font size="24" isBold="true"/>
+					<font size="14" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
 			</textField>
+			<line>
+				<reportElement x="0" y="56" width="555" height="1" uuid="8246357b-4247-4b0b-8f44-0666f567518f"/>
+			</line>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="34" splitType="Stretch">
 			<textField>
-				<reportElement x="15" y="0" width="100" height="20" uuid="04cbaf48-3c62-46d9-9469-bfaa3bcf7ff1"/>
+				<reportElement x="0" y="0" width="100" height="20" uuid="04cbaf48-3c62-46d9-9469-bfaa3bcf7ff1"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{lotenum}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="146" y="0" width="100" height="20" uuid="f2da2d3a-488c-4f2e-9eda-cbb5ca8a7193"/>
+				<reportElement x="102" y="0" width="221" height="20" uuid="f2da2d3a-488c-4f2e-9eda-cbb5ca8a7193"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{prescompleta}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="301" y="0" width="100" height="20" uuid="ecb5aea2-793d-4505-bd9b-2a5f38a3b7fc"/>
+				<reportElement x="323" y="0" width="100" height="20" uuid="ecb5aea2-793d-4505-bd9b-2a5f38a3b7fc"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{stocklote}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="423" y="0" width="132" height="20" uuid="288235bc-4e47-4771-b16e-3c6a91d02a51"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{fechavenc}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
 	<columnFooter>
-		<band height="32" splitType="Stretch"/>
+		<band height="32" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="2" y="12" width="100" height="20" uuid="19d177e7-7a4c-4ea9-b1e7-a6a9a593f193"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="435" y="12" width="80" height="20" uuid="b5e1cc77-74a3-4f5e-b834-147a43243cce"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="12" width="40" height="20" uuid="c8a92f02-224f-402a-9a4d-9adaae75ea6d"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
 	</columnFooter>
 	<pageFooter>
-		<band height="54" splitType="Stretch"/>
+		<band height="10" splitType="Stretch"/>
 	</pageFooter>
 	<summary>
-		<band height="42" splitType="Stretch"/>
+		<band height="156" splitType="Stretch">
+			<barChart>
+				<chart>
+					<reportElement x="0" y="0" width="555" height="156" uuid="6dcfa019-703d-4fb8-9740-f5cdf6a3abd3"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["Stock"]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{lotenum}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{stocklote}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
 	</summary>
 </jasperReport>
